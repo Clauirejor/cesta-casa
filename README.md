@@ -140,7 +140,7 @@ Cuantos más tickets importéis los dos, más acertada será la recomendación. 
 
 ## Ofertas
 
-- **Búsqueda automática los lunes y jueves**: una tarea programada de Claude lee el folleto de Lidl (PDF) y las bajadas de precio que publica RadarSuper (Mercadona, Carrefour, Dia…), y guarda las ofertas en `precios/ofertas.json`. Aldi y Carrefour publican sus folletos como imágenes, así que de ellos solo salen las ofertas que aparezcan en prensa o webs.
+- **Búsqueda automática cada lunes** (a las 7:56): una tarea programada de Claude lee el folleto de Lidl (PDF) y las bajadas de precio que publica RadarSuper (Mercadona, Carrefour, Dia…), y guarda las ofertas en `precios/ofertas.json`. Aldi y Carrefour publican sus folletos como imágenes, así que de ellos solo salen las ofertas que aparezcan en prensa o webs.
 - En **Inicio** aparece una tarjeta con las ofertas de lo que soléis comprar, y en **Precios → Ofertas** está la lista completa con el % de descuento, la fecha de fin y **＋ Lista**.
 - **Añadir oferta**: para apuntar a mano una oferta del folleto o de la tienda. Cuenta en las comparaciones hasta que caduca.
 - Las ofertas cuentan en **¿Dónde compro?** mientras están vigentes.
