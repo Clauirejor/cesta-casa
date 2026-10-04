@@ -312,6 +312,21 @@
 {
 "nombre": "Canónigos",
 "categoria": "Frutas y verduras",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "Canónigos, 100 g",
+"formato": "100 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/canonigos-600007700.html",
+"q": 0.1,
+"base": "kg",
+"pu": 9.9
+},
+{
+"nombre": "Canónigos",
+"categoria": "Frutas y verduras",
 "super": "Carrefour",
 "precio": 1.21,
 "unidad": "ud",
@@ -502,6 +517,21 @@
 {
 "nombre": "Ensalada en bolsa",
 "categoria": "Frutas y verduras",
+"super": "Aldi",
+"precio": 0.95,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "Ensalada iceberg, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/ensalada-iceberg-315700.html",
+"q": 0.25,
+"base": "kg",
+"pu": 3.8
+},
+{
+"nombre": "Ensalada en bolsa",
+"categoria": "Frutas y verduras",
 "super": "Consum",
 "precio": 0.85,
 "unidad": "ud",
@@ -528,6 +558,21 @@
 "q": 0.3,
 "base": "kg",
 "pu": 4.33
+},
+{
+"nombre": "Espinacas",
+"categoria": "Frutas y verduras",
+"super": "Aldi",
+"precio": 1.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "Brotes de espinacas, 275 g",
+"formato": "275 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/brotes-de-espinacas-316100.html",
+"q": 0.275,
+"base": "kg",
+"pu": 5.42
 },
 {
 "nombre": "Espinacas",
@@ -600,6 +645,21 @@
 "q": 0.35,
 "base": "kg",
 "pu": 5.71
+},
+{
+"nombre": "Judías verdes",
+"categoria": "Frutas y verduras",
+"super": "Aldi",
+"precio": 1.05,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Judías verdes planas, 360 g",
+"formato": "360 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/judias-verdes-planas-504900.html",
+"q": 0.36,
+"base": "kg",
+"pu": 2.92
 },
 {
 "nombre": "Kiwi",
@@ -1431,6 +1491,36 @@
 "nota": "Puede incluir oferta"
 },
 {
+"nombre": "Almejas",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 1.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Almejas del Pacífico (congelado), 450 g",
+"formato": "450 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/almejas-del-pacifico-694000.html",
+"q": 0.45,
+"base": "kg",
+"pu": 4.42
+},
+{
+"nombre": "Atún fresco",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 5.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Filetes de atún (congelado), 360 g",
+"formato": "360 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/filetes-de-atun-819400.html",
+"q": 0.36,
+"base": "kg",
+"pu": 16.64
+},
+{
 "nombre": "Bacalao",
 "categoria": "Carnes y pescados",
 "super": "Mercadona",
@@ -1444,6 +1534,21 @@
 "q": 0.45,
 "base": "kg",
 "pu": 21.11
+},
+{
+"nombre": "Bacalao",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 7.65,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Porciones de bacalao (congelado), 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/porciones-de-bacalao-600109300.html",
+"q": 0.4,
+"base": "kg",
+"pu": 19.12
 },
 {
 "nombre": "Bacalao",
@@ -1683,6 +1788,21 @@
 {
 "nombre": "Dorada",
 "categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 4.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Filete de dorada (congelado), 180 g",
+"formato": "180 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/filete-de-dorada-601881100.html",
+"q": 0.18,
+"base": "kg",
+"pu": 24.94
+},
+{
+"nombre": "Dorada",
+"categoria": "Carnes y pescados",
 "super": "Carrefour",
 "precio": 5.37,
 "unidad": "ud",
@@ -1790,17 +1910,17 @@
 "nombre": "Langostinos",
 "categoria": "Carnes y pescados",
 "super": "Aldi",
-"precio": 3.49,
+"precio": 4.29,
 "unidad": "ud",
 "fecha": "2026-10-04",
-"producto": "Langostino cocido, 500 g",
-"formato": "500 g",
+"producto": "GOLDEN SEAFOOD Cola de langostino pelada (congelado), 220 g",
+"formato": "220 g",
 "fuente": "Web de Aldi",
-"url": "https://www.aldi.es/ofertas.html?cid=APP_aldi_es_stage",
+"url": "https://www.aldi.es/producto/cola-de-langostino-pelada-601874600.html",
 "nota": "Puede incluir oferta",
-"q": 0.5,
+"q": 0.22,
 "base": "kg",
-"pu": 6.98
+"pu": 19.5
 },
 {
 "nombre": "Langostinos",
@@ -1903,6 +2023,21 @@
 "url": "https://tienda.consum.es/es/c/frescos/pescaderia/pescado-blanco/4090"
 },
 {
+"nombre": "Mejillones",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 2.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Carne de mejillón (congelado), 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/carne-de-mejillon-601649700.html",
+"q": 0.25,
+"base": "kg",
+"pu": 9.4
+},
+{
 "nombre": "Merluza",
 "categoria": "Carnes y pescados",
 "super": "Mercadona",
@@ -1916,6 +2051,21 @@
 "q": 0.313,
 "base": "kg",
 "pu": 26.96
+},
+{
+"nombre": "Merluza",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 5.55,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Rodajas de merluza (congelado), 600 g",
+"formato": "600 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/rodajas-de-merluza-601643900.html",
+"q": 0.6,
+"base": "kg",
+"pu": 9.25
 },
 {
 "nombre": "Merluza",
@@ -2098,6 +2248,21 @@
 {
 "nombre": "Salchichas",
 "categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 1.73,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Salchichas frankfurt, 4 x 170 g",
+"formato": "4 x 170 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/salchichas-frankfurt-800800.html",
+"q": 0.68,
+"base": "kg",
+"pu": 2.54
+},
+{
+"nombre": "Salchichas",
+"categoria": "Carnes y pescados",
 "super": "Consum",
 "precio": 1.65,
 "unidad": "ud",
@@ -2124,6 +2289,21 @@
 "q": 0.85,
 "base": "kg",
 "pu": 19.0
+},
+{
+"nombre": "Salmón",
+"categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 7.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN SEAFOOD Filete de salmón sin piel (congelado), 375 g",
+"formato": "375 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/filete-de-salmon-sin-piel-601939800.html",
+"q": 0.375,
+"base": "kg",
+"pu": 21.31
 },
 {
 "nombre": "Salmón",
@@ -2200,6 +2380,21 @@
 {
 "nombre": "Sepia",
 "categoria": "Carnes y pescados",
+"super": "Aldi",
+"precio": 4.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Sepia limpia (congelado), 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/sepia-limpia-670900.html",
+"q": 0.4,
+"base": "kg",
+"pu": 12.47
+},
+{
+"nombre": "Sepia",
+"categoria": "Carnes y pescados",
 "super": "Consum",
 "precio": 8.26,
 "unidad": "ud",
@@ -2223,6 +2418,21 @@
 "q": 0.26,
 "base": "kg",
 "pu": 7.5
+},
+{
+"nombre": "Bacon",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.86,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Bacon ahumado, 2 x 125 g",
+"formato": "2 x 125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bacon-ahumado-803600.html",
+"q": 0.25,
+"base": "kg",
+"pu": 7.44
 },
 {
 "nombre": "Bacon",
@@ -2272,6 +2482,21 @@
 {
 "nombre": "Chorizo",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Chorizo extra loncheado, 240 g",
+"formato": "240 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/chorizo-extra-loncheado-601445700.html",
+"q": 0.24,
+"base": "kg",
+"pu": 7.29
+},
+{
+"nombre": "Chorizo",
+"categoria": "Charcutería y quesos",
 "super": "Consum",
 "precio": 2.49,
 "unidad": "ud",
@@ -2298,6 +2523,21 @@
 "q": 0.24,
 "base": "kg",
 "pu": 10.42
+},
+{
+"nombre": "Fuet",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Fuet extra, 175 g",
+"formato": "175 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/fuet-extra-814600.html",
+"q": 0.175,
+"base": "kg",
+"pu": 10.23
 },
 {
 "nombre": "Fuet",
@@ -2332,6 +2572,21 @@
 {
 "nombre": "Jamón cocido",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.95,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Jamón cocido extra, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/jamon-cocido-extra-601447200.html",
+"q": 0.2,
+"base": "kg",
+"pu": 9.75
+},
+{
+"nombre": "Jamón cocido",
+"categoria": "Charcutería y quesos",
 "super": "Consum",
 "precio": 2.05,
 "unidad": "ud",
@@ -2362,6 +2617,21 @@
 {
 "nombre": "Jamón serrano",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 2.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Jamón serrano, 180 g",
+"formato": "180 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/jamon-serrano-865600.html",
+"q": 0.18,
+"base": "kg",
+"pu": 16.61
+},
+{
+"nombre": "Jamón serrano",
+"categoria": "Charcutería y quesos",
 "super": "Consum",
 "precio": 2.99,
 "unidad": "ud",
@@ -2373,6 +2643,21 @@
 "q": 0.08,
 "base": "kg",
 "pu": 37.38
+},
+{
+"nombre": "Lomo embuchado",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 2.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Lomo embuchado, 2 x 75 g",
+"formato": "2 x 75 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/lomo-embuchado-601671100.html",
+"q": 0.15,
+"base": "kg",
+"pu": 16.6
 },
 {
 "nombre": "Lomo embuchado",
@@ -2405,6 +2690,21 @@
 "pu": 5.0
 },
 {
+"nombre": "Mortadela",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Mortadela de Bolonia, 150 g",
+"formato": "150 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mortadela-de-bolonia-79800.html",
+"q": 0.15,
+"base": "kg",
+"pu": 9.0
+},
+{
 "nombre": "Mozzarella",
 "categoria": "Charcutería y quesos",
 "super": "Mercadona",
@@ -2418,6 +2718,21 @@
 "q": 0.25,
 "base": "kg",
 "pu": 3.6
+},
+{
+"nombre": "Mozzarella",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 0.85,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Mozzarella, 125 g",
+"formato": "125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mozzarella-730200.html",
+"q": 0.125,
+"base": "kg",
+"pu": 6.8
 },
 {
 "nombre": "Mozzarella",
@@ -2452,6 +2767,22 @@
 {
 "nombre": "Parmesano",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 3.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA NOBILE Queso grana padano, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-grana-padano-600471400.html",
+"nota": "Puede incluir oferta",
+"q": 0.2,
+"base": "kg",
+"pu": 15.45
+},
+{
+"nombre": "Parmesano",
+"categoria": "Charcutería y quesos",
 "super": "Consum",
 "precio": 2.15,
 "unidad": "ud",
@@ -2479,6 +2810,21 @@
 "q": 0.4,
 "base": "kg",
 "pu": 8.62
+},
+{
+"nombre": "Pechuga de pavo",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 2.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Pechuga de pavo, 150 g",
+"formato": "150 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pechuga-de-pavo-57600.html",
+"q": 0.15,
+"base": "kg",
+"pu": 15.67
 },
 {
 "nombre": "Pechuga de pavo",
@@ -2547,17 +2893,17 @@
 "nombre": "Queso curado",
 "categoria": "Charcutería y quesos",
 "super": "Aldi",
-"precio": 3.59,
+"precio": 9.79,
 "unidad": "ud",
 "fecha": "2026-10-04",
-"producto": "PLENO SABOR Queso mezcla viejo, 250 g",
-"formato": "250 g",
+"producto": "LA TABLA Queso curado, 880 g",
+"formato": "880 g",
 "fuente": "Web de Aldi",
-"url": "https://www.aldi.es/ofertas.html?cid=APP_aldi_es_stage",
+"url": "https://www.aldi.es/producto/queso-curado-730800.html",
 "nota": "Puede incluir oferta",
-"q": 0.25,
+"q": 0.88,
 "base": "kg",
-"pu": 14.36
+"pu": 11.12
 },
 {
 "nombre": "Queso curado",
@@ -2571,6 +2917,21 @@
 "fuente": "Web de Consum",
 "url": "https://tienda.consum.es/es/c/frescos/quesos/cuna-curado/5200",
 "nota": "Puede incluir oferta"
+},
+{
+"nombre": "Queso de cabra",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 2.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Queso de cabra, 180 g",
+"formato": "180 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-de-cabra-731900.html",
+"q": 0.18,
+"base": "kg",
+"pu": 12.72
 },
 {
 "nombre": "Queso de cabra",
@@ -2601,6 +2962,21 @@
 "q": 0.3,
 "base": "kg",
 "pu": 4.67
+},
+{
+"nombre": "Queso de untar",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Queso cremoso para untar, 300 g",
+"formato": "300 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-cremoso-para-untar-737700.html",
+"q": 0.3,
+"base": "kg",
+"pu": 4.63
 },
 {
 "nombre": "Queso de untar",
@@ -2650,6 +3026,21 @@
 {
 "nombre": "Queso en lonchas",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.59,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Lonchas de queso de vaca, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/lonchas-de-queso-de-vaca-953400.html",
+"q": 0.2,
+"base": "kg",
+"pu": 7.95
+},
+{
+"nombre": "Queso en lonchas",
+"categoria": "Charcutería y quesos",
 "super": "Carrefour",
 "precio": 1.87,
 "unidad": "ud",
@@ -2691,6 +3082,21 @@
 "q": 0.25,
 "base": "kg",
 "pu": 6.4
+},
+{
+"nombre": "Queso fresco",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Queso fresco burgos, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-fresco-burgos-601416800.html",
+"q": 0.25,
+"base": "kg",
+"pu": 4.36
 },
 {
 "nombre": "Queso fresco",
@@ -2740,6 +3146,21 @@
 {
 "nombre": "Queso rallado",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.9,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Queso rallado especial para fundir, 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-rallado-especial-para-fundir-601415200.html",
+"q": 0.4,
+"base": "kg",
+"pu": 4.75
+},
+{
+"nombre": "Queso rallado",
+"categoria": "Charcutería y quesos",
 "super": "Carrefour",
 "precio": 2.05,
 "unidad": "ud",
@@ -2785,6 +3206,21 @@
 {
 "nombre": "Queso semicurado",
 "categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 2.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Queso semicurado, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/queso-semicurado-733000.html",
+"q": 0.2,
+"base": "kg",
+"pu": 11.45
+},
+{
+"nombre": "Queso semicurado",
+"categoria": "Charcutería y quesos",
 "super": "Consum",
 "precio": 5.25,
 "unidad": "ud",
@@ -2811,6 +3247,21 @@
 "q": 0.24,
 "base": "kg",
 "pu": 7.29
+},
+{
+"nombre": "Salchichón",
+"categoria": "Charcutería y quesos",
+"super": "Aldi",
+"precio": 1.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Salchichón de León extra, 100 g",
+"formato": "100 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/salchichon-de-leon-extra-807903.html",
+"q": 0.1,
+"base": "kg",
+"pu": 16.9
 },
 {
 "nombre": "Salchichón",
@@ -2843,6 +3294,21 @@
 "pu": 1.3
 },
 {
+"nombre": "Batidos",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.55,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Batido de chocolate, 6 x 200 ml",
+"formato": "6 x 200 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/batido-de-chocolate-601202000.html",
+"q": 1.2,
+"base": "l",
+"pu": 1.29
+},
+{
 "nombre": "Bebida de avena",
 "categoria": "Lácteos y huevos",
 "super": "Mercadona",
@@ -2856,6 +3322,21 @@
 "q": 1.0,
 "base": "l",
 "pu": 0.95
+},
+{
+"nombre": "Bebida de avena",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GUTBIO Bebida de avena ecológica, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bebida-de-avena-ecologica-381300.html",
+"q": 1.0,
+"base": "l",
+"pu": 1.69
 },
 {
 "nombre": "Bebida de avena",
@@ -2890,6 +3371,21 @@
 {
 "nombre": "Bebida de soja",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 0.62,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MYVAY Bebida de soja, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bebida-de-soja-380700.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.62
+},
+{
+"nombre": "Bebida de soja",
+"categoria": "Lácteos y huevos",
 "super": "Consum",
 "precio": 0.75,
 "unidad": "l",
@@ -2916,6 +3412,21 @@
 "q": 0.4,
 "base": "kg",
 "pu": 4.0
+},
+{
+"nombre": "Flan",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.55,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Flan de huevo, 4 x 100 g",
+"formato": "4 x 100 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/flan-de-huevo-686000.html",
+"q": 0.4,
+"base": "kg",
+"pu": 3.88
 },
 {
 "nombre": "Flan",
@@ -2981,6 +3492,19 @@
 {
 "nombre": "Kéfir",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GUTBIO Kéfir ecológico natural, 500 ml",
+"formato": "500 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/kefir-ecologico-natural-902701.html",
+"nota": "Puede incluir oferta"
+},
+{
+"nombre": "Kéfir",
+"categoria": "Lácteos y huevos",
 "super": "Carrefour",
 "precio": 1.1,
 "unidad": "ud",
@@ -3028,6 +3552,21 @@
 {
 "nombre": "Leche desnatada",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 0.82,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Leche desnatada, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/leche-desnatada-81000.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.82
+},
+{
+"nombre": "Leche desnatada",
+"categoria": "Lácteos y huevos",
 "super": "Carrefour",
 "precio": 0.82,
 "unidad": "l",
@@ -3066,6 +3605,21 @@
 "formato": "1 l",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/huevos-leche-y-mantequilla",
+"q": 1.0,
+"base": "l",
+"pu": 0.96
+},
+{
+"nombre": "Leche entera",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 0.96,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Leche entera, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/leche-entera-80000.html",
 "q": 1.0,
 "base": "l",
 "pu": 0.96
@@ -3144,6 +3698,21 @@
 "q": 1.0,
 "base": "l",
 "pu": 0.84
+},
+{
+"nombre": "Mantequilla",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 3.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BIO Mantequilla ecológica, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mantequilla-ecologica-733100.html",
+"q": 0.25,
+"base": "kg",
+"pu": 13.56
 },
 {
 "nombre": "Mantequilla",
@@ -3253,6 +3822,21 @@
 {
 "nombre": "Natillas",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Natillas de vainilla, 4 x 125 g",
+"formato": "4 x 125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/natillas-de-vainilla-209600.html",
+"q": 0.5,
+"base": "kg",
+"pu": 1.98
+},
+{
+"nombre": "Natillas",
+"categoria": "Lácteos y huevos",
 "super": "Consum",
 "precio": 1.19,
 "unidad": "ud",
@@ -3284,6 +3868,22 @@
 {
 "nombre": "Petit suisse",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.65,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Petit de sabores, 12x60 g",
+"formato": "12x60 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/petit-de-sabores-600508500.html",
+"nota": "Puede incluir oferta",
+"q": 0.72,
+"base": "kg",
+"pu": 2.29
+},
+{
+"nombre": "Petit suisse",
+"categoria": "Lácteos y huevos",
 "super": "Consum",
 "precio": 1.69,
 "unidad": "ud",
@@ -3311,6 +3911,21 @@
 "q": 0.75,
 "base": "kg",
 "pu": 1.93
+},
+{
+"nombre": "Yogur griego",
+"categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Yogur al estilo griego natural, 6 x 125 g",
+"formato": "6 x 125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/yogur-al-estilo-griego-natural-84200.html",
+"q": 0.75,
+"base": "kg",
+"pu": 1.85
 },
 {
 "nombre": "Yogur griego",
@@ -3360,6 +3975,21 @@
 {
 "nombre": "Yogur natural",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Yogur natural, 8 x 125 g",
+"formato": "8 x 125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/yogur-natural-952000.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.29
+},
+{
+"nombre": "Yogur natural",
+"categoria": "Lácteos y huevos",
 "super": "Carrefour",
 "precio": 1.4,
 "unidad": "ud",
@@ -3405,6 +4035,21 @@
 {
 "nombre": "Yogures de sabores",
 "categoria": "Lácteos y huevos",
+"super": "Aldi",
+"precio": 1.72,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MILSANI Yogur de sabores, 12 x 125 g",
+"formato": "12 x 125 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/yogur-de-sabores-681500.html",
+"q": 1.5,
+"base": "kg",
+"pu": 1.15
+},
+{
+"nombre": "Yogures de sabores",
+"categoria": "Lácteos y huevos",
 "super": "Carrefour",
 "precio": 0.99,
 "unidad": "ud",
@@ -3433,6 +4078,21 @@
 "pu": 1.5
 },
 {
+"nombre": "Biscotes",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 1.62,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Biscotes, 4 x 135 g",
+"formato": "4 x 135 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/biscotes-601724800.html",
+"q": 0.54,
+"base": "kg",
+"pu": 3.0
+},
+{
 "nombre": "Bizcocho",
 "categoria": "Panadería",
 "super": "Mercadona",
@@ -3446,6 +4106,21 @@
 "q": 0.8,
 "base": "kg",
 "pu": 4.38
+},
+{
+"nombre": "Bizcocho",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 2.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Bizcocho sabor yogur, 350 g",
+"formato": "350 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bizcocho-sabor-yogur-236405.html",
+"q": 0.35,
+"base": "kg",
+"pu": 6.71
 },
 {
 "nombre": "Croissants",
@@ -3463,6 +4138,21 @@
 "pu": 4.3
 },
 {
+"nombre": "Croissants",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 1.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Croissants, 350 g",
+"formato": "350 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/croissants-600120200.html",
+"q": 0.35,
+"base": "kg",
+"pu": 4.14
+},
+{
 "nombre": "Magdalenas",
 "categoria": "Panadería",
 "super": "Mercadona",
@@ -3476,6 +4166,21 @@
 "q": 0.55,
 "base": "kg",
 "pu": 3.64
+},
+{
+"nombre": "Magdalenas",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 2.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Magdalenas valencianas, 700 g",
+"formato": "700 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/magdalenas-valencianas-601693900.html",
+"q": 0.7,
+"base": "kg",
+"pu": 3.41
 },
 {
 "nombre": "Pan de barra",
@@ -3512,17 +4217,17 @@
 "nombre": "Pan de hamburguesa",
 "categoria": "Panadería",
 "super": "Aldi",
-"precio": 1.29,
+"precio": 0.79,
 "unidad": "ud",
 "fecha": "2026-10-04",
-"producto": "TRADER JOE'S Pan brioche para burger, 340 g",
-"formato": "340 g",
+"producto": "EL HORNO Pan maxi hamburguesa, 4 x 75 g",
+"formato": "4 x 75 g",
 "fuente": "Web de Aldi",
-"url": "https://www.aldi.es/ofertas.html?cid=APP_aldi_es_stage",
+"url": "https://www.aldi.es/producto/pan-maxi-hamburguesa-565400.html",
 "nota": "Puede incluir oferta",
-"q": 0.34,
+"q": 0.3,
 "base": "kg",
-"pu": 3.79
+"pu": 2.63
 },
 {
 "nombre": "Pan de molde",
@@ -3540,6 +4245,21 @@
 "pu": 1.74
 },
 {
+"nombre": "Pan de molde",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Pan de molde blanco, 820 g",
+"formato": "820 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pan-de-molde-blanco-249200.html",
+"q": 0.82,
+"base": "kg",
+"pu": 1.33
+},
+{
 "nombre": "Pan integral",
 "categoria": "Panadería",
 "super": "Mercadona",
@@ -3553,6 +4273,21 @@
 "q": 0.23,
 "base": "kg",
 "pu": 3.91
+},
+{
+"nombre": "Pan integral",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 1.12,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Pan de molde integral, 820 g",
+"formato": "820 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pan-de-molde-integral-647600.html",
+"q": 0.82,
+"base": "kg",
+"pu": 1.37
 },
 {
 "nombre": "Pan tostado",
@@ -3585,6 +4320,21 @@
 "pu": 3.2
 },
 {
+"nombre": "Picos",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 0.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Picos de pan, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/picos-de-pan-245401.html",
+"q": 0.25,
+"base": "kg",
+"pu": 2.76
+},
+{
 "nombre": "Tortillas de trigo",
 "categoria": "Panadería",
 "super": "Mercadona",
@@ -3600,6 +4350,21 @@
 "pu": 3.19
 },
 {
+"nombre": "Tortillas de trigo",
+"categoria": "Panadería",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL HORNO Tortillas de trigo, 320 g",
+"formato": "320 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tortillas-de-trigo-231000.html",
+"q": 0.32,
+"base": "kg",
+"pu": 2.78
+},
+{
 "nombre": "Alubias",
 "categoria": "Pasta, arroz y legumbres",
 "super": "Mercadona",
@@ -3613,6 +4378,21 @@
 "q": 1.0,
 "base": "kg",
 "pu": 3.0
+},
+{
+"nombre": "Alubias",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 2.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL CULTIVADOR Alubias blancas extra, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/alubias-blancas-extra-500400.html",
+"q": 1.0,
+"base": "kg",
+"pu": 2.39
 },
 {
 "nombre": "Alubias",
@@ -3647,6 +4427,21 @@
 {
 "nombre": "Arroz basmati",
 "categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 1.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Arroz basmati, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/arroz-basmati-246400.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.89
+},
+{
+"nombre": "Arroz basmati",
+"categoria": "Pasta, arroz y legumbres",
 "super": "Consum",
 "precio": 2.1,
 "unidad": "ud",
@@ -3673,6 +4468,21 @@
 "q": 1.0,
 "base": "kg",
 "pu": 1.2
+},
+{
+"nombre": "Arroz largo",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 1.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BON-RI Arroz vaporizado, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/arroz-vaporizado-246500.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.35
 },
 {
 "nombre": "Arroz largo",
@@ -3780,6 +4590,21 @@
 "pu": 1.8
 },
 {
+"nombre": "Caldo de verduras",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Caldo de verdura, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/caldo-de-verdura-538600.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.89
+},
+{
 "nombre": "Cuscús",
 "categoria": "Pasta, arroz y legumbres",
 "super": "Mercadona",
@@ -3820,6 +4645,21 @@
 "formato": "1 kg",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/arroz-legumbres-y-pasta",
+"q": 1.0,
+"base": "kg",
+"pu": 1.15
+},
+{
+"nombre": "Espaguetis",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 1.15,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Spaghetti, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/spaghetti-793700.html",
 "q": 1.0,
 "base": "kg",
 "pu": 1.15
@@ -3904,6 +4744,21 @@
 {
 "nombre": "Garbanzos",
 "categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 2.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL CULTIVADOR Garbanzo extra, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/garbanzo-extra-500000.html",
+"q": 1.0,
+"base": "kg",
+"pu": 2.09
+},
+{
+"nombre": "Garbanzos",
+"categoria": "Pasta, arroz y legumbres",
 "super": "Carrefour",
 "precio": 0.9,
 "unidad": "ud",
@@ -3945,6 +4800,21 @@
 "q": 0.57,
 "base": "kg",
 "pu": 1.4
+},
+{
+"nombre": "Garbanzos cocidos",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Garbanzos cocidos extra, 400 g peso esc.",
+"formato": "400 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/garbanzos-cocidos-extra-501000.html",
+"q": 0.4,
+"base": "kg",
+"pu": 1.88
 },
 {
 "nombre": "Garbanzos cocidos",
@@ -3994,6 +4864,21 @@
 {
 "nombre": "Harina",
 "categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Harina de trigo, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/harina-de-trigo-70000.html",
+"q": 1.0,
+"base": "kg",
+"pu": 0.69
+},
+{
+"nombre": "Harina",
+"categoria": "Pasta, arroz y legumbres",
 "super": "Carrefour",
 "precio": 0.72,
 "unidad": "kg",
@@ -4020,6 +4905,21 @@
 "q": 0.2,
 "base": "kg",
 "pu": 8.25
+},
+{
+"nombre": "Lasaña (placas)",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 1.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Placas para lasaña, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/placas-para-lasana-601594500.html",
+"q": 0.5,
+"base": "kg",
+"pu": 2.58
 },
 {
 "nombre": "Lentejas",
@@ -4114,6 +5014,21 @@
 {
 "nombre": "Macarrones",
 "categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Macarrón rayado, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/macarron-rayado-558000.html",
+"q": 0.5,
+"base": "kg",
+"pu": 1.5
+},
+{
+"nombre": "Macarrones",
+"categoria": "Pasta, arroz y legumbres",
 "super": "Carrefour",
 "precio": 1.1,
 "unidad": "ud",
@@ -4157,6 +5072,21 @@
 "pu": 1.13
 },
 {
+"nombre": "Pan rallado",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.78,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Pan rallado, 750 g",
+"formato": "750 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pan-rallado-601517600.html",
+"q": 0.75,
+"base": "kg",
+"pu": 1.04
+},
+{
 "nombre": "Puré de patata",
 "categoria": "Pasta, arroz y legumbres",
 "super": "Mercadona",
@@ -4170,6 +5100,21 @@
 "q": 0.5,
 "base": "kg",
 "pu": 4.0
+},
+{
+"nombre": "Quinoa",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 2.15,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Quinoa blanca, 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/quinoa-blanca-601218700.html",
+"q": 0.4,
+"base": "kg",
+"pu": 5.37
 },
 {
 "nombre": "Quinoa",
@@ -4215,6 +5160,21 @@
 "q": 0.5,
 "base": "kg",
 "pu": 1.6
+},
+{
+"nombre": "Tallarines",
+"categoria": "Pasta, arroz y legumbres",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Tallarines, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tallarines-600005700.html",
+"q": 0.5,
+"base": "kg",
+"pu": 1.5
 },
 {
 "nombre": "Tallarines",
@@ -4294,6 +5254,21 @@
 {
 "nombre": "Aceite de oliva",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 3.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "OLEARIA DEL OLIVAR Aceite de oliva suave, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/aceite-de-oliva-suave-110500.html",
+"q": 1.0,
+"base": "l",
+"pu": 3.69
+},
+{
+"nombre": "Aceite de oliva",
+"categoria": "Aceites, salsas y especias",
 "super": "Carrefour",
 "precio": 5.75,
 "unidad": "l",
@@ -4332,6 +5307,21 @@
 "formato": "1 l",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/aceite-especias-y-salsas",
+"q": 1.0,
+"base": "l",
+"pu": 4.45
+},
+{
+"nombre": "Aceite de oliva virgen extra",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 4.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "OLEARIA DEL OLIVAR Aceite de oliva virgen extra, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/aceite-de-oliva-virgen-extra-110100.html",
 "q": 1.0,
 "base": "l",
 "pu": 4.45
@@ -4397,6 +5387,21 @@
 "pu": 12.29
 },
 {
+"nombre": "Avecrem",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Pastillas de caldo de pollo, 12 x 10 g",
+"formato": "12 x 10 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pastillas-de-caldo-de-pollo-257001.html",
+"q": 0.12,
+"base": "kg",
+"pu": 6.58
+},
+{
 "nombre": "Colorante alimentario",
 "categoria": "Aceites, salsas y especias",
 "super": "Mercadona",
@@ -4410,6 +5415,21 @@
 "q": 0.085,
 "base": "kg",
 "pu": 11.18
+},
+{
+"nombre": "Colorante alimentario",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.67,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Colorante alimentario, 60 g",
+"formato": "60 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/colorante-alimentario-316800.html",
+"q": 0.06,
+"base": "kg",
+"pu": 11.17
 },
 {
 "nombre": "Colorante alimentario",
@@ -4444,6 +5464,21 @@
 {
 "nombre": "Comino",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Comino molido, 45 g",
+"formato": "45 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/comino-molido-897000.html",
+"q": 0.045,
+"base": "kg",
+"pu": 19.78
+},
+{
+"nombre": "Comino",
+"categoria": "Aceites, salsas y especias",
 "super": "Consum",
 "precio": 2.39,
 "unidad": "ud",
@@ -4474,6 +5509,21 @@
 {
 "nombre": "Curry",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Curry, 45 g",
+"formato": "45 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/curry-958800.html",
+"q": 0.045,
+"base": "kg",
+"pu": 15.33
+},
+{
+"nombre": "Curry",
+"categoria": "Aceites, salsas y especias",
 "super": "Consum",
 "precio": 2.59,
 "unidad": "ud",
@@ -4500,6 +5550,21 @@
 "q": 0.6,
 "base": "kg",
 "pu": 1.75
+},
+{
+"nombre": "Ketchup",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.95,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Kétchup, 560 g",
+"formato": "560 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/ketchup-252500.html",
+"q": 0.56,
+"base": "kg",
+"pu": 1.7
 },
 {
 "nombre": "Laurel",
@@ -4549,6 +5614,21 @@
 {
 "nombre": "Mayonesa",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.32,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Mayonesa, 475 ml",
+"formato": "475 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mayonesa-765800.html",
+"q": 0.475,
+"base": "l",
+"pu": 2.78
+},
+{
+"nombre": "Mayonesa",
+"categoria": "Aceites, salsas y especias",
 "super": "Consum",
 "precio": 2.95,
 "unidad": "ud",
@@ -4579,6 +5659,21 @@
 {
 "nombre": "Mostaza",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Mostaza de dijon, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mostaza-de-dijon-256301.html",
+"q": 0.2,
+"base": "kg",
+"pu": 5.45
+},
+{
+"nombre": "Mostaza",
+"categoria": "Aceites, salsas y especias",
 "super": "Consum",
 "precio": 3.69,
 "unidad": "ud",
@@ -4605,6 +5700,21 @@
 "q": 0.025,
 "base": "kg",
 "pu": 40.0
+},
+{
+"nombre": "Orégano",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.0,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Orégano, 12 g",
+"formato": "12 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/oregano-601811701.html",
+"q": 0.012,
+"base": "kg",
+"pu": 83.33
 },
 {
 "nombre": "Orégano",
@@ -4652,6 +5762,21 @@
 "pu": 10.26
 },
 {
+"nombre": "Pesto",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.85,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Pesto alla genovese, 190 g",
+"formato": "190 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pesto-alla-genovese-261403.html",
+"q": 0.19,
+"base": "kg",
+"pu": 9.74
+},
+{
 "nombre": "Pimentón",
 "categoria": "Aceites, salsas y especias",
 "super": "Mercadona",
@@ -4665,6 +5790,21 @@
 "q": 0.075,
 "base": "kg",
 "pu": 17.33
+},
+{
+"nombre": "Pimentón",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.19,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Pimentón dulce, 50 g kilo",
+"formato": "50 g kilo",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pimenton-dulce-601613300.html",
+"q": 0.05,
+"base": "kg",
+"pu": 23.8
 },
 {
 "nombre": "Pimentón",
@@ -4711,6 +5851,22 @@
 "q": 0.07,
 "base": "kg",
 "pu": 18.57
+},
+{
+"nombre": "Pimienta",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LE GUSTO Pimienta negra molida, 50 g",
+"formato": "50 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pimienta-negra-molida-870700.html",
+"nota": "Puede incluir oferta",
+"q": 0.05,
+"base": "kg",
+"pu": 15.0
 },
 {
 "nombre": "Pimienta",
@@ -4762,6 +5918,21 @@
 {
 "nombre": "Sal",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.38,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Sal marina  fina yodada, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/sal-marina-fina-yodada-250600.html",
+"q": 1.0,
+"base": "kg",
+"pu": 0.38
+},
+{
+"nombre": "Sal",
+"categoria": "Aceites, salsas y especias",
 "super": "Consum",
 "precio": 0.4,
 "unidad": "ud",
@@ -4805,6 +5976,21 @@
 "pu": 4.8
 },
 {
+"nombre": "Salsa de soja",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 1.15,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ASIA GREEN GARDEN Salsa de soja, 250 ml",
+"formato": "250 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/salsa-de-soja-481500.html",
+"q": 0.25,
+"base": "l",
+"pu": 4.6
+},
+{
 "nombre": "Tomate frito",
 "categoria": "Aceites, salsas y especias",
 "super": "Mercadona",
@@ -4818,6 +6004,21 @@
 "q": 0.56,
 "base": "kg",
 "pu": 1.61
+},
+{
+"nombre": "Tomate frito",
+"categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.76,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Tomate frito, 550 g",
+"formato": "550 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tomate-frito-506400.html",
+"q": 0.55,
+"base": "kg",
+"pu": 1.38
 },
 {
 "nombre": "Tomate frito",
@@ -4867,6 +6068,21 @@
 {
 "nombre": "Tomate triturado",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.47,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Tomate triturado, 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tomate-triturado-600536800.html",
+"q": 0.4,
+"base": "kg",
+"pu": 1.17
+},
+{
+"nombre": "Tomate triturado",
+"categoria": "Aceites, salsas y especias",
 "super": "Carrefour",
 "precio": 0.53,
 "unidad": "ud",
@@ -4912,6 +6128,21 @@
 {
 "nombre": "Vinagre",
 "categoria": "Aceites, salsas y especias",
+"super": "Aldi",
+"precio": 0.62,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Vinagre de vino blanco, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/vinagre-de-vino-blanco-250000.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.62
+},
+{
+"nombre": "Vinagre",
+"categoria": "Aceites, salsas y especias",
 "super": "Carrefour",
 "precio": 0.62,
 "unidad": "ud",
@@ -4953,6 +6184,21 @@
 "q": 0.35,
 "base": "kg",
 "pu": 3.0
+},
+{
+"nombre": "Aceitunas",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 1.65,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "EL CULTIVADOR Aceitunas rellenas de anchoa, 3 x 50 g peso esc.",
+"formato": "3 x 50 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/aceitunas-rellenas-de-anchoa-510300.html",
+"q": 0.15,
+"base": "kg",
+"pu": 11.0
 },
 {
 "nombre": "Alcachofas en conserva",
@@ -5002,6 +6248,21 @@
 {
 "nombre": "Atún en lata",
 "categoria": "Conservas",
+"super": "Aldi",
+"precio": 2.19,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "SAL DE PLATA Atún claro en aceite de girasol, 3x52 g peso esc.",
+"formato": "3x52 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/atun-claro-en-aceite-de-girasol-600772200.html",
+"q": 0.156,
+"base": "kg",
+"pu": 14.04
+},
+{
+"nombre": "Atún en lata",
+"categoria": "Conservas",
 "super": "Carrefour",
 "precio": 3.75,
 "unidad": "ud",
@@ -5013,6 +6274,21 @@
 "q": 0.052,
 "base": "kg",
 "pu": 72.12
+},
+{
+"nombre": "Berberechos",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 3.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "SAL DE PLATA Berberechos al natural, 63 g peso esc.",
+"formato": "63 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/berberechos-al-natural-662600.html",
+"q": 0.063,
+"base": "kg",
+"pu": 49.05
 },
 {
 "nombre": "Espárragos",
@@ -5028,6 +6304,21 @@
 "q": 0.31,
 "base": "kg",
 "pu": 10.48
+},
+{
+"nombre": "Espárragos",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 1.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Espárragos blancos, 205 g peso esc.",
+"formato": "205 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/esparragos-blancos-503400.html",
+"q": 0.205,
+"base": "kg",
+"pu": 9.71
 },
 {
 "nombre": "Espárragos",
@@ -5107,6 +6398,21 @@
 {
 "nombre": "Mejillones en escabeche",
 "categoria": "Conservas",
+"super": "Aldi",
+"precio": 2.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "SAL DE PLATA Mejillones en escabeche, 3 x 43 g peso esc.",
+"formato": "3 x 43 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mejillones-en-escabeche-843500.html",
+"q": 0.129,
+"base": "kg",
+"pu": 17.75
+},
+{
+"nombre": "Mejillones en escabeche",
+"categoria": "Conservas",
 "super": "Consum",
 "precio": 2.49,
 "unidad": "ud",
@@ -5148,6 +6454,21 @@
 "q": 0.16,
 "base": "kg",
 "pu": 6.88
+},
+{
+"nombre": "Paté",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA TABLA Paté de cerdo a la pimienta, 160 g",
+"formato": "160 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pate-de-cerdo-a-la-pimienta-601352501.html",
+"q": 0.16,
+"base": "kg",
+"pu": 6.81
 },
 {
 "nombre": "Paté",
@@ -5195,6 +6516,21 @@
 "pu": 3.45
 },
 {
+"nombre": "Pepinillos",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 1.59,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Pepinillos agridulces, 360 g peso esc.",
+"formato": "360 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pepinillos-agridulces-510000.html",
+"q": 0.36,
+"base": "kg",
+"pu": 4.42
+},
+{
 "nombre": "Pimientos del piquillo",
 "categoria": "Conservas",
 "super": "Mercadona",
@@ -5208,6 +6544,21 @@
 "q": 0.34,
 "base": "kg",
 "pu": 4.26
+},
+{
+"nombre": "Pimientos del piquillo",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Pimientos del piquillo, 225 g peso esc.",
+"formato": "225 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pimientos-del-piquillo-504700.html",
+"q": 0.225,
+"base": "kg",
+"pu": 4.4
 },
 {
 "nombre": "Pimientos del piquillo",
@@ -5238,6 +6589,22 @@
 "q": 0.225,
 "base": "kg",
 "pu": 5.29
+},
+{
+"nombre": "Sardinas en lata",
+"categoria": "Conservas",
+"super": "Aldi",
+"precio": 2.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "SAL DE PLATA Sardinas en aceite de oliva, 2 x 84 g peso esc.",
+"formato": "2 x 84 g peso esc.",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/sardinas-en-aceite-de-oliva-601874700.html",
+"nota": "Puede incluir oferta",
+"q": 0.168,
+"base": "kg",
+"pu": 16.37
 },
 {
 "nombre": "Sardinas en lata",
@@ -5301,6 +6668,21 @@
 "pu": 10.36
 },
 {
+"nombre": "Barritas de cereales",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.48,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN BRIDGE Barritas de cereales con chocolate, 126 g",
+"formato": "126 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/barritas-de-cereales-con-chocolate-600761401.html",
+"q": 0.126,
+"base": "kg",
+"pu": 11.75
+},
+{
 "nombre": "Cacao en polvo",
 "categoria": "Desayuno y dulces",
 "super": "Mercadona",
@@ -5314,6 +6696,21 @@
 "q": 0.4,
 "base": "kg",
 "pu": 4.62
+},
+{
+"nombre": "Cacao en polvo",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 4.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CHOCEUR Cacao soluble, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cacao-soluble-601872800.html",
+"q": 1.0,
+"base": "kg",
+"pu": 4.79
 },
 {
 "nombre": "Cacao en polvo",
@@ -5341,6 +6738,21 @@
 "formato": "0.112 kg",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/cacao-cafe-e-infusiones"
+},
+{
+"nombre": "Café en cápsulas",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 3.65,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BARISSIMO Cápsulas de café espresso, 20 cápsulas",
+"formato": "20 cápsulas",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/capsulas-de-cafe-espresso-600601901.html",
+"q": 20.0,
+"base": "ud",
+"pu": 0.1825
 },
 {
 "nombre": "Café en cápsulas",
@@ -5387,6 +6799,22 @@
 "q": 0.25,
 "base": "kg",
 "pu": 10.0
+},
+{
+"nombre": "Café molido",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 3.25,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BARISSIMO Café molido Gold, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cafe-molido-gold-601790100.html",
+"nota": "Puede incluir oferta",
+"q": 0.25,
+"base": "kg",
+"pu": 13.0
 },
 {
 "nombre": "Café molido",
@@ -5439,6 +6867,22 @@
 {
 "nombre": "Café soluble",
 "categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 3.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BARISSIMO Café soluble, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cafe-soluble-411000.html",
+"nota": "Puede incluir oferta",
+"q": 0.2,
+"base": "kg",
+"pu": 18.95
+},
+{
+"nombre": "Café soluble",
+"categoria": "Desayuno y dulces",
 "super": "Consum",
 "precio": 4.75,
 "unidad": "ud",
@@ -5467,6 +6911,22 @@
 "q": 0.4,
 "base": "kg",
 "pu": 4.5
+},
+{
+"nombre": "Cereales",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN BRIDGE Copos de maíz, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/copos-de-maiz-600375100.html",
+"nota": "Puede incluir oferta",
+"q": 0.5,
+"base": "kg",
+"pu": 2.9
 },
 {
 "nombre": "Cereales",
@@ -5516,6 +6976,21 @@
 "pu": 13.0
 },
 {
+"nombre": "Chocolate",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CHOCEUR Chocolate negro 55% cacao, 100 g",
+"formato": "100 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/chocolate-negro-55percent-cacao-600340200.html",
+"q": 0.1,
+"base": "kg",
+"pu": 9.9
+},
+{
 "nombre": "Chucherías",
 "categoria": "Desayuno y dulces",
 "super": "Mercadona",
@@ -5545,6 +7020,22 @@
 "q": 0.8,
 "base": "kg",
 "pu": 1.62
+},
+{
+"nombre": "Copos de avena",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GOLDEN BRIDGE Copos de avena integral, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/copos-de-avena-integral-273600.html",
+"nota": "Puede incluir oferta",
+"q": 0.5,
+"base": "kg",
+"pu": 1.5
 },
 {
 "nombre": "Copos de avena",
@@ -5596,6 +7087,21 @@
 {
 "nombre": "Crema de cacao",
 "categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 2.11,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "DELINUT Crema de cacao y avellanas, 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/crema-de-cacao-y-avellanas-601770000.html",
+"q": 0.4,
+"base": "kg",
+"pu": 5.27
+},
+{
+"nombre": "Crema de cacao",
+"categoria": "Desayuno y dulces",
 "super": "Consum",
 "precio": 1.95,
 "unidad": "ud",
@@ -5619,6 +7125,18 @@
 "formato": "0.15 l",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/azucar-caramelos-y-chocolate"
+},
+{
+"nombre": "Edulcorante",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LA VILLA Edulcorante en pastillas, 1200 uds",
+"formato": "1200 uds",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/edulcorante-en-pastillas-380000.html"
 },
 {
 "nombre": "Edulcorante",
@@ -5651,6 +7169,21 @@
 "pu": 5.33
 },
 {
+"nombre": "Frutos secos",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 2.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "TRADER JOE'S Mix natural de frutos secos, 200 g",
+"formato": "200 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mix-natural-de-frutos-secos-601204800.html",
+"q": 0.2,
+"base": "kg",
+"pu": 12.45
+},
+{
 "nombre": "Galletas",
 "categoria": "Desayuno y dulces",
 "super": "Mercadona",
@@ -5665,6 +7198,22 @@
 "q": 0.425,
 "base": "kg",
 "pu": 2.35
+},
+{
+"nombre": "Galletas",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BISCOTTO Galletas digestive, 2 x 400 g",
+"formato": "2 x 400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/galletas-digestive-181200.html",
+"nota": "Puede incluir oferta",
+"q": 0.8,
+"base": "kg",
+"pu": 1.86
 },
 {
 "nombre": "Galletas",
@@ -5716,6 +7265,21 @@
 {
 "nombre": "Galletas María",
 "categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BISCOTTO Galletas María Dorada, 800 g",
+"formato": "800 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/galletas-maria-dorada-181100.html",
+"q": 0.8,
+"base": "kg",
+"pu": 1.61
+},
+{
+"nombre": "Galletas María",
+"categoria": "Desayuno y dulces",
 "super": "Carrefour",
 "precio": 1.35,
 "unidad": "ud",
@@ -5739,6 +7303,21 @@
 "formato": "0.027 kg",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/cacao-cafe-e-infusiones"
+},
+{
+"nombre": "Infusiones",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 0.74,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "WESTMINSTER Infusión manzanilla, 25 bolsitas",
+"formato": "25 bolsitas",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/infusion-manzanilla-420000.html",
+"q": 25.0,
+"base": "ud",
+"pu": 0.0296
 },
 {
 "nombre": "Infusiones",
@@ -5773,6 +7352,21 @@
 {
 "nombre": "Mermelada",
 "categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 1.31,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "GRANDESSA Mermelada extra de fresa, 450 g",
+"formato": "450 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mermelada-extra-de-fresa-601831000.html",
+"q": 0.45,
+"base": "kg",
+"pu": 2.91
+},
+{
+"nombre": "Mermelada",
+"categoria": "Desayuno y dulces",
 "super": "Consum",
 "precio": 1.48,
 "unidad": "ud",
@@ -5799,6 +7393,21 @@
 "q": 1.0,
 "base": "kg",
 "pu": 5.0
+},
+{
+"nombre": "Miel",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 4.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BIO Miel líquida ecológica, 500 g",
+"formato": "500 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/miel-liquida-ecologica-360001.html",
+"q": 0.5,
+"base": "kg",
+"pu": 9.98
 },
 {
 "nombre": "Miel",
@@ -5850,17 +7459,17 @@
 "nombre": "Patatas fritas",
 "categoria": "Desayuno y dulces",
 "super": "Aldi",
-"precio": 1.59,
+"precio": 1.09,
 "unidad": "ud",
 "fecha": "2026-10-04",
-"producto": "SUN SNACKS Patatas fritas al perol, 2 x 150 g",
-"formato": "2 x 150 g",
+"producto": "SUN SNACKS Patatas fritas extracrujientes, 150 g",
+"formato": "150 g",
 "fuente": "Web de Aldi",
-"url": "https://www.aldi.es/ofertas.html?cid=APP_aldi_es_stage",
+"url": "https://www.aldi.es/producto/patatas-fritas-extracrujientes-600310900.html",
 "nota": "Puede incluir oferta",
-"q": 0.3,
+"q": 0.15,
 "base": "kg",
-"pu": 5.3
+"pu": 7.27
 },
 {
 "nombre": "Patatas fritas",
@@ -5894,6 +7503,21 @@
 "pu": 8.87
 },
 {
+"nombre": "Tostadas de arroz",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "BISCOTTO Tortitas de arroz con sal, 130 g",
+"formato": "130 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tortitas-de-arroz-con-sal-261100.html",
+"q": 0.13,
+"base": "kg",
+"pu": 7.62
+},
+{
 "nombre": "Té",
 "categoria": "Desayuno y dulces",
 "super": "Mercadona",
@@ -5904,6 +7528,21 @@
 "formato": "0.03 kg",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/cacao-cafe-e-infusiones"
+},
+{
+"nombre": "Té",
+"categoria": "Desayuno y dulces",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "WESTMINSTER Té verde, 25 bolsitas",
+"formato": "25 bolsitas",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/te-verde-421901.html",
+"q": 25.0,
+"base": "ud",
+"pu": 0.0356
 },
 {
 "nombre": "Té",
@@ -5939,6 +7578,22 @@
 {
 "nombre": "Croquetas",
 "categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Croquetas de jamón ibérico, 400 g",
+"formato": "400 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/croquetas-de-jamon-iberico-820902.html",
+"nota": "Puede incluir oferta",
+"q": 0.4,
+"base": "kg",
+"pu": 4.97
+},
+{
+"nombre": "Croquetas",
+"categoria": "Congelados",
 "super": "Consum",
 "precio": 3.49,
 "unidad": "ud",
@@ -5968,6 +7623,21 @@
 "pu": 3.8
 },
 {
+"nombre": "Empanadillas",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Empanadillas de atún y bonito, 250 g",
+"formato": "250 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/empanadillas-de-atun-y-bonito-821900.html",
+"q": 0.25,
+"base": "kg",
+"pu": 3.56
+},
+{
 "nombre": "Guisantes congelados",
 "categoria": "Congelados",
 "super": "Mercadona",
@@ -5981,6 +7651,21 @@
 "q": 1.0,
 "base": "kg",
 "pu": 1.5
+},
+{
+"nombre": "Guisantes congelados",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Guisantes, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/guisantes-823300.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.49
 },
 {
 "nombre": "Helado",
@@ -6058,6 +7743,22 @@
 {
 "nombre": "Masa de hojaldre",
 "categoria": "Congelados",
+"super": "Aldi",
+"precio": 0.82,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "DAYLICIOUS Masa de hojaldre, 230 g",
+"formato": "230 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/masa-de-hojaldre-750100.html",
+"nota": "Puede incluir oferta",
+"q": 0.23,
+"base": "kg",
+"pu": 3.57
+},
+{
+"nombre": "Masa de hojaldre",
+"categoria": "Congelados",
 "super": "Consum",
 "precio": 2.0,
 "unidad": "ud",
@@ -6070,6 +7771,22 @@
 "q": 0.23,
 "base": "kg",
 "pu": 8.7
+},
+{
+"nombre": "Masa de pizza",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CUCINA Masa de pizza, 230 g",
+"formato": "230 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/masa-de-pizza-525500.html",
+"nota": "Puede incluir oferta",
+"q": 0.23,
+"base": "kg",
+"pu": 5.87
 },
 {
 "nombre": "Masa de pizza",
@@ -6090,6 +7807,21 @@
 {
 "nombre": "Patatas fritas congeladas",
 "categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Patatas corte fino, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/patatas-corte-fino-601569600.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.79
+},
+{
+"nombre": "Patatas fritas congeladas",
+"categoria": "Congelados",
 "super": "Consum",
 "precio": 1.95,
 "unidad": "ud",
@@ -6101,6 +7833,21 @@
 "q": 1.0,
 "base": "kg",
 "pu": 1.95
+},
+{
+"nombre": "Pizza congelada",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 2.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE Pizza masa fina de jamón y queso, 330 g",
+"formato": "330 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pizza-masa-fina-de-jamon-y-queso-51201.html",
+"q": 0.33,
+"base": "kg",
+"pu": 7.55
 },
 {
 "nombre": "San Jacobos",
@@ -6116,6 +7863,21 @@
 "q": 0.4,
 "base": "kg",
 "pu": 6.6
+},
+{
+"nombre": "San Jacobos",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FLETE San Jacobo, 4 x 80 g",
+"formato": "4 x 80 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/san-jacobo-269300.html",
+"q": 0.32,
+"base": "kg",
+"pu": 3.41
 },
 {
 "nombre": "San Jacobos",
@@ -6161,6 +7923,36 @@
 "q": 1.0,
 "base": "kg",
 "pu": 1.75
+},
+{
+"nombre": "Verduras congeladas",
+"categoria": "Congelados",
+"super": "Aldi",
+"precio": 1.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ALL SEASONS Mix de brócoli, coliflor y zanahoria, 1 kg",
+"formato": "1 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/mix-de-brocoli-coliflor-y-zanahoria-601115500.html",
+"q": 1.0,
+"base": "kg",
+"pu": 1.69
+},
+{
+"nombre": "Agua",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.28,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "AQUA Agua mineral natural, 330 ml",
+"formato": "330 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/agua-mineral-natural-16900.html",
+"q": 0.33,
+"base": "l",
+"pu": 0.85
 },
 {
 "nombre": "Agua",
@@ -6210,6 +8002,21 @@
 {
 "nombre": "Agua con gas",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.41,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "AQUA Agua mineral con gas, 1,25 l",
+"formato": "1,25 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/agua-mineral-con-gas-17400.html",
+"q": 1.25,
+"base": "l",
+"pu": 0.33
+},
+{
+"nombre": "Agua con gas",
+"categoria": "Bebidas",
 "super": "Consum",
 "precio": 1.65,
 "unidad": "ud",
@@ -6236,6 +8043,21 @@
 "q": 1.5,
 "base": "l",
 "pu": 0.67
+},
+{
+"nombre": "Bebida isotónica",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIVER Bebida isotónica, 500 ml",
+"formato": "500 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bebida-isotonica-601711800.html",
+"q": 0.5,
+"base": "l",
+"pu": 1.38
 },
 {
 "nombre": "Bebida isotónica",
@@ -6270,6 +8092,21 @@
 {
 "nombre": "Cerveza",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "KARLSQUELL Cerveza clásica, 0,33 l",
+"formato": "0,33 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cerveza-clasica-50600.html",
+"q": 0.33,
+"base": "l",
+"pu": 0.88
+},
+{
+"nombre": "Cerveza",
+"categoria": "Bebidas",
 "super": "Carrefour",
 "precio": 1.1,
 "unidad": "ud",
@@ -6296,6 +8133,21 @@
 "q": 0.33,
 "base": "l",
 "pu": 2.27
+},
+{
+"nombre": "Cerveza sin alcohol",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.28,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "KARLSQUELL Cerveza sin alcohol, 0,33 l",
+"formato": "0,33 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cerveza-sin-alcohol-51500.html",
+"q": 0.33,
+"base": "l",
+"pu": 0.85
 },
 {
 "nombre": "Cerveza sin alcohol",
@@ -6345,6 +8197,21 @@
 {
 "nombre": "Refresco de cola",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.34,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIVER Refresco de cola, 330 ml",
+"formato": "330 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/refresco-de-cola-31000.html",
+"q": 0.33,
+"base": "l",
+"pu": 1.03
+},
+{
+"nombre": "Refresco de cola",
+"categoria": "Bebidas",
 "super": "Consum",
 "precio": 0.79,
 "unidad": "ud",
@@ -6372,6 +8239,22 @@
 "q": 2.0,
 "base": "l",
 "pu": 0.93
+},
+{
+"nombre": "Refresco de limón",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.36,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIVER Refresco de limón, 330 ml",
+"formato": "330 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/refresco-de-limon-33000.html",
+"nota": "Puede incluir oferta",
+"q": 0.33,
+"base": "l",
+"pu": 1.09
 },
 {
 "nombre": "Refresco de limón",
@@ -6408,6 +8291,22 @@
 {
 "nombre": "Refresco de naranja",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIVER Refresco de naranja, 330 ml",
+"formato": "330 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/refresco-de-naranja-32000.html",
+"nota": "Puede incluir oferta",
+"q": 0.33,
+"base": "l",
+"pu": 1.06
+},
+{
+"nombre": "Refresco de naranja",
+"categoria": "Bebidas",
 "super": "Consum",
 "precio": 0.75,
 "unidad": "ud",
@@ -6440,6 +8339,22 @@
 {
 "nombre": "Tónica",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 0.36,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIVER Tónica, 330 ml",
+"formato": "330 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tonica-34600.html",
+"nota": "Puede incluir oferta",
+"q": 0.33,
+"base": "l",
+"pu": 1.09
+},
+{
+"nombre": "Tónica",
+"categoria": "Bebidas",
 "super": "Consum",
 "precio": 0.99,
 "unidad": "ud",
@@ -6452,6 +8367,36 @@
 "q": 0.33,
 "base": "l",
 "pu": 3.0
+},
+{
+"nombre": "Vino blanco",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 1.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MARQUÉS DE CÁNOVA Vino blanco DOP Valdepeñas, 0,75 l",
+"formato": "0,75 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/vino-blanco-dop-valdepenas-285900.html",
+"q": 0.75,
+"base": "l",
+"pu": 1.85
+},
+{
+"nombre": "Vino tinto",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 1.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MARQUÉS DE CÁNOVA Vino tinto cosecha DOP Valdepeñas, 0,75 l",
+"formato": "0,75 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/vino-tinto-cosecha-dop-valdepenas-171800.html",
+"q": 0.75,
+"base": "l",
+"pu": 1.85
 },
 {
 "nombre": "Zumo de melocotón",
@@ -6467,6 +8412,21 @@
 "q": 1.2,
 "base": "l",
 "pu": 1.25
+},
+{
+"nombre": "Zumo de melocotón",
+"categoria": "Bebidas",
+"super": "Aldi",
+"precio": 1.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIO D'ORO Zumo de melocotón y uva, 1,5 l",
+"formato": "1,5 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/zumo-de-melocoton-y-uva-673600.html",
+"q": 1.5,
+"base": "l",
+"pu": 0.97
 },
 {
 "nombre": "Zumo de naranja",
@@ -6487,6 +8447,22 @@
 {
 "nombre": "Zumo de naranja",
 "categoria": "Bebidas",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "RIO D'ORO Zumo exprimido de naranja con pulpa, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/zumo-exprimido-de-naranja-con-pulpa-18100.html",
+"nota": "Puede incluir oferta",
+"q": 1.0,
+"base": "l",
+"pu": 1.79
+},
+{
+"nombre": "Zumo de naranja",
+"categoria": "Bebidas",
 "super": "Consum",
 "precio": 1.49,
 "unidad": "l",
@@ -6497,6 +8473,21 @@
 "url": "https://tienda.consum.es/es/c/bebidas/zumos-nectares/1779",
 "nota": "Puede incluir oferta",
 "q": 1.0,
+"base": "l",
+"pu": 1.49
+},
+{
+"nombre": "Abrillantador lavavajillas",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.12,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Abrillantador para lavavajillas, 750 ml",
+"formato": "750 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/abrillantador-para-lavavajillas-293100.html",
+"q": 0.75,
 "base": "l",
 "pu": 1.49
 },
@@ -6518,6 +8509,21 @@
 {
 "nombre": "Ambientador",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Ambientador Midnight Blue, 300 ml",
+"formato": "300 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/ambientador-midnight-blue-600232801.html",
+"q": 0.3,
+"base": "l",
+"pu": 8.3
+},
+{
+"nombre": "Ambientador",
+"categoria": "Limpieza",
 "super": "Consum",
 "precio": 4.19,
 "unidad": "ud",
@@ -6529,6 +8535,22 @@
 "q": 0.3,
 "base": "l",
 "pu": 13.97
+},
+{
+"nombre": "Bayetas",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 0.77,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Bayetas multiusos, 6 unidades",
+"formato": "6 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bayetas-multiusos-601307300.html",
+"nota": "Puede incluir oferta",
+"q": 6.0,
+"base": "ud",
+"pu": 0.1283
 },
 {
 "nombre": "Bayetas",
@@ -6580,6 +8602,21 @@
 {
 "nombre": "Bolsas de basura",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.15,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Bolsa de basura grande 50 l, 20 unidades",
+"formato": "20 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bolsa-de-basura-grande-50-l-601731100.html",
+"q": 20.0,
+"base": "ud",
+"pu": 0.1075
+},
+{
+"nombre": "Bolsas de basura",
+"categoria": "Limpieza",
 "super": "Carrefour",
 "precio": 1.8,
 "unidad": "ud",
@@ -6625,6 +8662,21 @@
 {
 "nombre": "Bolsas de congelación",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.37,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Bolsas de congelación medianas, 20 bolsitas",
+"formato": "20 bolsitas",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bolsas-de-congelacion-medianas-113303.html",
+"q": 20.0,
+"base": "ud",
+"pu": 0.0685
+},
+{
+"nombre": "Bolsas de congelación",
+"categoria": "Limpieza",
 "super": "Consum",
 "precio": 0.95,
 "unidad": "ud",
@@ -6648,6 +8700,21 @@
 "formato": "3 l",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/limpieza-y-hogar"
+},
+{
+"nombre": "Detergente",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 3.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "TANDIL Detergente líquido colonia, 46 lavados",
+"formato": "46 lavados",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/detergente-liquido-colonia-601365900.html",
+"q": 46.0,
+"base": "lavado",
+"pu": 0.0737
 },
 {
 "nombre": "Detergente",
@@ -6682,6 +8749,21 @@
 {
 "nombre": "Estropajos",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.45,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Estropajo salvauñas amarillo, 6 unidades",
+"formato": "6 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/estropajo-salvaunas-amarillo-601307001.html",
+"q": 6.0,
+"base": "ud",
+"pu": 0.2417
+},
+{
+"nombre": "Estropajos",
+"categoria": "Limpieza",
 "super": "Carrefour",
 "precio": 0.75,
 "unidad": "ud",
@@ -6712,6 +8794,21 @@
 {
 "nombre": "Fregona",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Fregona microfibra, 1 ud",
+"formato": "1 ud",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/fregona-microfibra-559000.html",
+"q": 1.0,
+"base": "ud",
+"pu": 2.99
+},
+{
+"nombre": "Fregona",
+"categoria": "Limpieza",
 "super": "Consum",
 "precio": 1.1,
 "unidad": "ud",
@@ -6727,6 +8824,21 @@
 {
 "nombre": "Friegasuelos",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Friegasuelos aire fresco, 1,5 l",
+"formato": "1,5 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/friegasuelos-aire-fresco-300101.html",
+"q": 1.5,
+"base": "l",
+"pu": 0.59
+},
+{
+"nombre": "Friegasuelos",
+"categoria": "Limpieza",
 "super": "Consum",
 "precio": 0.95,
 "unidad": "ud",
@@ -6738,6 +8850,21 @@
 "q": 1.5,
 "base": "l",
 "pu": 0.63
+},
+{
+"nombre": "Gel WC",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 0.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Gel WC con lejía, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/gel-wc-con-lejia-472500.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.89
 },
 {
 "nombre": "Gel WC",
@@ -6787,6 +8914,22 @@
 {
 "nombre": "Insecticida",
 "categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.25,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Insecticida para moscas y mosquitos, 750 ml",
+"formato": "750 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/insecticida-para-moscas-y-mosquitos-601482300.html",
+"nota": "Puede incluir oferta",
+"q": 0.75,
+"base": "l",
+"pu": 3.0
+},
+{
+"nombre": "Insecticida",
+"categoria": "Limpieza",
 "super": "Consum",
 "precio": 6.65,
 "unidad": "ud",
@@ -6799,6 +8942,21 @@
 "q": 0.4,
 "base": "l",
 "pu": 16.62
+},
+{
+"nombre": "Lavavajillas a mano",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Lavavajillas a mano, 1,3 l",
+"formato": "1,3 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/lavavajillas-a-mano-601226000.html",
+"q": 1.3,
+"base": "l",
+"pu": 0.76
 },
 {
 "nombre": "Lavavajillas a mano",
@@ -6816,6 +8974,52 @@
 "pu": 1.45
 },
 {
+"nombre": "Lejía",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Lejía, 5 l",
+"formato": "5 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/lejia-316000.html",
+"q": 5.0,
+"base": "l",
+"pu": 0.36
+},
+{
+"nombre": "Limpiacristales",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 0.95,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Limpiacristales multiusos, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/limpiacristales-multiusos-601449300.html",
+"q": 1.0,
+"base": "l",
+"pu": 0.95
+},
+{
+"nombre": "Multiusos",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.55,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Limpiador multiusos, 1,5 l",
+"formato": "1,5 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/limpiador-multiusos-310301.html",
+"nota": "Puede incluir oferta",
+"q": 1.5,
+"base": "l",
+"pu": 1.03
+},
+{
 "nombre": "Multiusos",
 "categoria": "Limpieza",
 "super": "Consum",
@@ -6830,6 +9034,36 @@
 "q": 0.5,
 "base": "l",
 "pu": 7.3
+},
+{
+"nombre": "Papel de aluminio",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.15,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Papel de aluminio, 30 metros",
+"formato": "30 metros",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/papel-de-aluminio-601307700.html",
+"q": 30.0,
+"base": "m",
+"pu": 0.0717
+},
+{
+"nombre": "Papel de cocina",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 2.12,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Papel de cocina compacto, 72 metros",
+"formato": "72 metros",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/papel-de-cocina-compacto-601537900.html",
+"q": 72.0,
+"base": "m",
+"pu": 0.0294
 },
 {
 "nombre": "Papel de cocina",
@@ -6853,10 +9087,19 @@
 "producto": "CONSUM Papel Cocina Blanco 4 U",
 "formato": "4 U",
 "fuente": "Web de Consum",
-"url": "https://tienda.consum.es/es/c/drogueria/celulosa/papel-cocina/1280",
-"q": 4.0,
-"base": "ud",
-"pu": 0.5475
+"url": "https://tienda.consum.es/es/c/drogueria/celulosa/papel-cocina/1280"
+},
+{
+"nombre": "Papel de horno",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.65,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Papel de horno, 30 unidades",
+"formato": "30 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/papel-de-horno-601307900.html"
 },
 {
 "nombre": "Papel de horno",
@@ -6919,6 +9162,37 @@
 "pu": 0.0625
 },
 {
+"nombre": "Quitagrasas",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.59,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "POWER FORCE Quitagrasas, 750 ml",
+"formato": "750 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/quitagrasas-302300.html",
+"q": 0.75,
+"base": "l",
+"pu": 2.12
+},
+{
+"nombre": "Quitamanchas",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "TANDIL Quitamanchas con oxígeno activo, 750 ml",
+"formato": "750 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/quitamanchas-con-oxigeno-activo-32200.html",
+"nota": "Puede incluir oferta",
+"q": 0.75,
+"base": "l",
+"pu": 2.52
+},
+{
 "nombre": "Quitamanchas",
 "categoria": "Limpieza",
 "super": "Consum",
@@ -6960,6 +9234,21 @@
 "formato": "1.6 l",
 "fuente": "Cestio (indirecta)",
 "url": "https://cestio.es/mercadona/limpieza-y-hogar"
+},
+{
+"nombre": "Suavizante",
+"categoria": "Limpieza",
+"super": "Aldi",
+"precio": 1.69,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "TANDIL Suavizante concentrado Colonia, 80 lavados",
+"formato": "80 lavados",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/suavizante-concentrado-colonia-601304702.html",
+"q": 80.0,
+"base": "lavado",
+"pu": 0.0211
 },
 {
 "nombre": "Suavizante",
@@ -7009,6 +9298,21 @@
 {
 "nombre": "Acondicionador",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 2.19,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Acondicionador hidratación intensa, 900 ml",
+"formato": "900 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/acondicionador-hidratacion-intensa-270904.html",
+"q": 0.9,
+"base": "l",
+"pu": 2.43
+},
+{
+"nombre": "Acondicionador",
+"categoria": "Higiene y cuidado",
 "super": "Carrefour",
 "precio": 4.75,
 "unidad": "ud",
@@ -7020,6 +9324,21 @@
 "q": 0.3,
 "base": "l",
 "pu": 15.83
+},
+{
+"nombre": "Algodón",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Discos de algodón Dúo, 2 x 100 unidades",
+"formato": "2 x 100 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/discos-de-algodon-duo-280003.html",
+"q": 100.0,
+"base": "ud",
+"pu": 0.0139
 },
 {
 "nombre": "Algodón",
@@ -7039,6 +9358,21 @@
 {
 "nombre": "Bastoncillos",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.09,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Bastoncillos algodón biodegradable Estructura, 300 unidades",
+"formato": "300 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/bastoncillos-algodon-biodegradable-estructura-206703.html",
+"q": 300.0,
+"base": "ud",
+"pu": 0.0036
+},
+{
+"nombre": "Bastoncillos",
+"categoria": "Higiene y cuidado",
 "super": "Carrefour",
 "precio": 1.35,
 "unidad": "ud",
@@ -7050,6 +9384,21 @@
 "q": 300.0,
 "base": "ud",
 "pu": 0.0045
+},
+{
+"nombre": "Cepillo de dientes",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 0.57,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "DENTITEX Cepillos de dientes medio, 2 unidades",
+"formato": "2 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/cepillos-de-dientes-medio-270502.html",
+"q": 2.0,
+"base": "ud",
+"pu": 0.285
 },
 {
 "nombre": "Champú",
@@ -7065,6 +9414,21 @@
 "q": 1.0,
 "base": "l",
 "pu": 1.35
+},
+{
+"nombre": "Champú",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.29,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Champú familiar, 1 l",
+"formato": "1 l",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/champu-familiar-272400.html",
+"q": 1.0,
+"base": "l",
+"pu": 1.29
 },
 {
 "nombre": "Champú",
@@ -7114,6 +9478,21 @@
 {
 "nombre": "Crema hidratante",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 5.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA NATURE Crema facial  hidratante, 50 ml",
+"formato": "50 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/crema-facial-hidratante-43104.html",
+"q": 0.05,
+"base": "l",
+"pu": 119.8
+},
+{
+"nombre": "Crema hidratante",
+"categoria": "Higiene y cuidado",
 "super": "Consum",
 "precio": 1.49,
 "unidad": "ud",
@@ -7144,6 +9523,21 @@
 {
 "nombre": "Cuchillas de afeitar",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 0.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Maquinilla de afeitar azul, 10 unidades",
+"formato": "10 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/maquinilla-de-afeitar-azul-600073301.html",
+"q": 10.0,
+"base": "ud",
+"pu": 0.099
+},
+{
+"nombre": "Cuchillas de afeitar",
+"categoria": "Higiene y cuidado",
 "super": "Consum",
 "precio": 1.95,
 "unidad": "ud",
@@ -7155,6 +9549,22 @@
 "q": 4.0,
 "base": "ud",
 "pu": 0.4875
+},
+{
+"nombre": "Desodorante",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.59,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA BODY Desodorante en spray Pure, 200 ml",
+"formato": "200 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/desodorante-en-spray-pure-943902.html",
+"nota": "Puede incluir oferta",
+"q": 0.2,
+"base": "l",
+"pu": 7.95
 },
 {
 "nombre": "Desodorante",
@@ -7219,6 +9629,21 @@
 "pu": 10.3
 },
 {
+"nombre": "Espuma de afeitar",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.25,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Espuma de afeitar, 300 ml",
+"formato": "300 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/espuma-de-afeitar-35300.html",
+"q": 0.3,
+"base": "l",
+"pu": 4.17
+},
+{
 "nombre": "Gel de ducha",
 "categoria": "Higiene y cuidado",
 "super": "Mercadona",
@@ -7232,6 +9657,21 @@
 "q": 0.75,
 "base": "l",
 "pu": 1.27
+},
+{
+"nombre": "Gel de ducha",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.49,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Gel de ducha clásico, 750 ml",
+"formato": "750 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/gel-de-ducha-clasico-600727106.html",
+"q": 0.75,
+"base": "l",
+"pu": 1.99
 },
 {
 "nombre": "Gel de ducha",
@@ -7296,6 +9736,21 @@
 {
 "nombre": "Jabón de manos",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 0.75,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Jabón de manos, 500 ml",
+"formato": "500 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/jabon-de-manos-584100.html",
+"q": 0.5,
+"base": "l",
+"pu": 1.5
+},
+{
+"nombre": "Jabón de manos",
+"categoria": "Higiene y cuidado",
 "super": "Consum",
 "precio": 0.8,
 "unidad": "ud",
@@ -7326,6 +9781,21 @@
 {
 "nombre": "Laca",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Laca para el cabello, 400 ml",
+"formato": "400 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/laca-para-el-cabello-601621701.html",
+"q": 0.4,
+"base": "l",
+"pu": 4.47
+},
+{
+"nombre": "Laca",
+"categoria": "Higiene y cuidado",
 "super": "Carrefour",
 "precio": 1.42,
 "unidad": "ud",
@@ -7337,6 +9807,18 @@
 "q": 0.3,
 "base": "l",
 "pu": 4.73
+},
+{
+"nombre": "Papel higiénico",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 3.39,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Papel higiénico, 167,2 metros",
+"formato": "167,2 metros",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/papel-higienico-349900.html"
 },
 {
 "nombre": "Papel higiénico",
@@ -7367,6 +9849,21 @@
 "q": 12.0,
 "base": "ud",
 "pu": 0.2083
+},
+{
+"nombre": "Pasta de dientes",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.25,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "DENTITEX Dentífrico Cool Fresh, 125 ml",
+"formato": "125 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/dentifrico-cool-fresh-276201.html",
+"q": 0.125,
+"base": "l",
+"pu": 10.0
 },
 {
 "nombre": "Pasta de dientes",
@@ -7414,6 +9911,36 @@
 "pu": 0.165
 },
 {
+"nombre": "Pañuelos de papel",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.25,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Pañuelos faciales, 200 uds",
+"formato": "200 uds",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/panuelos-faciales-574401.html",
+"q": 200.0,
+"base": "ud",
+"pu": 0.0063
+},
+{
+"nombre": "Protector solar",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 5.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA SUN Leche solar, 250 ml",
+"formato": "250 ml",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/leche-solar-601650202.html",
+"q": 0.25,
+"base": "l",
+"pu": 23.96
+},
+{
 "nombre": "Protector solar",
 "categoria": "Higiene y cuidado",
 "super": "Consum",
@@ -7447,6 +9974,22 @@
 {
 "nombre": "Tampones",
 "categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 4.4,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "TAMPAX Tampones pearl regular, 24 unidades",
+"formato": "24 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/tampones-pearl-regular-601586701.html",
+"nota": "Puede incluir oferta",
+"q": 24.0,
+"base": "ud",
+"pu": 0.1833
+},
+{
+"nombre": "Tampones",
+"categoria": "Higiene y cuidado",
 "super": "Consum",
 "precio": 4.95,
 "unidad": "ud",
@@ -7474,6 +10017,21 @@
 "q": 25.0,
 "base": "ud",
 "pu": 0.046
+},
+{
+"nombre": "Toallitas desmaquillantes",
+"categoria": "Higiene y cuidado",
+"super": "Aldi",
+"precio": 1.35,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "LACURA Toallitas desmaquillantes refrescantes, 25 unidades",
+"formato": "25 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/toallitas-desmaquillantes-refrescantes-379004.html",
+"q": 25.0,
+"base": "ud",
+"pu": 0.054
 },
 {
 "nombre": "Champú infantil",
@@ -7553,6 +10111,21 @@
 {
 "nombre": "Toallitas bebé",
 "categoria": "Bebé",
+"super": "Aldi",
+"precio": 0.92,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "MAMIA Toallitas Sensitive para bebé, 80 uds",
+"formato": "80 uds",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/toallitas-sensitive-para-bebe-332401.html",
+"q": 80.0,
+"base": "ud",
+"pu": 0.0115
+},
+{
+"nombre": "Toallitas bebé",
+"categoria": "Bebé",
 "super": "Carrefour",
 "precio": 0.95,
 "unidad": "ud",
@@ -7583,6 +10156,21 @@
 {
 "nombre": "Arena para gato",
 "categoria": "Mascotas",
+"super": "Aldi",
+"precio": 1.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "KIMBA Arena perfumada para gatos, 5 kg",
+"formato": "5 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/arena-perfumada-para-gatos-529800.html",
+"q": 5.0,
+"base": "kg",
+"pu": 0.38
+},
+{
+"nombre": "Arena para gato",
+"categoria": "Mascotas",
 "super": "Carrefour",
 "precio": 1.45,
 "unidad": "ud",
@@ -7609,6 +10197,21 @@
 "q": 4.0,
 "base": "kg",
 "pu": 0.74
+},
+{
+"nombre": "Comida húmeda gato",
+"categoria": "Mascotas",
+"super": "Aldi",
+"precio": 3.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "FELIX Comida húmeda para gatos con pollo y buey, 6 x 85 g",
+"formato": "6 x 85 g",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/comida-humeda-para-gatos-con-pollo-y-buey-601926102.html",
+"q": 0.51,
+"base": "kg",
+"pu": 7.43
 },
 {
 "nombre": "Comida húmeda gato",
@@ -7675,6 +10278,22 @@
 {
 "nombre": "Pienso gato",
 "categoria": "Mascotas",
+"super": "Aldi",
+"precio": 2.89,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "CACHET Pienso para gatos con pollo y aves, 2 kg",
+"formato": "2 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pienso-para-gatos-con-pollo-y-aves-601301702.html",
+"nota": "Puede incluir oferta",
+"q": 2.0,
+"base": "kg",
+"pu": 1.45
+},
+{
+"nombre": "Pienso gato",
+"categoria": "Mascotas",
 "super": "Consum",
 "precio": 2.66,
 "unidad": "kg",
@@ -7687,6 +10306,22 @@
 "q": 1.0,
 "base": "kg",
 "pu": 2.66
+},
+{
+"nombre": "Pienso perro",
+"categoria": "Mascotas",
+"super": "Aldi",
+"precio": 6.99,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ROMEO Pienso para perro, 3 kg",
+"formato": "3 kg",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/pienso-para-perro-601563100.html",
+"nota": "Puede incluir oferta",
+"q": 3.0,
+"base": "kg",
+"pu": 2.33
 },
 {
 "nombre": "Pienso perro",
@@ -7958,6 +10593,21 @@
 "pu": 3.99
 },
 {
+"nombre": "Fregona de repuesto",
+"categoria": "Hogar y bricolaje",
+"super": "Aldi",
+"precio": 1.47,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Recambios para fregona, 2 unidades",
+"formato": "2 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/recambios-para-fregona-26800.html",
+"q": 2.0,
+"base": "ud",
+"pu": 0.735
+},
+{
 "nombre": "Pegamento",
 "categoria": "Hogar y bricolaje",
 "super": "Carrefour",
@@ -8167,6 +10817,21 @@
 "q": 6.0,
 "base": "ud",
 "pu": 1.165
+},
+{
+"nombre": "Velas",
+"categoria": "Hogar y bricolaje",
+"super": "Aldi",
+"precio": 1.79,
+"unidad": "ud",
+"fecha": "2026-10-04",
+"producto": "ESSELT Vela aromática vainilla, 1 unidades",
+"formato": "1 unidades",
+"fuente": "Web de Aldi",
+"url": "https://www.aldi.es/producto/vela-aromatica-vainilla-601159704.html",
+"q": 1.0,
+"base": "ud",
+"pu": 1.79
 },
 {
 "nombre": "Velas",

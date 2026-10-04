@@ -1,4 +1,103 @@
 {
-"actualizado": "",
-"ofertas": []
+ "actualizado": "2026-10-04",
+ "ofertas": [
+  {
+   "nombre": "Lubina",
+   "super": "Aldi",
+   "marca": "GOLDEN SEAFOOD",
+   "producto": "Filete de lubina (congelado)",
+   "formato": "180 g",
+   "precio": 4.69,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-18",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/filete-de-lubina-601881000.html"
+  },
+  {
+   "nombre": "Gambas congeladas",
+   "super": "Aldi",
+   "marca": "GOLDEN SEAFOOD",
+   "producto": "Gamba pequeña",
+   "formato": "350 g",
+   "precio": 4.29,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-06",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/gamba-pequena-600844900.html"
+  },
+  {
+   "nombre": "Lentejas cocidas",
+   "super": "Aldi",
+   "marca": "ALL SEASONS",
+   "producto": "Lentejas cocidas extra",
+   "formato": "400 g peso esc.",
+   "precio": 0.85,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-18",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/lentejas-cocidas-extra-503200.html"
+  },
+  {
+   "nombre": "Alcachofas en conserva",
+   "super": "Aldi",
+   "marca": "ALL SEASONS",
+   "producto": "Corazones de alcachofa XXL",
+   "formato": "330 g peso esc.",
+   "precio": 2.79,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-06",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/corazones-de-alcachofa-xxl-103000.html"
+  },
+  {
+   "nombre": "Varitas de merluza",
+   "super": "Aldi",
+   "marca": "GOLDEN SEAFOOD",
+   "producto": "Varitas de merluza",
+   "formato": "450 g",
+   "precio": 3.29,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-06",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/varitas-de-merluza-821201.html"
+  },
+  {
+   "nombre": "Pastillas lavavajillas",
+   "super": "Aldi",
+   "marca": "POWER FORCE",
+   "producto": "Lavavajillas para máquina",
+   "formato": "22 cápsulas",
+   "precio": 3.99,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-11",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/lavavajillas-para-maquina-600704600.html"
+  },
+  {
+   "nombre": "Comida húmeda perro",
+   "super": "Aldi",
+   "marca": "ULTIMA",
+   "producto": "Comida húmeda para perros",
+   "formato": "4 x 100 g",
+   "precio": 2.99,
+   "unidad": "ud",
+   "antes": null,
+   "desde": "2026-10-04",
+   "hasta": "2026-10-18",
+   "fuente": "Lista de precios de Aldi",
+   "url": "https://www.aldi.es/producto/comida-humeda-para-perros-601746400.html"
+  }
+ ]
 }
