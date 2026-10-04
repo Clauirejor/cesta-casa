@@ -449,6 +449,11 @@ function infoArticulo(nombre){const k=norm(nombre);
   if(best)return {nombre:cap(nombre),categoria:best.categoria,emoji:best.emoji,unidad:'ud'};
   return {nombre:cap(nombre),categoria:'Otros',emoji:'📦',unidad:'ud'}}
 const borrado=a=>a.oculto&&num(a.veces)<0;
+const borradosSet=()=>new Set(S.t.articulos.filter(borrado).map(a=>norm(a.nombre)));
+async function borrarNombre(n){const k=norm(n);const a=S.t.articulos.find(x=>norm(x.nombre)===k);
+  if(a)await upd('articulos',a.id,{oculto:true,veces:-1,favorito:false});
+  else{const i=infoArticulo(n);await ins('articulos',{nombre:cap(n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:-1,ultima:nowIso(),oculto:true,favorito:false})}}
+async function recuperarNombre(n){const a=S.t.articulos.find(x=>borrado(x)&&norm(x.nombre)===norm(n));if(a)await upd('articulos',a.id,{oculto:false,veces:0})}
 function sugerencias(q,lim){const k=norm(q);if(!k)return [];const seen=new Set(S.t.articulos.filter(borrado).map(a=>norm(a.nombre))),out=[];
   const push=(x,src)=>{const n=norm(x.nombre);if(seen.has(n))return;seen.add(n);out.push({...x,src})};
   S.t.articulos.filter(a=>!a.oculto&&norm(a.nombre).startsWith(k)).sort((a,b)=>b.veces-a.veces).forEach(a=>push(a,'mio'));
@@ -468,7 +473,7 @@ async function cargarOfertas(){try{const r=await fetch('precios/ofertas.json',{c
   OFER=(j.ofertas||[]).filter(x=>x&&x.nombre&&x.super&&num(x.precio)>0).map((x,i)=>({...x,id:'of'+i,marca:x.marca||'',created_at:'',fecha:x.desde||OFER_FECHA||hoy(),unidad:x.unidad||'ud',precio:num(x.precio),antes:x.antes?num(x.antes):null,web:true}));
   const visto=lsGet('cc-ofertas-vistas','');const n=OFER.filter(vigente).length;
   if(n&&OFER_FECHA&&OFER_FECHA!==visto&&S.ready){toast(`🏷️ ${n} ofertas nuevas de la semana`,`<button class="act" data-a="verOfertas">Ver</button>`)}paint()}catch(e){}}
-function ofertasVigentes(){const casa=S.t.precios.filter(p=>p.hasta&&vigente(p)&&num(p.precio)>0).map(p=>({...p,casa:true}));return [...casa,...OFER.filter(vigente)]}
+function ofertasVigentes(){const casa=S.t.precios.filter(p=>p.hasta&&vigente(p)&&num(p.precio)>0).map(p=>({...p,casa:true}));const bs=borradosSet();return [...casa,...OFER.filter(vigente)].filter(o=>!bs.has(norm(o.nombre)))}
 async function cargarReferencia(){try{const r=await fetch('precios/referencia.json',{cache:'no-cache'});if(!r.ok)return;const j=await r.json();REF=new Map();REF_FECHA=j.actualizado||'';
   (j.precios||[]).forEach((x,i)=>{const k=norm(x.nombre);const row={...x,id:'ref'+i,marca:'',created_at:'',ref:true};if(!REF.has(k))REF.set(k,[]);REF.get(k).push(row)});paint()}catch(e){}}
 const refNombres=()=>[...REF.values()].map(a=>a[0].nombre);
@@ -712,7 +717,7 @@ function recetasCon(nombres){const ks=nombres.map(norm);return S.t.recetas.map(r
 
 /* ---------- PRECIOS ---------- */
 function vPrecios(){if(S.precioDet)return vPrecioDet(S.precioDet);
-  const q=norm(S.precioQ);const names=[...new Map([...S.t.precios.map(p=>p.nombre),...refNombres()].map(n=>[norm(n),n])).values()];
+  const q=norm(S.precioQ);const bs=borradosSet();const names=[...new Map([...S.t.precios.map(p=>p.nombre),...refNombres()].map(n=>[norm(n),n])).values()].filter(n=>!bs.has(norm(n)));
   const prods=names.filter(n=>!q||norm(n).includes(q)).map(n=>({n,o:ofertas(n),info:infoArticulo(n)})).sort((a,b)=>a.n.localeCompare(b.n,'es'));
   const top=hdr('Precios',`${names.length} productos con precio`,`<button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
   const keep=`<label class="glass search">${svg('search')}<input id="qprecio" type="search" data-in="precioQ" placeholder="Buscar producto…" value="${esc(S.precioQ)}"></label>`;
@@ -750,7 +755,7 @@ function tablaPrecios(q){const sups=planCfg().sups;const enL=new Set(S.t.lista.f
   const names=new Map();const add=n=>{const k=norm(n);if(!names.has(k))names.set(k,n)};
   S.t.lista.filter(i=>!i.comprado).forEach(i=>add(i.nombre));S.t.precios.forEach(p=>add(p.nombre));refNombres().forEach(add);
   [...S.t.articulos].filter(a=>!a.oculto).sort((a,b)=>b.veces-a.veces).slice(0,40).forEach(a=>add(a.nombre));
-  let rows=[...names.values()].filter(n=>!q||norm(n).includes(q)).sort((a,b)=>(enL.has(norm(b))-enL.has(norm(a)))||a.localeCompare(b,'es'));
+  const bs=borradosSet();let rows=[...names.values()].filter(n=>(!bs.has(norm(n))||enL.has(norm(n)))&&(!q||norm(n).includes(q))).sort((a,b)=>(enL.has(norm(b))-enL.has(norm(a)))||a.localeCompare(b,'es'));
   const chips=`<div style="display:flex;flex-wrap:wrap;gap:8px">${supChips().map(s=>`<button class="chip ${sups.includes(s)?'on':''}" data-a="tablaSup" data-s="${esc(s)}">${esc(tiendaEmoji(s)?tiendaEmoji(s)+' ':'')}${esc(s)}</button>`).join('')}<button class="chip" data-a="nuevaTienda" style="border-style:dashed">＋ Súper o tienda</button></div>`;
   if(!rows.length)return chips+`<div class="glass empty"><div class="e">🧾</div><h3>Nada que mostrar</h3><p>Añade productos a la lista o apunta precios.</p></div>`;
   const body=rows.map(n=>{const o=ofertas(n);const per={};o.forEach(x=>{if(sups.includes(x.super)&&(!per[x.super]||x.cmp<per[x.super].cmp))per[x.super]=x});
@@ -773,7 +778,9 @@ function vPrecioDet(n){const o=ofertas(n),info=infoArticulo(n);const art=S.t.art
   return `<header class="hdr center"><button class="back" data-a="precioBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Histórico de precios</h1><button class="back" data-a="addPrecio" data-n="${esc(n)}" aria-label="Apuntar precio">${svg('plus')}</button></header>
    <section class="glass" style="padding-bottom:12px"><div class="prod-h"><span class="big" aria-hidden="true">${art&&art.imagen?`<img src="${esc(art.imagen)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:esc(info.emoji)}</span><div><h2>${esc(n)}</h2><span class="muted">${esc(o[0]?({kg:'1 kg',l:'1 l',ud:'Unidad',g:'g',ml:'ml'})[o[0].unidad]||'':'')}</span></div><button class="star-btn ${art&&art.favorito?'on':''}" data-a="fav" data-n="${esc(n)}" aria-label="Favorito">★</button></div>
    <div style="padding:0 12px 12px"><div class="seg"><button class="${S.precioSeg==='precio'?'on':''}" data-a="precioSeg" data-k="precio">Precio</button><button class="${S.precioSeg==='barato'?'on':''}" data-a="precioSeg" data-k="barato">Dónde es más barato</button></div></div>${body}</section>
-   ${lista}<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button><button class="btn gl" data-a="addLista1" data-n="${esc(n)}">${svg('cart')}Añadir a la lista</button><button class="btn gl" data-a="celdaNueva" data-n="${esc(n)}">${svg('plus')}Precio en otro súper o tienda</button><a class="btn gl" href="https://www.google.com/search?q=${encodeURIComponent('precio '+n+' Mercadona Lidl Aldi Carrefour Consum')}" target="_blank" rel="noopener" style="text-decoration:none">${svg('search')}Buscar precios en internet</a>`}
+   ${lista}<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button><button class="btn gl" data-a="addLista1" data-n="${esc(n)}">${svg('cart')}Añadir a la lista</button><button class="btn gl" data-a="celdaNueva" data-n="${esc(n)}">${svg('plus')}Precio en otro súper o tienda</button><a class="btn gl" href="https://www.google.com/search?q=${encodeURIComponent('precio '+n+' Mercadona Lidl Aldi Carrefour Consum')}" target="_blank" rel="noopener" style="text-decoration:none">${svg('search')}Buscar precios en internet</a><button class="btn gl" data-a="delArtDet" data-n="${esc(n)}" style="color:var(--red)">${svg('trash')}Borrar este artículo</button>`}
+A.delArtDet=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.innerHTML=`${svg('trash')}¿Seguro? Toca otra vez para borrarlo`;return}
+  await borrarNombre(d.n);S.precioDet=null;render();toast(`Borrado: ${d.n}. Ya no saldrá en precios ni sugerencias.`,`<button class="act" data-a="recArt" data-n="${esc(d.n)}">Deshacer</button>`)};
 function chart(rows){const pts=rows.map(r=>({d:r.fecha,p:num(r.precio)}));if(pts.length<2)return `<div class="small muted" style="padding:6px 16px 4px">Solo hay un precio apuntado (${eur(pts[0].p)} el ${fmtFecha(pts[0].d)}). Con más tickets verás la evolución.</div>`;
   const W=340,H=170,L=46,R=14,T=26,Bm=28;const t0=new Date(pts[0].d+'T12:00')/1,t1=new Date(pts[pts.length-1].d+'T12:00')/1||t0+1;
   const ps=pts.map(x=>x.p);let lo=Math.min(...ps),hi=Math.max(...ps);const step=niceStep((hi-lo)||hi*0.2||1);lo=Math.max(0,Math.floor(lo/step)*step-step);hi=Math.ceil(hi/step)*step+step*0;
@@ -905,13 +912,27 @@ A.whatsLista=()=>{const p=S.t.lista.filter(i=>!i.comprado);const g={};p.forEach(
 
 /* --- habituales / mis artículos --- */
 A.habituales=()=>{closeSheet();habSheet('')};
-function habListHtml(q){const k=norm(q);const arr=S.t.articulos.filter(a=>!borrado(a)&&(!k||norm(a.nombre).includes(k))).sort((a,b)=>catOrden(a.categoria)-catOrden(b.categoria)||b.veces-a.veces);
-  const g={};arr.forEach(a=>(g[a.categoria]=g[a.categoria]||[]).push(a));const inL=n=>S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(n));
-  return Object.keys(g).map(c=>`<div class="small muted" style="margin:10px 2px 4px;font-weight:600">${esc(catMeta(c).emoji)} ${esc(c)}</div><div class="glass list-plain">${g[c].map(a=>`<div class="opt" style="padding:8px 12px">${thumb(a)}<button class="body grow" style="background:none;border:0;text-align:left;padding:0" data-a="habAdd" data-n="${esc(a.nombre)}"><span style="${a.oculto?'opacity:.5':''}">${esc(a.nombre)}</span><span class="tiny muted" style="display:block">${a.veces} ${a.veces===1?'vez':'veces'}${a.marca?' · '+esc(a.marca):''}${a.oculto?' · oculto':''}</span></button>${inL(a.nombre)?'<span class="pill blue">En lista</span>':''}<button class="dots3" data-a="editArt" data-id="${a.id}" aria-label="Editar ${esc(a.nombre)}">${svg('dots')}</button></div>`).join('')}</div>`).join('')||'<div class="empty"><p>Todavía no hay artículos. Se guardan solos al añadirlos a la lista.</p></div>'}
-function habSheet(q){const o=sheet(`<h2>Mis artículos</h2><p class="small muted" style="margin:0">Todo lo que habéis apuntado alguna vez. Toca para añadirlo a la lista.</p>
+function habListHtml(q){const k=norm(q);const v=S.habVista||'mios';const inL=n=>S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(n));const bs=borradosSet();
+  if(v==='borrados'){const arr=S.t.articulos.filter(a=>borrado(a)&&(!k||norm(a.nombre).includes(k))).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+    if(!arr.length)return '<div class="empty"><p>No hay artículos borrados.</p></div>';
+    return `<div class="glass list-plain" style="margin-top:8px">${arr.map(a=>`<div class="opt" style="padding:8px 12px">${thumb(a)}<span class="grow" style="opacity:.6">${esc(a.nombre)}</span><button class="btn gl sm" data-a="recArt" data-n="${esc(a.nombre)}">Recuperar</button></div>`).join('')}</div>`}
+  let arr=S.t.articulos.filter(a=>!borrado(a)&&(!k||norm(a.nombre).includes(k)));
+  if(v==='todos'){const mios=new Set(arr.map(a=>norm(a.nombre)).concat(S.t.articulos.map(a=>norm(a.nombre))));
+    arr=arr.concat(S.catalogo.filter(c=>!mios.has(norm(c.nombre))&&!bs.has(norm(c.nombre))&&(!k||norm(c.nombre).includes(k))).map(c=>({...c,veces:null,cat:true})))}
+  arr.sort((a,b)=>catOrden(a.categoria)-catOrden(b.categoria)||(num(b.veces)-num(a.veces))||a.nombre.localeCompare(b.nombre,'es'));
+  const g={};arr.forEach(a=>(g[a.categoria]=g[a.categoria]||[]).push(a));
+  return Object.keys(g).map(c=>`<div class="small muted" style="margin:10px 2px 4px;font-weight:600">${esc(catMeta(c).emoji)} ${esc(c)}</div><div class="glass list-plain">${g[c].map(a=>`<div class="opt" style="padding:8px 12px">${thumb(a)}<button class="body grow" style="background:none;border:0;text-align:left;padding:0" data-a="habAdd" data-n="${esc(a.nombre)}"><span style="${a.oculto?'opacity:.5':''}">${esc(a.nombre)}</span><span class="tiny muted" style="display:block">${a.cat?'Del catálogo':`${a.veces} ${a.veces===1?'vez':'veces'}`}${a.marca?' · '+esc(a.marca):''}${a.oculto?' · oculto':''}</span></button>${inL(a.nombre)?'<span class="pill blue">En lista</span>':''}${a.id?`<button class="dots3" data-a="editArt" data-id="${a.id}" aria-label="Editar ${esc(a.nombre)}">${svg('dots')}</button>`:''}<button class="dots3" data-a="delArt" data-n="${esc(a.nombre)}" aria-label="Borrar ${esc(a.nombre)}" style="color:var(--red)">${svg('trash')}</button></div>`).join('')}</div>`).join('')||`<div class="empty"><p>${k?'No hay artículos con ese nombre.':'Todavía no hay artículos. Se guardan solos al añadirlos a la lista.'}</p></div>`}
+function habSegHtml(){const v=S.habVista||'mios';const nb=S.t.articulos.filter(borrado).length;return [['mios','Míos'],['todos','Todos'],['borrados','Borrados'+(nb?` (${nb})`:'')]].map(([kk,t])=>`<button class="${v===kk?'on':''}" data-a="habVista" data-k="${kk}">${t}</button>`).join('')}
+function habRefresh(){const l=document.getElementById('habl');if(!l)return;l.innerHTML=habListHtml(S.habQ||'');const sg=document.getElementById('habseg');if(sg)sg.innerHTML=habSegHtml()}
+function habSheet(q){S.habQ=q||'';const o=sheet(`<h2>Mis artículos</h2><p class="small muted" style="margin:0">Toca un artículo para añadirlo a la lista. Con la papelera lo borras: deja de salir en sugerencias, habituales y precios. En «Todos» están también los del catálogo, y en «Borrados» puedes recuperarlos.</p>
    <button class="btn pri" data-a="nuevoArt">${svg('plus')}Nuevo artículo</button>
-   <label class="search" style="background:var(--fill)">${svg('search')}<input id="habq" type="search" placeholder="Buscar" value="${esc(q)}"></label><div id="habl">${habListHtml(q)}</div><button class="btn gl" data-a="close">Cerrar</button>`);
-  o.querySelector('#habq').addEventListener('input',e=>{o.querySelector('#habl').innerHTML=habListHtml(e.target.value)})}
+   <div class="seg" id="habseg">${habSegHtml()}</div>
+   <label class="search" style="background:var(--fill)">${svg('search')}<input id="habq" type="search" placeholder="Buscar" value="${esc(S.habQ)}"></label><div id="habl">${habListHtml(S.habQ)}</div><button class="btn gl" data-a="close">Cerrar</button>`);
+  o.querySelector('#habq').addEventListener('input',e=>{S.habQ=e.target.value;o.querySelector('#habl').innerHTML=habListHtml(e.target.value)})}
+A.habVista=d=>{S.habVista=d.k;habRefresh()};
+A.delArt=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.style.width='auto';b.style.padding='0 10px';b.style.borderRadius='17px';b.innerHTML='<span class="small" style="font-weight:600">¿Borrar?</span>';setTimeout(()=>{if(b.isConnected&&b.dataset.ok==='1'){b.dataset.ok='';b.removeAttribute('style');b.style.color='var(--red)';b.innerHTML=svg('trash')}},4000);return}
+  await borrarNombre(d.n);toast(`Borrado: ${d.n}`,`<button class="act" data-a="recArt" data-n="${esc(d.n)}">Deshacer</button>`);habRefresh()};
+A.recArt=async d=>{await recuperarNombre(d.n);toast(`Recuperado: ${d.n}`);habRefresh()};
 A.habAdd=async(d,b)=>{await addLista(d.n,{cantidad:1});const pill=b.parentElement.querySelector('.pill');if(!pill)b.insertAdjacentHTML('afterend','<span class="pill blue">En lista</span>');toast(`${d.n} añadido`)};
 A.editArt=d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;
   sheet(`<div class="row">${thumb(a,'lg')}<h2 class="grow">Editar artículo</h2><button class="btn gl sm" data-a="fotoArt" data-id="${a.id}">${svg('camera')}Foto</button></div><div class="g2"><div class="fld"><label for="a-n">Nombre</label><input class="inp" id="a-n" value="${esc(a.nombre)}"></div><div class="fld"><label for="a-e">Emoji</label><input class="inp" id="a-e" value="${esc(a.emoji)}" maxlength="4"></div></div>
@@ -920,8 +941,7 @@ A.editArt=d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;
   <label class="row small"><input type="checkbox" id="a-o" ${a.oculto?'checked':''}> No mostrar en Habituales</label>
   <div class="row"><button class="btn red sm" data-a="borrarArt" data-id="${a.id}">Borrar</button><span class="grow"></span><button class="btn gl sm" data-a="habituales">Cancelar</button><button class="btn pri sm" data-a="saveArt" data-id="${a.id}">Guardar</button></div>`)};
 A.borrarArt=async(d,b)=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? Toca otra vez';return}
-  if(S.catalogo.some(c=>norm(c.nombre)===norm(a.nombre)))await upd('articulos',a.id,{oculto:true,veces:-1,favorito:false});else await rem('articulos',a.id);
-  toast(`Borrado: ${a.nombre}. Ya no saldrá en sugerencias ni habituales.`);habSheet('')};
+  await borrarNombre(a.nombre);toast(`Borrado: ${a.nombre}. Ya no saldrá en sugerencias, habituales ni precios.`,`<button class="act" data-a="recArt" data-n="${esc(a.nombre)}">Deshacer</button>`);habSheet('')};
 A.nuevoArt=()=>sheet(`<h2>Nuevo artículo</h2><div class="g2"><div class="fld"><label for="na-n">Nombre</label><input class="inp" id="na-n" autofocus placeholder="Ej. Cápsulas de lavadora"></div><div class="fld"><label for="na-e">Emoji</label><input class="inp" id="na-e" value="📦" maxlength="4"></div></div>
   <div class="fld"><label for="na-c">Pasillo o tipo</label><select class="inp" id="na-c">${selOpts(S.cats.map(c=>c.nombre),'Otros')}</select></div>
   <div class="g2"><div class="fld"><label for="na-m">Marca preferida</label><input class="inp" id="na-m"></div><div class="fld"><label for="na-u">Unidad</label><select class="inp" id="na-u">${selOpts(UNIDADES,'ud')}</select></div></div>
