@@ -11,6 +11,8 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `index.html` | La app entera |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
+| `supabase/actualizacion-2.sql` | Solo si ya ejecutaste el schema antes: activa las **fotos** de recetas y productos |
+| `img/` | Fotos por defecto que verá todo el mundo (ver `img/NOMBRES.txt`) |
 | `supabase/actualizacion-1.sql` | Solo si ya ejecutaste el schema antes del 4/10/2026: permite estar en **varias casas**, salir de una y borrarla (solo quien la creó). Se puede ejecutar más de una vez |
 
 ---
@@ -94,6 +96,12 @@ Folios; ; 1; ud; 4,50
   - `Producto; Cantidad; Importe`
   - `Producto; Marca; Cantidad; Importe`
 - También acepta columnas separadas por tabulador (copiadas de Excel o Google Sheets), líneas con viñetas (`- `) y JSON.
+
+## Fotos
+
+- **Desde la app:** en una receta, **Añadir foto del plato**; en un producto (lista o Mis artículos), el botón 📷. Se guardan en una carpeta privada de la casa: las ven todos sus miembros y nadie más.
+- **Desde GitHub (fotos por defecto para todos):** sube `.jpg` a `img/productos/` o `img/recetas/` con el nombre de `img/NOMBRES.txt` y añade ese nombre a `img/lista.json`. La foto que suba cada casa tiene prioridad sobre la de GitHub.
+- Si no hay foto, se ve el emoji.
 
 ## Tabla de precios por súper
 

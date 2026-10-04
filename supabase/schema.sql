@@ -9,8 +9,10 @@ create table if not exists public.hogares (
   id uuid primary key default gen_random_uuid(),
   nombre text not null default 'Casa',
   codigo text not null unique,
+  creado_por uuid,
   created_at timestamptz not null default now()
 );
+alter table public.hogares add column if not exists creado_por uuid;
 
 create table if not exists public.miembros (
   id uuid primary key default gen_random_uuid(),
@@ -218,7 +220,7 @@ begin
     c := upper(substr(md5(random()::text || clock_timestamp()::text), 1, 6));
     exit when not exists (select 1 from public.hogares where codigo = c);
   end loop;
-  insert into public.hogares (nombre, codigo) values (coalesce(nullif(p_nombre,''),'Casa'), c) returning * into h;
+  insert into public.hogares (nombre, codigo, creado_por) values (coalesce(nullif(p_nombre,''),'Casa'), c, auth.uid()) returning * into h;
   insert into public.miembros (hogar_id, user_id, nombre, color) values (h.id, auth.uid(), p_mi_nombre, p_color);
   insert into public.recetas (hogar_id, nombre, emoji, minutos, momento, ingredientes)
     select h.id, nombre, emoji, minutos, momento, ingredientes from public.recetas_base;
@@ -237,8 +239,57 @@ begin
   return h;
 end $$;
 
+-- Salir de una casa. Si se queda sin nadie, se borra con sus datos.
+create or replace function public.salir_hogar(p_hogar uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Sin sesión'; end if;
+  delete from public.miembros where hogar_id = p_hogar and user_id = auth.uid();
+  delete from public.hogares h where h.id = p_hogar and not exists (select 1 from public.miembros m where m.hogar_id = h.id);
+end $$;
+
+-- Borrar una casa para todos. Solo quien la creó, y escribiendo su nombre exacto.
+create or replace function public.borrar_hogar(p_hogar uuid, p_nombre text)
+returns void language plpgsql security definer set search_path = public as $$
+declare h public.hogares;
+begin
+  if auth.uid() is null then raise exception 'Sin sesión'; end if;
+  select * into h from public.hogares where id = p_hogar;
+  if h.id is null or not public.es_miembro(p_hogar) then raise exception 'Casa no encontrada'; end if;
+  if h.creado_por is distinct from auth.uid() then raise exception 'Solo quien creó la casa puede borrarla'; end if;
+  if trim(coalesce(p_nombre,'')) <> trim(h.nombre) then raise exception 'El nombre no coincide'; end if;
+  delete from public.hogares where id = p_hogar;
+end $$;
+
 grant execute on function public.crear_hogar(text, text, text) to authenticated;
 grant execute on function public.unirse_hogar(text, text, text) to authenticated;
+grant execute on function public.salir_hogar(uuid) to authenticated;
+grant execute on function public.borrar_hogar(uuid, text) to authenticated;
+-- casas ya creadas: su creador es el primer miembro
+update public.hogares h set creado_por = (select m.user_id from public.miembros m where m.hogar_id = h.id order by m.created_at limit 1) where creado_por is null;
+
+-- ---------- Fotos (recetas y productos) ----------
+alter table public.recetas add column if not exists imagen text default '';
+
+create or replace function public.es_miembro_txt(h text)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.miembros where hogar_id::text = h and user_id = auth.uid());
+$$;
+
+-- Carpeta privada por casa: fotos/<id de la casa>/<foto>.jpg
+insert into storage.buckets (id, name, public) values ('fotos', 'fotos', false) on conflict (id) do nothing;
+drop policy if exists "fotos ver" on storage.objects;
+create policy "fotos ver" on storage.objects for select to authenticated
+  using (bucket_id = 'fotos' and public.es_miembro_txt((storage.foldername(name))[1]));
+drop policy if exists "fotos subir" on storage.objects;
+create policy "fotos subir" on storage.objects for insert to authenticated
+  with check (bucket_id = 'fotos' and public.es_miembro_txt((storage.foldername(name))[1]));
+drop policy if exists "fotos cambiar" on storage.objects;
+create policy "fotos cambiar" on storage.objects for update to authenticated
+  using (bucket_id = 'fotos' and public.es_miembro_txt((storage.foldername(name))[1]));
+drop policy if exists "fotos borrar" on storage.objects;
+create policy "fotos borrar" on storage.objects for delete to authenticated
+  using (bucket_id = 'fotos' and public.es_miembro_txt((storage.foldername(name))[1]));
 
 -- ---------- Tiempo real ----------
 do $$

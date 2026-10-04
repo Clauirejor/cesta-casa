@@ -1,0 +1,478 @@
+NOMBRES DE ARCHIVO PARA LAS FOTOS DE CESTA CASA
+
+1. Guarda la foto en formato .jpg (cuadrada, unos 400x400 px para productos; 800x600 para recetas).
+2. Ponle el nombre de esta lista y súbela a img/productos/ o img/recetas/.
+3. Añade ese nombre (sin .jpg) a img/lista.json, por ejemplo:
+   {"productos": ["tomate", "huevos"], "recetas": ["tortilla-de-patatas"]}
+4. Para recetas o productos nuevos: minúsculas, sin tildes y con guiones ("Pollo al curry" → pollo-al-curry.jpg).
+
+=== RECETAS (img/recetas/) ===
+Avena con fruta  →  avena-con-fruta.jpg
+Tostadas con tomate y aceite  →  tostadas-con-tomate-y-aceite.jpg
+Yogur con cereales  →  yogur-con-cereales.jpg
+Pollo al horno con verduras  →  pollo-al-horno-con-verduras.jpg
+Macarrones con tomate  →  macarrones-con-tomate.jpg
+Lentejas con verduras  →  lentejas-con-verduras.jpg
+Paella de pollo y verduras  →  paella-de-pollo-y-verduras.jpg
+Merluza al horno con patatas  →  merluza-al-horno-con-patatas.jpg
+Garbanzos con espinacas  →  garbanzos-con-espinacas.jpg
+Tortilla de patatas  →  tortilla-de-patatas.jpg
+Crema de calabaza  →  crema-de-calabaza.jpg
+Revuelto de espinacas  →  revuelto-de-espinacas.jpg
+Salmón a la plancha con ensalada  →  salmon-a-la-plancha-con-ensalada.jpg
+Sándwiches y fruta  →  sandwiches-y-fruta.jpg
+Pizza casera  →  pizza-casera.jpg
+
+=== PRODUCTOS (img/productos/) ===
+
+-- Frutas y verduras
+Tomate  →  tomate.jpg
+Tomate cherry  →  tomate-cherry.jpg
+Lechuga  →  lechuga.jpg
+Cebolla  →  cebolla.jpg
+Cebolla morada  →  cebolla-morada.jpg
+Ajo  →  ajo.jpg
+Patata  →  patata.jpg
+Boniato  →  boniato.jpg
+Zanahoria  →  zanahoria.jpg
+Pimiento rojo  →  pimiento-rojo.jpg
+Pimiento verde  →  pimiento-verde.jpg
+Calabacín  →  calabacin.jpg
+Berenjena  →  berenjena.jpg
+Pepino  →  pepino.jpg
+Brócoli  →  brocoli.jpg
+Coliflor  →  coliflor.jpg
+Espinacas  →  espinacas.jpg
+Rúcula  →  rucula.jpg
+Canónigos  →  canonigos.jpg
+Champiñones  →  champinones.jpg
+Puerro  →  puerro.jpg
+Apio  →  apio.jpg
+Calabaza  →  calabaza.jpg
+Judías verdes  →  judias-verdes.jpg
+Guisantes frescos  →  guisantes-frescos.jpg
+Maíz dulce  →  maiz-dulce.jpg
+Aguacate  →  aguacate.jpg
+Limón  →  limon.jpg
+Lima  →  lima.jpg
+Naranja  →  naranja.jpg
+Mandarina  →  mandarina.jpg
+Manzana  →  manzana.jpg
+Pera  →  pera.jpg
+Plátano  →  platano.jpg
+Fresas  →  fresas.jpg
+Uvas  →  uvas.jpg
+Kiwi  →  kiwi.jpg
+Melón  →  melon.jpg
+Sandía  →  sandia.jpg
+Piña  →  pina.jpg
+Melocotón  →  melocoton.jpg
+Mango  →  mango.jpg
+Cerezas  →  cerezas.jpg
+Arándanos  →  arandanos.jpg
+Frambuesas  →  frambuesas.jpg
+Perejil  →  perejil.jpg
+Cilantro  →  cilantro.jpg
+Albahaca  →  albahaca.jpg
+Jengibre  →  jengibre.jpg
+Ensalada en bolsa  →  ensalada-en-bolsa.jpg
+
+-- Carnes y pescados
+Pechuga de pollo  →  pechuga-de-pollo.jpg
+Muslos de pollo  →  muslos-de-pollo.jpg
+Pollo entero  →  pollo-entero.jpg
+Alitas de pollo  →  alitas-de-pollo.jpg
+Carne picada  →  carne-picada.jpg
+Filetes de ternera  →  filetes-de-ternera.jpg
+Lomo de cerdo  →  lomo-de-cerdo.jpg
+Costillas de cerdo  →  costillas-de-cerdo.jpg
+Chuletas de cerdo  →  chuletas-de-cerdo.jpg
+Secreto ibérico  →  secreto-iberico.jpg
+Hamburguesas  →  hamburguesas.jpg
+Salchichas  →  salchichas.jpg
+Pavo en filetes  →  pavo-en-filetes.jpg
+Cordero  →  cordero.jpg
+Conejo  →  conejo.jpg
+Merluza  →  merluza.jpg
+Salmón  →  salmon.jpg
+Bacalao  →  bacalao.jpg
+Dorada  →  dorada.jpg
+Lubina  →  lubina.jpg
+Atún fresco  →  atun-fresco.jpg
+Sardinas  →  sardinas.jpg
+Boquerones  →  boquerones.jpg
+Gambas  →  gambas.jpg
+Langostinos  →  langostinos.jpg
+Calamares  →  calamares.jpg
+Sepia  →  sepia.jpg
+Mejillones  →  mejillones.jpg
+Almejas  →  almejas.jpg
+
+-- Charcutería y quesos
+Jamón serrano  →  jamon-serrano.jpg
+Jamón cocido  →  jamon-cocido.jpg
+Pechuga de pavo  →  pechuga-de-pavo.jpg
+Chorizo  →  chorizo.jpg
+Salchichón  →  salchichon.jpg
+Fuet  →  fuet.jpg
+Lomo embuchado  →  lomo-embuchado.jpg
+Bacon  →  bacon.jpg
+Mortadela  →  mortadela.jpg
+Queso en lonchas  →  queso-en-lonchas.jpg
+Queso curado  →  queso-curado.jpg
+Queso semicurado  →  queso-semicurado.jpg
+Queso fresco  →  queso-fresco.jpg
+Queso rallado  →  queso-rallado.jpg
+Mozzarella  →  mozzarella.jpg
+Queso de untar  →  queso-de-untar.jpg
+Quesitos  →  quesitos.jpg
+Parmesano  →  parmesano.jpg
+Queso de cabra  →  queso-de-cabra.jpg
+
+-- Lácteos y huevos
+Leche entera  →  leche-entera.jpg
+Leche semidesnatada  →  leche-semidesnatada.jpg
+Leche desnatada  →  leche-desnatada.jpg
+Bebida de avena  →  bebida-de-avena.jpg
+Bebida de soja  →  bebida-de-soja.jpg
+Huevos  →  huevos.jpg
+Yogur natural  →  yogur-natural.jpg
+Yogures de sabores  →  yogures-de-sabores.jpg
+Yogur griego  →  yogur-griego.jpg
+Kéfir  →  kefir.jpg
+Natillas  →  natillas.jpg
+Flan  →  flan.jpg
+Mantequilla  →  mantequilla.jpg
+Nata para cocinar  →  nata-para-cocinar.jpg
+Nata para montar  →  nata-para-montar.jpg
+Batidos  →  batidos.jpg
+Petit suisse  →  petit-suisse.jpg
+
+-- Panadería
+Pan de barra  →  pan-de-barra.jpg
+Pan de molde  →  pan-de-molde.jpg
+Pan integral  →  pan-integral.jpg
+Pan de hamburguesa  →  pan-de-hamburguesa.jpg
+Pan de perrito  →  pan-de-perrito.jpg
+Tortillas de trigo  →  tortillas-de-trigo.jpg
+Pan tostado  →  pan-tostado.jpg
+Picos  →  picos.jpg
+Biscotes  →  biscotes.jpg
+Croissants  →  croissants.jpg
+Magdalenas  →  magdalenas.jpg
+Bizcocho  →  bizcocho.jpg
+
+-- Pasta, arroz y legumbres
+Macarrones  →  macarrones.jpg
+Espaguetis  →  espaguetis.jpg
+Tallarines  →  tallarines.jpg
+Fideos  →  fideos.jpg
+Lasaña (placas)  →  lasana-placas.jpg
+Arroz redondo  →  arroz-redondo.jpg
+Arroz largo  →  arroz-largo.jpg
+Arroz basmati  →  arroz-basmati.jpg
+Lentejas  →  lentejas.jpg
+Garbanzos  →  garbanzos.jpg
+Alubias  →  alubias.jpg
+Garbanzos cocidos  →  garbanzos-cocidos.jpg
+Lentejas cocidas  →  lentejas-cocidas.jpg
+Cuscús  →  cuscus.jpg
+Quinoa  →  quinoa.jpg
+Harina  →  harina.jpg
+Pan rallado  →  pan-rallado.jpg
+Puré de patata  →  pure-de-patata.jpg
+Caldo de pollo  →  caldo-de-pollo.jpg
+Caldo de verduras  →  caldo-de-verduras.jpg
+Sopa de sobre  →  sopa-de-sobre.jpg
+
+-- Aceites, salsas y especias
+Aceite de oliva virgen extra  →  aceite-de-oliva-virgen-extra.jpg
+Aceite de oliva  →  aceite-de-oliva.jpg
+Aceite de girasol  →  aceite-de-girasol.jpg
+Vinagre  →  vinagre.jpg
+Sal  →  sal.jpg
+Pimienta  →  pimienta.jpg
+Pimentón  →  pimenton.jpg
+Orégano  →  oregano.jpg
+Comino  →  comino.jpg
+Curry  →  curry.jpg
+Azafrán  →  azafran.jpg
+Colorante alimentario  →  colorante-alimentario.jpg
+Laurel  →  laurel.jpg
+Tomate frito  →  tomate-frito.jpg
+Tomate triturado  →  tomate-triturado.jpg
+Mayonesa  →  mayonesa.jpg
+Ketchup  →  ketchup.jpg
+Mostaza  →  mostaza.jpg
+Salsa de soja  →  salsa-de-soja.jpg
+Alioli  →  alioli.jpg
+Pesto  →  pesto.jpg
+Salsa barbacoa  →  salsa-barbacoa.jpg
+Avecrem  →  avecrem.jpg
+
+-- Conservas
+Atún en lata  →  atun-en-lata.jpg
+Sardinas en lata  →  sardinas-en-lata.jpg
+Mejillones en escabeche  →  mejillones-en-escabeche.jpg
+Berberechos  →  berberechos.jpg
+Aceitunas  →  aceitunas.jpg
+Maíz en lata  →  maiz-en-lata.jpg
+Pimientos del piquillo  →  pimientos-del-piquillo.jpg
+Espárragos  →  esparragos.jpg
+Alcachofas en conserva  →  alcachofas-en-conserva.jpg
+Melocotón en almíbar  →  melocoton-en-almibar.jpg
+Pepinillos  →  pepinillos.jpg
+Paté  →  pate.jpg
+
+-- Desayuno y dulces
+Café molido  →  cafe-molido.jpg
+Café en cápsulas  →  cafe-en-capsulas.jpg
+Café soluble  →  cafe-soluble.jpg
+Cacao en polvo  →  cacao-en-polvo.jpg
+Infusiones  →  infusiones.jpg
+Té  →  te.jpg
+Cereales  →  cereales.jpg
+Copos de avena  →  copos-de-avena.jpg
+Galletas  →  galletas.jpg
+Galletas María  →  galletas-maria.jpg
+Tostadas de arroz  →  tostadas-de-arroz.jpg
+Mermelada  →  mermelada.jpg
+Miel  →  miel.jpg
+Crema de cacao  →  crema-de-cacao.jpg
+Azúcar  →  azucar.jpg
+Edulcorante  →  edulcorante.jpg
+Chocolate  →  chocolate.jpg
+Frutos secos  →  frutos-secos.jpg
+Patatas fritas  →  patatas-fritas.jpg
+Gusanitos  →  gusanitos.jpg
+Palomitas  →  palomitas.jpg
+Chucherías  →  chucherias.jpg
+Barritas de cereales  →  barritas-de-cereales.jpg
+
+-- Congelados
+Guisantes congelados  →  guisantes-congelados.jpg
+Verduras congeladas  →  verduras-congeladas.jpg
+Patatas fritas congeladas  →  patatas-fritas-congeladas.jpg
+Pizza congelada  →  pizza-congelada.jpg
+Croquetas  →  croquetas.jpg
+Varitas de merluza  →  varitas-de-merluza.jpg
+San Jacobos  →  san-jacobos.jpg
+Nuggets  →  nuggets.jpg
+Empanadillas  →  empanadillas.jpg
+Gambas congeladas  →  gambas-congeladas.jpg
+Helado  →  helado.jpg
+Hielo  →  hielo.jpg
+Masa de hojaldre  →  masa-de-hojaldre.jpg
+Masa de pizza  →  masa-de-pizza.jpg
+
+-- Bebidas
+Agua  →  agua.jpg
+Agua con gas  →  agua-con-gas.jpg
+Refresco de cola  →  refresco-de-cola.jpg
+Refresco de naranja  →  refresco-de-naranja.jpg
+Refresco de limón  →  refresco-de-limon.jpg
+Tónica  →  tonica.jpg
+Zumo de naranja  →  zumo-de-naranja.jpg
+Zumo de melocotón  →  zumo-de-melocoton.jpg
+Cerveza  →  cerveza.jpg
+Cerveza sin alcohol  →  cerveza-sin-alcohol.jpg
+Vino tinto  →  vino-tinto.jpg
+Vino blanco  →  vino-blanco.jpg
+Cava  →  cava.jpg
+Bebida isotónica  →  bebida-isotonica.jpg
+Horchata  →  horchata.jpg
+
+-- Limpieza
+Detergente  →  detergente.jpg
+Suavizante  →  suavizante.jpg
+Lavavajillas a mano  →  lavavajillas-a-mano.jpg
+Pastillas lavavajillas  →  pastillas-lavavajillas.jpg
+Sal lavavajillas  →  sal-lavavajillas.jpg
+Abrillantador lavavajillas  →  abrillantador-lavavajillas.jpg
+Lejía  →  lejia.jpg
+Friegasuelos  →  friegasuelos.jpg
+Limpiacristales  →  limpiacristales.jpg
+Multiusos  →  multiusos.jpg
+Desengrasante  →  desengrasante.jpg
+Quitagrasas  →  quitagrasas.jpg
+Limpiador de baño  →  limpiador-de-bano.jpg
+Gel WC  →  gel-wc.jpg
+Estropajos  →  estropajos.jpg
+Bayetas  →  bayetas.jpg
+Fregona  →  fregona.jpg
+Guantes de limpieza  →  guantes-de-limpieza.jpg
+Papel de cocina  →  papel-de-cocina.jpg
+Bolsas de basura  →  bolsas-de-basura.jpg
+Papel de aluminio  →  papel-de-aluminio.jpg
+Papel film  →  papel-film.jpg
+Papel de horno  →  papel-de-horno.jpg
+Bolsas de congelación  →  bolsas-de-congelacion.jpg
+Ambientador  →  ambientador.jpg
+Insecticida  →  insecticida.jpg
+Quitamanchas  →  quitamanchas.jpg
+Pinzas de ropa  →  pinzas-de-ropa.jpg
+
+-- Higiene y cuidado
+Papel higiénico  →  papel-higienico.jpg
+Gel de ducha  →  gel-de-ducha.jpg
+Champú  →  champu.jpg
+Acondicionador  →  acondicionador.jpg
+Pasta de dientes  →  pasta-de-dientes.jpg
+Cepillo de dientes  →  cepillo-de-dientes.jpg
+Enjuague bucal  →  enjuague-bucal.jpg
+Hilo dental  →  hilo-dental.jpg
+Desodorante  →  desodorante.jpg
+Jabón de manos  →  jabon-de-manos.jpg
+Crema hidratante  →  crema-hidratante.jpg
+Protector solar  →  protector-solar.jpg
+Cuchillas de afeitar  →  cuchillas-de-afeitar.jpg
+Espuma de afeitar  →  espuma-de-afeitar.jpg
+Compresas  →  compresas.jpg
+Tampones  →  tampones.jpg
+Bastoncillos  →  bastoncillos.jpg
+Algodón  →  algodon.jpg
+Pañuelos de papel  →  panuelos-de-papel.jpg
+Toallitas desmaquillantes  →  toallitas-desmaquillantes.jpg
+Laca  →  laca.jpg
+Gomas del pelo  →  gomas-del-pelo.jpg
+Colonia  →  colonia.jpg
+
+-- Bebé
+Pañales  →  panales.jpg
+Toallitas bebé  →  toallitas-bebe.jpg
+Leche de fórmula  →  leche-de-formula.jpg
+Potitos  →  potitos.jpg
+Papilla de cereales  →  papilla-de-cereales.jpg
+Crema del pañal  →  crema-del-panal.jpg
+Champú infantil  →  champu-infantil.jpg
+Colonia infantil  →  colonia-infantil.jpg
+
+-- Mascotas
+Pienso perro  →  pienso-perro.jpg
+Pienso gato  →  pienso-gato.jpg
+Comida húmeda perro  →  comida-humeda-perro.jpg
+Comida húmeda gato  →  comida-humeda-gato.jpg
+Arena para gato  →  arena-para-gato.jpg
+Premios mascota  →  premios-mascota.jpg
+Bolsas para excrementos  →  bolsas-para-excrementos.jpg
+
+-- Farmacia
+Paracetamol  →  paracetamol.jpg
+Ibuprofeno  →  ibuprofeno.jpg
+Tiritas  →  tiritas.jpg
+Termómetro  →  termometro.jpg
+Suero fisiológico  →  suero-fisiologico.jpg
+Alcohol  →  alcohol.jpg
+Agua oxigenada  →  agua-oxigenada.jpg
+Gasas  →  gasas.jpg
+Antimosquitos  →  antimosquitos.jpg
+Vitaminas  →  vitaminas.jpg
+Mascarillas  →  mascarillas.jpg
+
+-- Hogar y bricolaje
+Bombillas  →  bombillas.jpg
+Pilas AA  →  pilas-aa.jpg
+Pilas AAA  →  pilas-aaa.jpg
+Pila de botón  →  pila-de-boton.jpg
+Cinta americana  →  cinta-americana.jpg
+Celo  →  celo.jpg
+Pegamento  →  pegamento.jpg
+Tornillos  →  tornillos.jpg
+Tacos  →  tacos.jpg
+Alcargolas  →  alcargolas.jpg
+Cuerda  →  cuerda.jpg
+Cajas de cartón  →  cajas-de-carton.jpg
+Cajas de almacenaje  →  cajas-de-almacenaje.jpg
+Perchas  →  perchas.jpg
+Velas  →  velas.jpg
+Cerillas  →  cerillas.jpg
+Mechero  →  mechero.jpg
+Toallas  →  toallas.jpg
+Sábanas  →  sabanas.jpg
+Almohada  →  almohada.jpg
+Cubiertos  →  cubiertos.jpg
+Vasos  →  vasos.jpg
+Platos  →  platos.jpg
+Tupper  →  tupper.jpg
+Sartén  →  sarten.jpg
+Cazo  →  cazo.jpg
+Fregona de repuesto  →  fregona-de-repuesto.jpg
+Escoba  →  escoba.jpg
+Recogedor  →  recogedor.jpg
+Cubo de basura  →  cubo-de-basura.jpg
+Felpudo  →  felpudo.jpg
+Plantas  →  plantas.jpg
+Tierra para plantas  →  tierra-para-plantas.jpg
+Alfombra  →  alfombra.jpg
+Cortinas  →  cortinas.jpg
+Regleta  →  regleta.jpg
+Alargador  →  alargador.jpg
+
+-- Papelería y oficina
+Folios  →  folios.jpg
+Cuaderno  →  cuaderno.jpg
+Libreta  →  libreta.jpg
+Bolígrafos  →  boligrafos.jpg
+Lápices  →  lapices.jpg
+Gomas de borrar  →  gomas-de-borrar.jpg
+Sacapuntas  →  sacapuntas.jpg
+Rotuladores  →  rotuladores.jpg
+Ceras  →  ceras.jpg
+Pinturas de colores  →  pinturas-de-colores.jpg
+Tijeras  →  tijeras.jpg
+Pegamento de barra  →  pegamento-de-barra.jpg
+Cartulinas  →  cartulinas.jpg
+Carpetas  →  carpetas.jpg
+Fundas de plástico  →  fundas-de-plastico.jpg
+Post-it  →  post-it.jpg
+Grapas  →  grapas.jpg
+Clips  →  clips.jpg
+Sobres  →  sobres.jpg
+Cinta adhesiva  →  cinta-adhesiva.jpg
+Cartuchos de tinta  →  cartuchos-de-tinta.jpg
+Plastilina  →  plastilina.jpg
+Acuarelas  →  acuarelas.jpg
+Mochila  →  mochila.jpg
+Estuche  →  estuche.jpg
+Agenda  →  agenda.jpg
+
+-- Ropa y calzado
+Zapatos  →  zapatos.jpg
+Zapatillas  →  zapatillas.jpg
+Zapatillas de casa  →  zapatillas-de-casa.jpg
+Sandalias  →  sandalias.jpg
+Botas  →  botas.jpg
+Calcetines  →  calcetines.jpg
+Ropa interior  →  ropa-interior.jpg
+Pijama  →  pijama.jpg
+Camisetas  →  camisetas.jpg
+Pantalones  →  pantalones.jpg
+Chándal  →  chandal.jpg
+Sudadera  →  sudadera.jpg
+Abrigo  →  abrigo.jpg
+Chubasquero  →  chubasquero.jpg
+Gorro  →  gorro.jpg
+Guantes  →  guantes.jpg
+Bufanda  →  bufanda.jpg
+Bañador  →  banador.jpg
+Cordones  →  cordones.jpg
+Betún  →  betun.jpg
+
+-- Electrónica
+Cargador móvil  →  cargador-movil.jpg
+Cable USB  →  cable-usb.jpg
+Auriculares  →  auriculares.jpg
+Funda móvil  →  funda-movil.jpg
+Ratón  →  raton.jpg
+Pendrive  →  pendrive.jpg
+Tarjeta de memoria  →  tarjeta-de-memoria.jpg
+Bombilla inteligente  →  bombilla-inteligente.jpg
+Pilas recargables  →  pilas-recargables.jpg
+Mando a distancia  →  mando-a-distancia.jpg
+
+-- Otros
+Regalo  →  regalo.jpg
+Flores  →  flores.jpg
+Lotería  →  loteria.jpg
+Recambio  →  recambio.jpg
+Bolsa reutilizable  →  bolsa-reutilizable.jpg
