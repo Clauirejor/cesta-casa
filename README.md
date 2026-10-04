@@ -11,6 +11,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `index.html` | La app entera |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
+| `supabase/actualizacion-4.sql` | Solo si ya ejecutaste el schema antes: permite añadir **súper y tiendas propias** (mercadillo, frutería…) |
 | `supabase/actualizacion-3.sql` | Solo si ya ejecutaste el schema antes: guarda el **tamaño del envase** en los precios |
 | `supabase/actualizacion-2.sql` | Solo si ya ejecutaste el schema antes: activa las **fotos** de recetas y productos |
 | `precios/` | Precios de referencia por supermercado (tabla Excel, `referencia.json` y el conversor) |
@@ -135,6 +136,13 @@ En la pestaña **Compra** aparece la tarjeta **¿Dónde compro?**. Con los preci
 - **Apuntar el súper en cada producto** pone a cada producto el súper donde conviene comprarlo y agrupa la lista **Por súper**.
 
 Cuantos más tickets importéis los dos, más acertada será la recomendación. Los precios no se consultan solos en internet: Lidl y Aldi no publican en su web los precios del supermercado, y Mercadona no permite leerlos de forma automática.
+
+## Editar y quitar
+
+- **Quitar un producto de la lista:** deslízalo hacia la izquierda y pulsa **Quitar**, o pulsa **Editar** arriba y usa los botones rojos. Siempre sale **Deshacer**. En el menú ··· está también **Vaciar la lista**.
+- **Mis artículos** (Más → Mis artículos): **Nuevo artículo** para crear uno y, al editar uno, **Borrar**. Los del catálogo base dejan de salir en las sugerencias.
+- **Precios:** toca la casilla de un súper para cambiarlo o **Quitar el precio**. En el detalle de un producto, **Editar** junto a cada súper y **Precio en otro súper o tienda**.
+- **Súper y tiendas propias:** el botón **＋ Súper o tienda** (en la tabla de precios y en ¿Dónde compro?) o **Más → Súper y tiendas**. El Mercadillo viene ya incluido.
 
 ## Cómo se usa
 - **Compra:** escribe ("2 leche", "folios", "zapatos") o toca un **Habitual**. Todo lo que apuntáis una vez queda en **Mis artículos** para volver a ponerlo con un toque. Lo de casa (papelería, ropa, bricolaje…) sale en su propio grupo.

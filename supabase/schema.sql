@@ -178,6 +178,16 @@ create table if not exists public.eventos (
 );
 create index if not exists eventos_hogar_fecha on public.eventos (hogar_id, created_at desc);
 
+-- Súper y tiendas propias de cada casa (mercadillo, frutería…)
+create table if not exists public.tiendas (
+  id uuid primary key default gen_random_uuid(),
+  hogar_id uuid not null references public.hogares(id) on delete cascade,
+  nombre text not null,
+  emoji text default '🏪',
+  created_at timestamptz not null default now(),
+  unique (hogar_id, nombre)
+);
+
 -- ---------- Seguridad (RLS): cada hogar solo ve lo suyo ----------
 alter table public.hogares       enable row level security;
 alter table public.miembros      enable row level security;
@@ -205,7 +215,7 @@ create policy "leer recetas base" on public.recetas_base for select to authentic
 do $$
 declare t text;
 begin
-  foreach t in array array['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos'] loop
+  foreach t in array array['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','tiendas'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "hogar" on public.%I', t);
     execute format('create policy "hogar" on public.%I for all to authenticated using (public.es_miembro(hogar_id)) with check (public.es_miembro(hogar_id))', t);
@@ -297,7 +307,7 @@ create policy "fotos borrar" on storage.objects for delete to authenticated
 do $$
 declare t text;
 begin
-  foreach t in array array['lista','despensa','precios','valoraciones','recetas','menu','eventos','articulos','miembros'] loop
+  foreach t in array array['lista','despensa','precios','valoraciones','recetas','menu','eventos','articulos','miembros','tiendas'] loop
     if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
       execute format('alter publication supabase_realtime add table public.%I', t);
     end if;
