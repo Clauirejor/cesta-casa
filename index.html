@@ -971,6 +971,7 @@ A.editArt=d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;S.editArtI
   <div class="g2"><div class="fld"><label for="a-m">Marca preferida</label><input class="inp" id="a-m" value="${esc(a.marca)}"></div><div class="fld"><label for="a-u">Unidad</label><select class="inp" id="a-u">${selOpts(UNIDADES,a.unidad)}</select></div></div>
   <div class="fld"><label for="a-d">Descripción</label><textarea class="inp" id="a-d" rows="3" placeholder="Ej. El de tapón azul, sin lactosa…">${esc(a.descripcion||'')}</textarea></div>
   ${preciosArtHtml(a.nombre)}
+  ${codigos(a).length?`<div class="fld"><label>Códigos de barras (${codigos(a).length})</label><div class="glass list-plain">${codigos(a).map(x=>`<div class="opt" style="padding:8px 12px"><span class="grow"><span style="font-variant-numeric:tabular-nums">${esc(x.c)}</span><span class="tiny muted" style="display:block">${esc([x.m,x.s].filter(Boolean).join(' · ')||'Sin marca')}</span></span><button class="dots3" data-a="quitarEan" data-id="${a.id}" data-c="${esc(x.c)}" aria-label="Quitar código ${esc(x.c)}" style="color:var(--red)">${svg('trash')}</button></div>`).join('')}</div><span class="tiny muted">Todos estos códigos se reconocen como «${esc(a.nombre)}».</span></div>`:''}
   <label class="row small"><input type="checkbox" id="a-o" ${a.oculto?'checked':''}> No mostrar en Habituales</label>
   <div class="row"><button class="btn red sm" data-a="borrarArt" data-id="${a.id}">Borrar</button><span class="grow"></span><button class="btn gl sm" data-a="habituales">Cancelar</button><button class="btn pri sm" data-a="saveArt" data-id="${a.id}">Guardar</button></div>`)};
 A.borrarArt=async(d,b)=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? Toca otra vez';return}
@@ -990,6 +991,7 @@ A.saveNuevoArt=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('na-n'
   const desc=v('na-d');if(desc)data.descripcion=desc;if(NA_FOTO){data.imagen=NA_FOTO;if(ex&&ex.imagen)borrarFoto(ex.imagen)}
   if(ex)await upd('articulos',ex.id,{...data,veces:Math.max(0,num(ex.veces))});else await ins('articulos',{ean:'',imagen:'',...data,veces:0,ultima:nowIso(),favorito:false});NA_FOTO='';
   if($('#na-l').checked)await addLista(n,{cantidad:1,unidad:data.unidad,marca:data.marca});toast(`«${n}» guardado${$('#na-l').checked?' y añadido a la lista':''}`);habSheet('')};
+A.quitarEan=async d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;await upd('articulos',a.id,{ean:codigosTxt(codigos(a).filter(x=>x.c!==d.c))});toast('Código quitado');A.editArt({id:a.id})};
 A.fotoArt=async d=>{if(await cambiarFoto('articulos',d.id,'imagen'))A.editArt(d)};
 A.saveArt=async d=>{const v=id=>$('#'+id).value.trim();const a=S.t.articulos.find(x=>x.id===d.id)||{};const p={nombre:cap(v('a-n')),emoji:v('a-e')||'📦',categoria:v('a-c'),marca:v('a-m'),unidad:v('a-u'),oculto:$('#a-o').checked};
   if(v('a-d')!==(a.descripcion||''))p.descripcion=v('a-d');if(!p.nombre){toast('Escribe el nombre.');return}
@@ -1041,16 +1043,21 @@ A.tirado=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)sacar(x,'tirado')};
 A.reponer=async d=>{await addLista(d.n,{marca:d.m,super:d.s});toast(`${d.n} está en la lista`)};
 function despForm(x){x=x||{};return `<h2>${x.id?'Editar':'Añadir a la despensa'}</h2>
   <div class="row">${imgUrl(x.imagen)?`<span class="th lg"><img src="${esc(imgUrl(x.imagen))}" alt=""></span>`:''}<div class="fld grow"><label for="n-n">Producto</label><input class="inp" id="n-n" list="dl-cat" value="${esc(x.nombre)}" ${x.nombre?'':'autofocus'}></div></div>
-  <datalist id="dl-cat">${[...S.t.articulos.map(a=>a.nombre),...S.catalogo.map(c=>c.nombre)].slice(0,600).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+  ${x.ean&&!x.id&&!x.conocido?`<div class="small muted" style="margin-top:-4px">Código nuevo${x.offNombre?`: <b style="color:var(--ink2)">${esc(x.offNombre)}</b>`:''}. Si es algo que ya compráis (aunque sea de otra marca o súper), elige o escribe ese artículo y el código se guardará en él.</div>
+   <div class="chips" style="margin:0">${[...new Set([x.nombre,...sugerencias((x.offNombre||x.nombre||'').split(' ').slice(0,2).join(' '),5).map(g=>g.nombre),x.offNombre].filter(Boolean))].slice(0,6).map(n=>`<button class="chip ${n===x.nombre?'on':''}" data-a="pickArtEan" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}
+  <datalist id="dl-cat">${[...S.t.articulos.filter(a=>!borrado(a)).map(a=>a.nombre),...S.catalogo.map(c=>c.nombre)].slice(0,600).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
   <div class="g2"><div class="fld"><label for="n-m">Marca</label><input class="inp" id="n-m" value="${esc(x.marca)}"></div><div class="fld"><label for="n-s">Súper</label><select class="inp" id="n-s">${selOpts(SUP(),x.super,'—')}</select></div></div>
   <div class="g2"><div class="fld"><label for="n-c">Cantidad</label><input class="inp" id="n-c" type="number" step="any" inputmode="decimal" value="${esc(x.cantidad||1)}"></div><div class="fld"><label for="n-u">Unidad</label><select class="inp" id="n-u">${selOpts(UNIDADES,x.unidad||'ud')}</select></div></div>
   <div class="g2"><div class="fld"><label for="n-f">Caduca</label><input class="inp" id="n-f" type="date" value="${esc(x.caduca||'')}"></div><div class="fld"><label for="n-p">Precio (€)</label><input class="inp" id="n-p" type="number" step="0.01" inputmode="decimal" value="${num(x.precio)||''}"></div></div>
   <input type="hidden" id="n-ean" value="${esc(x.ean||'')}"><input type="hidden" id="n-img" value="${esc(x.imagen||'')}">
   <div class="g2"><button class="btn gl" data-a="nuevoALista">${svg('cart')}A la lista</button><button class="btn pri" data-a="nuevoADesp">A la despensa</button></div>`}
 A.addDesp=()=>sheet(despForm());
+A.pickArtEan=(d,b)=>{document.querySelectorAll('[data-a=pickArtEan]').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#n-n').value=d.n};
 async function guardarArticuloDeForm(){const v=id=>($('#'+id)||{}).value?.trim()||'';const nombre=cap(v('n-n'));if(!nombre){toast('Escribe qué producto es.');return null}
-  const info=infoArticulo(nombre);const extra={};if(v('n-ean'))extra.ean=v('n-ean');if(v('n-img'))extra.imagen=v('n-img');if(v('n-m'))extra.marca=v('n-m');
-  const a=S.t.articulos.find(x=>norm(x.nombre)===norm(nombre));if(a){if(Object.keys(extra).length)await upd('articulos',a.id,extra)}else await ins('articulos',{nombre,categoria:info.categoria,emoji:info.emoji,unidad:info.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false,...extra});
+  const info=infoArticulo(nombre);let a=S.t.articulos.find(x=>norm(x.nombre)===norm(nombre));
+  if(a){const extra={};if(v('n-img')&&!a.imagen)extra.imagen=v('n-img');if(v('n-m')&&!a.marca)extra.marca=v('n-m');if(borrado(a)){extra.oculto=false;extra.veces=0}if(Object.keys(extra).length)await upd('articulos',a.id,extra)}
+  else[a]=await ins('articulos',{nombre,categoria:info.categoria,emoji:info.emoji,unidad:info.unidad||'ud',marca:v('n-m'),ean:'',imagen:v('n-img'),veces:0,ultima:nowIso(),oculto:false,favorito:false});
+  const code=v('n-ean').replace(/\D/g,'');if(code&&a){const e=codigos(a).find(x=>x.c===code);if(!e||(v('n-m')&&e.m!==v('n-m'))||(v('n-s')&&e.s!==v('n-s')))await asociarCodigo(a,code,v('n-m')||(e&&e.m),v('n-s')||(e&&e.s))}
   return {nombre,info,marca:v('n-m'),super:v('n-s'),cantidad:num(v('n-c'))||1,unidad:v('n-u')||'ud',caduca:v('n-f')||null,precio:num(v('n-p')),imagen:v('n-img')}}
 A.nuevoADesp=async()=>{const f=await guardarArticuloDeForm();if(!f)return;
   await ins('despensa',{nombre:f.nombre,emoji:f.info.emoji,categoria:f.info.categoria,cantidad:f.cantidad,unidad:f.unidad,caduca:f.caduca,super:f.super,marca:f.marca,precio:f.precio,por:S.me.id});
@@ -1058,6 +1065,16 @@ A.nuevoADesp=async()=>{const f=await guardarArticuloDeForm();if(!f)return;
 A.nuevoALista=async()=>{const f=await guardarArticuloDeForm();if(!f)return;await addLista(f.nombre,{cantidad:f.cantidad,unidad:f.unidad,marca:f.marca,super:f.super});closeSheet();toast(`${f.nombre} añadido a la lista`)};
 
 /* --- escáner de códigos de barras --- */
+/* un artículo puede tener varios códigos: ean = "código|marca|súper,código|marca|súper" */
+const codigos=a=>String(a&&a.ean||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>{const [c,m,su]=x.split('|');return {c:(c||'').replace(/\D/g,''),m:m||'',s:su||''}}).filter(x=>x.c);
+const codigosTxt=l=>l.map(x=>[x.c,(x.m||'').replace(/[|,]/g,' '),(x.s||'').replace(/[|,]/g,' ')].join('|').replace(/\|+$/,'')).join(',');
+const artPorCodigo=code=>S.t.articulos.find(a=>!borrado(a)&&codigos(a).some(x=>x.c===code));
+async function asociarCodigo(art,code,marca,sup){for(const o of S.t.articulos.filter(a=>a.id!==art.id&&codigos(a).some(x=>x.c===code)))await upd('articulos',o.id,{ean:codigosTxt(codigos(o).filter(x=>x.c!==code))});
+  const l=codigos(art).filter(x=>x.c!==code);l.push({c:code,m:marca||'',s:sup||''});await upd('articulos',art.id,{ean:codigosTxt(l)})}
+function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';let best='',bl=0;
+  for(const a of S.t.articulos.filter(a=>!borrado(a))){const n=norm(a.nombre);if(n.length>bl&&(k===n||k.startsWith(n+' ')||k.includes(' '+n+' ')||k.endsWith(' '+n))){best=a.nombre;bl=n.length}}
+  if(best)return best;const bs=borradosSet();
+  for(const c of S.catalogo){const n=norm(c.nombre);if(!bs.has(n)&&n.length>bl&&(k===n||k.startsWith(n+' ')||k.includes(' '+n+' ')||k.endsWith(' '+n))){best=c.nombre;bl=n.length}}return best}
 let scanStream=null,scanCtl=null,scanLoop=0;
 function stopScan(){cancelAnimationFrame(scanLoop);scanLoop=0;try{scanCtl&&scanCtl.stop()}catch(e){}scanCtl=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
 A.scan=async d=>{const destino=d.p||'despensa';
@@ -1076,11 +1093,11 @@ A.scan=async d=>{const destino=d.p||'despensa';
 A.eanManual=()=>{const v=$('#eanin').value.replace(/\D/g,'');if(v.length>=8)onEAN(v);else toast('El código tiene 8 o 13 números.')};
 function loadScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
-  const a=S.t.articulos.find(x=>x.ean===code);
-  if(a){abrirEscaneado({nombre:a.nombre,marca:a.marca,imagen:a.imagen,ean:code,unidad:a.unidad});return}
+  const a=artPorCodigo(code);
+  if(a){const e=codigos(a).find(x=>x.c===code)||{};abrirEscaneado({nombre:a.nombre,marca:e.m||a.marca,super:e.s||'',imagen:a.imagen,ean:code,unidad:a.unidad,conocido:true});toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,brands,image_front_small_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
-  if(p){const nom=cap(p.product_name_es||p.product_name||'');const gen=sugerencias(nom.split(' ').slice(0,2).join(' '),1)[0];
-    abrirEscaneado({nombre:nom||(gen&&gen.nombre)||'',marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code})}
+  if(p){const nom=cap(p.product_name_es||p.product_name||'');const guess=adivinarArticulo(nom);
+    abrirEscaneado({nombre:guess||nom,marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code,offNombre:nom})}
   else{abrirEscaneado({nombre:'',ean:code});toast('No conozco ese código. Escribe el nombre y la próxima vez lo recordaré.')}}
 function abrirEscaneado(x){sheet(despForm({...x,cantidad:1}))}
 
