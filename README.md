@@ -11,6 +11,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `index.html` | La app entera |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
+| `supabase/actualizacion-3.sql` | Solo si ya ejecutaste el schema antes: guarda el **tamaño del envase** en los precios |
 | `supabase/actualizacion-2.sql` | Solo si ya ejecutaste el schema antes: activa las **fotos** de recetas y productos |
 | `precios/` | Precios de referencia por supermercado (tabla Excel, `referencia.json` y el conversor) |
 | `img/` | Fotos por defecto que verá todo el mundo (ver `img/NOMBRES.txt`) |
@@ -84,12 +85,12 @@ Al guardar, se apuntan los precios, se tacha de la lista lo comprado y la comida
 ```
 SUPER: Mercadona
 FECHA: 2026-10-04
-Tomate frito; Hacendado; 2; ud; 1,90
-Plátano; ; 1,2; kg; 2,34
-Folios; ; 1; ud; 4,50
+Tomate frito; Hacendado; 2; ud; 560 g; 1,90
+Plátano; ; 1,2; kg; ; 2,34
+Folios; ; 1; ud; 500 hojas; 4,50
 ```
 
-- Una línea por producto: **Producto; Marca; Cantidad; Unidad; Importe**.
+- Una línea por producto: **Producto; Marca; Cantidad; Unidad; Tamaño; Importe**. El tamaño es opcional (también vale sin esa columna).
 - Unidad: `ud`, `kg` o `l`. El importe es lo pagado por esa línea; vale coma o punto.
 - `SUPER:` y `FECHA:` son opcionales (la fecha también vale como `04/10/2026`).
 - Versiones cortas que también entiende:
@@ -108,7 +109,14 @@ Folios; ; 1; ud; 4,50
 
 `precios/referencia.json` trae precios de Mercadona, Lidl, Aldi, Carrefour y Consum consultados en sus webs (o en Cestio para Mercadona) a principios de octubre de 2026. Los ve cualquier casa. Los precios de los tickets de cada casa, al ser más recientes, tienen prioridad.
 
-Cuando los envases son de distinto tamaño y se conoce el peso o volumen, la app compara por **€/kg o €/l**.
+Todos los precios se comparan **en proporción**, nunca por envase:
+- **€/kg o €/l** en alimentación y bebidas.
+- **€/unidad** en lo que se vende por piezas: huevos, rollos, cápsulas, pilas, bolsas…
+- **€/lavado** en detergentes y suavizantes, y **€/metro** en film o papel de horno.
+
+Las piezas de fruta y verdura sin peso se estiman con el peso de la pieza en otro súper y se marcan con ≈. Si un precio no tiene tamaño, se muestra pero no se usa para decir cuál es más barato.
+
+Al apuntar un precio a mano o importar un ticket se puede indicar el **tamaño del envase** (400 g, 1 l, 6 x 1 l, 12 ud). Si no se indica, se usa el del mismo producto en ese súper.
 
 Para actualizarlos: edita `precios/precios-supermercados.xlsx` y ejecuta `python3 precios/convertir.py` (o pásale la tabla a Claude).
 

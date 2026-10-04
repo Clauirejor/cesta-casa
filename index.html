@@ -371,7 +371,7 @@ const Supa={
     for(const t of TABLAS){ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:t},p=>onRemote(t,'DELETE',null,p.old))}
     ch.subscribe(st=>{S.rt=st==='SUBSCRIBED';paint()});this.ch=ch},
-  async insert(t,rows){const {error}=await S.sb.from(t).insert(rows);if(error)throw error},
+  async insert(t,rows){let {error}=await S.sb.from(t).insert(rows);if(error&&t==='precios'&&/formato/.test(error.message||'')){({error}=await S.sb.from(t).insert(rows.map(({formato,...r})=>r)))}if(error)throw error},
   async update(t,id,p){const {error}=await S.sb.from(t).update(p).eq('id',id);if(error)throw error},
   async remove(t,id){const {error}=await S.sb.from(t).delete().eq('id',id);if(error)throw error},
   async reload(){await this.loadAll()},
@@ -490,20 +490,48 @@ async function addLista(nombre,o){o=o||{};nombre=cap(nombre);if(!nombre)return;
   if(!o.sinTocar)tocarArticulo({...info,nombre});return 'nuevo'}
 
 /* ============ PRECIOS ============ */
+/* Proporción de un precio: kg, l, ud (huevos, rollos…), lavado o m. Misma lógica que precios/convertir.py */
+const NO_ALIM=['Hogar y bricolaje','Papelería y oficina','Ropa y calzado','Electrónica','Otros'];
+const SOLO_CONTAR=['bolsas','bayetas','estropajos','guantes','fregona','pinzas','perchas','velas','vasos','platos','cubiertos','tupper','pilas','pila ','folios','compresas','tampones','pañales','toallitas','pañuelos','tiritas','gasas','bastoncillos','algodón','cuchillas','pastillas lavavajillas','café en cápsulas','infusiones','té','papel higiénico','papel de cocina'];
+const BASES=['kg','l','lavado','m','ud'];const BASE_TXT={kg:'kg',l:'l',ud:'ud',lavado:'lavado',m:'m'};
+function medidas(texto,cat,nombre){const s=' '+String(texto||'').toLowerCase().replace(/,/g,'.')+' ';const n=String(nombre||'').toLowerCase();const out={};
+  const solo=NO_ALIM.includes(cat)||SOLO_CONTAR.some(w=>n.startsWith(w));
+  if(!solo){const cv={kg:[1,'kg'],kilo:[1,'kg'],kilos:[1,'kg'],g:[.001,'kg'],gr:[.001,'kg'],grs:[.001,'kg'],l:[1,'l'],lt:[1,'l'],litro:[1,'l'],litros:[1,'l'],ml:[.001,'l'],cl:[.01,'l']};
+    const u='(kg|kilos|kilo|grs|gr|g|litros|litro|lt|ml|cl|l)\\b';let m=s.match(new RegExp('(\\d+)\\s*x\\s*(\\d+(?:\\.\\d+)?)\\s*'+u));
+    if(m){const[f,b]=cv[m[3]];out[b]=+m[1]*+m[2]*f}else{m=s.match(new RegExp('(\\d+(?:\\.\\d+)?)\\s*'+u));if(m&&+m[1]>0){const[f,b]=cv[m[2]];out[b]=+m[1]*f}}}
+  let m=s.match(/(\d+)\s*(lv|lavados?)\b/);if(m)out.lavado=+m[1];
+  m=s.match(/(\d+(?:\.\d+)?)\s*(m|metros?)\b/);if(m&&!out.lavado&&+m[1]>0)out.m=+m[1];
+  let c=null;if(/\bdocena\b|\b1\s*dc\b/.test(s))c=12;
+  const pats=[/(?:pack|set|juego|caja)\s*(?:de\s*)?(\d+)/,/(\d+)\s*x\s*1\s*u\b/,...(solo?[/(\d+)\s*x\s*\d+(?:\.\d+)?\s*(?:l|ml|cl|kg|g|gr)\b/]:[]),/(\d+)\s*(?:ud|uds|u|unidades|unidad|unid|piezas|pzas|bolsitas|c[aá]psulas|rollos|pares|hojas|bolsas|bayetas|estropajos|pastillas|huevos|sobres|maquinillas|unds)\b/];
+  for(const p of pats){if(c)break;const x=s.match(p);if(x&&+x[1]>0&&+x[1]<5000)c=+x[1]}if(c)out.ud=c;return out}
+function baseProducto(nombre){const r=REF.get(norm(nombre));const b=r&&r.find(x=>x.base);return b?b.base:null}
 function ofertas(nombre){const k=norm(nombre);const g={};
   [...S.t.precios.filter(p=>norm(p.nombre)===k),...(REF.get(k)||[])].forEach(p=>{const key=p.super+'|'+(p.marca||'');(g[key]=g[key]||[]).push(p)});
   const offs=Object.entries(g).map(([key,rows])=>{rows.sort((a,b)=>(a.fecha+a.created_at).localeCompare(b.fecha+b.created_at));const last=rows[rows.length-1];
     let prev=null;for(let i=rows.length-2;i>=0;i--)if(num(rows[i].precio)!==num(last.precio)){prev=num(rows[i].precio);break}
     const v=S.t.valoraciones.find(v=>norm(v.nombre)===k&&v.super===last.super&&(v.marca||'')===(last.marca||''));
-    const u=last.unidad||'ud';const pu=last.pu?num(last.pu):(u==='kg'||u==='l')?num(last.precio):null;const base=last.base||(u==='kg'||u==='l'?u:null);
+    const u=last.unidad||'ud';let pu=null,base=null,est=!!last.est;
+    if(last.pu&&last.base){pu=num(last.pu);base=last.base}
+    else if(u==='kg'||u==='l'){pu=num(last.precio);base=u}
+    else{const cat=infoArticulo(nombre).categoria;const md=last.formato?medidas(last.formato,cat,nombre):{};const pb=baseProducto(nombre);
+      const b=pb&&md[pb]?pb:BASES.find(x=>md[x]);
+      if(b){pu=num(last.precio)/md[b];base=b}
+      else{const rr=(REF.get(k)||[]).filter(x=>x.super===last.super&&x.q&&x.base).pop();if(rr){pu=num(last.precio)/rr.q;base=rr.base;est=true}}}
     return {key,super:last.super,marca:last.marca||'',precio:num(last.precio),unidad:u,fecha:last.fecha,prev,hist:rows,calidad:v?v.calidad:3,valId:v&&v.id,
-      ref:!!last.ref,producto:last.producto||'',formato:last.formato||'',fuente:last.fuente||'',url:last.url||'',nota:last.nota||'',pu,base}});
+      ref:!!last.ref,producto:last.producto||'',formato:last.formato||'',fuente:last.fuente||'',url:last.url||'',nota:last.nota||'',pu,base,est,q:pu?num(last.precio)/pu:null}});
   if(!offs.length)return [];
-  const porKilo=offs.length>1&&offs.every(o=>o.pu&&o.base===offs[0].base);offs.forEach(o=>o.cmp=porKilo?o.pu:o.precio);offs.porKilo=porKilo;
-  const min=Math.min(...offs.map(o=>o.cmp));
-  offs.forEach(o=>o.valor=(o.calidad/5)/(o.cmp/min));
-  const barato=offs.reduce((a,o)=>o.cmp<a.cmp?o:a);const comp=offs.reduce((a,o)=>o.valor>a.valor+1e-9?o:a);
-  offs.forEach(o=>{o.barato=o===barato;o.compensa=o===comp&&offs.length>1});return offs}
+  const cuenta={};offs.forEach(o=>{if(o.pu)cuenta[o.base]=(cuenta[o.base]||0)+1});
+  const pb=baseProducto(nombre);const bp=pb&&cuenta[pb]?pb:BASES.slice().sort((a,b)=>(cuenta[b]||0)-(cuenta[a]||0)||BASES.indexOf(a)-BASES.indexOf(b))[0];
+  const comparables=offs.filter(o=>o.pu&&o.base===bp);const ninguno=!offs.some(o=>o.pu);
+  const prop=comparables.length>=2||(comparables.length===1&&offs.length===1);
+  offs.forEach(o=>{o.comparable=ninguno||(prop&&comparables.includes(o));o.cmp=ninguno?o.precio:(o.comparable?o.pu:(o.pu||Infinity))});
+  offs.porKilo=prop;offs.base=prop?bp:null;
+  const cand=offs.filter(o=>o.comparable);if(!cand.length){offs.forEach(o=>{o.valor=0;o.barato=false;o.compensa=false});return offs}
+  const min=Math.min(...cand.map(o=>o.cmp));
+  offs.forEach(o=>o.valor=o.comparable?(o.calidad/5)/(o.cmp/min):0);
+  const barato=cand.reduce((a,o)=>o.cmp<a.cmp?o:a,cand[0]);const comp=cand.reduce((a,o)=>o.valor>a.valor+1e-9?o:a,cand[0]);
+  offs.forEach(o=>{o.barato=o===barato;o.compensa=o===comp&&cand.length>1});return offs}
+const puTxt=o=>o&&o.pu?`${o.est?'≈ ':''}${eur(o.base==='ud'||o.base==='lavado'||o.base==='m'?Math.round(o.pu*1000)/1000:o.pu).replace(/,(\d\d)0 €/,',$1 €')}/${BASE_TXT[o.base]}`:'';
 function precioDe(it){if(num(it.precio)>0)return num(it.precio);const o=ofertas(it.nombre);if(!o.length)return 0;
   const m=o.find(x=>(!it.super||x.super===it.super)&&(!it.marca||norm(x.marca)===norm(it.marca)));return (m||o.find(x=>x.compensa)||o.find(x=>x.barato)).precio}
 function importe(it){const p=precioDe(it);if(!p)return 0;const o=ofertas(it.nombre)[0];const pu=o?o.unidad:'ud';
@@ -517,8 +545,10 @@ function planCompra(cfg){cfg=cfg||planCfg();const sups=cfg.sups;const items=S.t.
   const rows=[],sinPrecio=[];
   for(const it of items){const per={};
     for(const o of ofertas(it.nombre)){if(!sups.includes(o.super))continue;const f=cfg.calidad?Math.max(.5,1-(o.calidad-3)*.1):1;
-      const u=it.unidad||'ud';const peso=o.pu&&((o.base==='kg'&&(u==='kg'||u==='g'))||(o.base==='l'&&(u==='l'||u==='ml')));
-      const coste=peso?o.pu*num(it.cantidad||1)/((u==='g'||u==='ml')?1000:1):o.precio*cantFactor(it,o.unidad);
+      const u=it.unidad||'ud';const peso=o.pu&&o.comparable&&((o.base==='kg'&&(u==='kg'||u==='g'))||(o.base==='l'&&(u==='l'||u==='ml')));
+      let coste;if(peso)coste=o.pu*num(it.cantidad||1)/((u==='g'||u==='ml')?1000:1);
+      else if(o.pu&&o.comparable&&u==='ud'){const qs=ofertas(it.nombre).filter(x=>x.comparable&&x.q).map(x=>x.q);coste=o.pu*(qs.length?median(qs):o.q)*(num(it.cantidad)||1)}
+      else coste=o.precio*cantFactor(it,o.unidad);
       const c={precio:coste,eff:coste*f,marca:o.marca};if(!per[o.super]||c.eff<per[o.super].eff)per[o.super]=c}
     const k=Object.keys(per);if(!k.length){sinPrecio.push(it);continue}
     rows.push({it,per,estE:median(k.map(x=>per[x].eff)),estP:median(k.map(x=>per[x].precio))})}
@@ -555,8 +585,8 @@ A.asignarSup=async()=>{const pl=planCompra();let n=0;
   if(pl.dividir){for(const s of [pl.par.a,pl.par.b])for(const x of pl.par.asig[s]){if(x.r.it.super!==s){await upd('lista',x.r.it.id,{super:s,marca:x.r.per[s]?.marca||x.r.it.marca});n++}}}
   else{for(const r of pl.rows){if(r.it.super!==pl.mejor.s){await upd('lista',r.it.id,{super:pl.mejor.s,marca:r.per[pl.mejor.s]?.marca||r.it.marca});n++}}}
   closeSheet();S.listMode='super';paint();toast(`Súper apuntado en ${n} productos. Lista agrupada por súper.`)};
-async function apuntarPrecio({nombre,super:sup,marca,precio,unidad,fecha}){precio=+num(precio).toFixed(2);if(!(precio>0)||!nombre)return;
-  await ins('precios',{nombre:cap(nombre),super:sup||'Otro',marca:marca||'',precio,unidad:unidad||'ud',fecha:fecha||hoy(),por:S.me.id})}
+async function apuntarPrecio({nombre,super:sup,marca,precio,unidad,fecha,formato}){precio=+num(precio).toFixed(2);if(!(precio>0)||!nombre)return;
+  await ins('precios',{nombre:cap(nombre),super:sup||'Otro',marca:marca||'',precio,unidad:unidad||'ud',fecha:fecha||hoy(),por:S.me.id,...(formato?{formato}:{})})}
 
 /* ============ PINTAR ============ */
 let raf=0;function paint(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render()})}
@@ -667,7 +697,7 @@ function tablaPrecios(q){const sups=planCfg().sups;const enL=new Set(S.t.lista.f
   const body=rows.map(n=>{const o=ofertas(n);const per={};o.forEach(x=>{if(sups.includes(x.super)&&(!per[x.super]||x.cmp<per[x.super].cmp))per[x.super]=x});
     const vals=Object.values(per).map(x=>x.cmp);const min=vals.length>1?Math.min(...vals):null;const info=infoArticulo(n);
     return `<tr><td><button class="pn" data-a="${o.length?'precioDet':'celda'}" data-n="${esc(n)}" data-s="${esc(sups[0]||'Mercadona')}"><span aria-hidden="true">${esc(info.emoji)}</span> ${esc(n)}${enL.has(norm(n))?' <span title="En la lista">🛒</span>':''}</button></td>${sups.map(s=>{const x=per[s];
-      return `<td><button class="${x?(x.cmp===min?'min':''):'vac'}" data-a="celda" data-n="${esc(n)}" data-s="${esc(s)}" aria-label="${esc(n)} en ${esc(s)}">${x?`${eur(x.precio)}<small>${x.unidad!=='ud'?'/'+x.unidad:esc(x.formato||fmtFecha(x.fecha))}</small>${o.porKilo&&x.unidad==='ud'?`<small>${eur(x.pu)}/${x.base}</small>`:''}`:'＋'}</button></td>`}).join('')}</tr>`}).join('');
+      return `<td><button class="${x?(x.cmp===min?'min':''):'vac'}" data-a="celda" data-n="${esc(n)}" data-s="${esc(s)}" aria-label="${esc(n)} en ${esc(s)}">${x?`${eur(x.precio)}<small>${x.unidad!=='ud'?'/'+x.unidad:esc(x.formato||fmtFecha(x.fecha))}</small>${o.porKilo&&x.unidad==='ud'&&x.pu?`<small>${puTxt(x)}</small>`:''}`:'＋'}</button></td>`}).join('')}</tr>`}).join('');
   return chips+`<div class="small muted">Toca una casilla para poner o cambiar el precio. En verde, el más barato. 🛒 = está en la lista.</div>
    <div class="glass ptab-wrap"><table class="ptab"><thead><tr><th>Producto</th>${sups.map(s=>`<th>${logo(s)}<span>${esc(s)}</span></th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>
    <button class="btn gl" data-a="addPrecio">${svg('plus')}Añadir otro producto</button>`}
@@ -676,11 +706,11 @@ function vPrecioDet(n){const o=ofertas(n),info=infoArticulo(n);const art=S.t.art
   let body='';
   if(!o.length)body=`<div class="empty"><p>Sin precios para este producto.</p></div>`;
   else if(S.precioSeg==='precio'){body=`${o.length>1?`<div class="chips" style="margin-inline:0;padding-inline:12px">${o.map(x=>`<button class="chip ${x===sel?'on':''}" data-a="precioSup" data-k="${esc(x.key)}">${esc(x.super)}${x.marca?' · '+esc(x.marca):''}</button>`).join('')}</div>`:''}${chart(sel.hist)}`}
-  else{const min=Math.min(...o.map(x=>x.cmp));const uk=o.porKilo?'/'+o[0].base:'';body=`<div style="padding:0 16px 12px" class="small muted">${o.porKilo?'Comparado por precio por '+(o[0].base==='kg'?'kilo':'litro')+', porque los envases son de distinto tamaño. ':''}Ordenado por calidad por euro. <span class="pill ok">Compensa</span> puede costar algo más pero sale mejor por calidad.</div>`+
-    [...o].sort((a,b)=>b.valor-a.valor).map(x=>`<div class="sup">${logo(x.super)}<span class="grow"><b>${esc(x.super)}</b>${x.marca?` · ${esc(x.marca)}`:''}<br><span class="tiny muted">${'★'.repeat(x.calidad)}${'☆'.repeat(5-x.calidad)} · ${x.cmp===min?'el más barato':'+'+eur(x.cmp-min)+uk}</span></span>${x.compensa?'<span class="pill ok">Compensa</span>':x.barato?'<span class="pill">Más barato</span>':''}<span style="text-align:right"><span class="pr">${eur(x.precio)}</span>${o.porKilo&&x.unidad==='ud'?`<br><span class="tiny muted">${eur(x.pu)}${uk}</span>`:''}</span></div>`).join('')}
+  else{const min=Math.min(...o.filter(x=>x.comparable).map(x=>x.cmp));const uk=o.porKilo?'/'+BASE_TXT[o.base]:'';body=`<div style="padding:0 16px 12px" class="small muted">${o.porKilo?'Comparado por precio por '+({kg:'kilo',l:'litro',ud:'unidad',lavado:'lavado',m:'metro'})[o.base]+', porque los envases son de distinto tamaño. ':''}Ordenado por calidad por euro. <span class="pill ok">Compensa</span> puede costar algo más pero sale mejor por calidad.</div>`+
+    [...o].sort((a,b)=>b.valor-a.valor).map(x=>`<div class="sup">${logo(x.super)}<span class="grow"><b>${esc(x.super)}</b>${x.marca?` · ${esc(x.marca)}`:''}<br><span class="tiny muted">${'★'.repeat(x.calidad)}${'☆'.repeat(5-x.calidad)} · ${!x.comparable?(x.pu?'en otra medida, no se compara':'sin tamaño, no se compara'):x.cmp===min?'el más barato':'+'+eur(x.cmp-min)+uk}</span></span>${x.compensa?'<span class="pill ok">Compensa</span>':x.barato?'<span class="pill">Más barato</span>':''}<span style="text-align:right"><span class="pr">${eur(x.precio)}</span>${o.porKilo&&x.pu?`<br><span class="tiny muted">${puTxt(x)}</span>`:''}</span></div>`).join('')}
   const lista=o.length?`<div class="sec">Precios por supermercado</div><div class="glass">${[...o].sort((a,b)=>a.cmp-b.cmp).map(x=>{const tr=x.prev?(x.precio-x.prev)/x.prev*100:0;
     return `<div class="sup">${logo(x.super)}<span class="grow"><b style="font-weight:550">${esc(x.super)}</b>${x.marca?` <span class="muted">· ${esc(x.marca)}</span>`:''}${x.producto||x.formato?`<span class="tiny muted" style="display:block">${esc([x.producto,x.formato].filter(Boolean).join(' · '))}</span>`:''}${x.ref?`<span class="tiny muted" style="display:block">${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:inherit">${esc(x.fuente)}</a>`:esc(x.fuente)} · ${fmtFecha(x.fecha)}${x.nota?' · '+esc(x.nota):''}</span>`:''}<span class="stars" role="group" aria-label="Calidad en ${esc(x.super)}">${[1,2,3,4,5].map(s=>`<button class="${s<=x.calidad?'on':''}" data-a="star" data-n="${esc(n)}" data-s="${esc(x.super)}" data-m="${esc(x.marca)}" data-v="${s}" aria-label="${s} estrellas">★</button>`).join('')}</span> ${x.compensa?'<span class="pill ok">Compensa</span>':''}${x.barato&&o.length>1?' <span class="pill">Más barato</span>':''}</span>
-      <span style="text-align:right"><span class="pr" style="font-size:16px">${eur(x.precio)}</span>${x.pu&&x.unidad==='ud'?`<br><span class="tiny muted">${eur(x.pu)}/${x.base}</span>`:''}${Math.abs(tr)>=.5?`<br><span class="tiny ${tr>0?'up':'down'}">${tr>0?'▲':'▼'} ${Math.abs(tr).toFixed(1).replace('.',',')}%</span>`:''}</span></div>`}).join('')}</div>`:'';
+      <span style="text-align:right"><span class="pr" style="font-size:16px">${eur(x.precio)}</span>${x.pu&&x.unidad==='ud'?`<br><span class="tiny muted">${puTxt(x)}</span>`:(o.porKilo&&!x.comparable?'<br><span class="tiny muted">sin tamaño</span>':'')}${Math.abs(tr)>=.5?`<br><span class="tiny ${tr>0?'up':'down'}">${tr>0?'▲':'▼'} ${Math.abs(tr).toFixed(1).replace('.',',')}%</span>`:''}</span></div>`}).join('')}</div>`:'';
   return `<header class="hdr center"><button class="back" data-a="precioBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Histórico de precios</h1><button class="back" data-a="addPrecio" data-n="${esc(n)}" aria-label="Apuntar precio">${svg('plus')}</button></header>
    <section class="glass" style="padding-bottom:12px"><div class="prod-h"><span class="big" aria-hidden="true">${art&&art.imagen?`<img src="${esc(art.imagen)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:esc(info.emoji)}</span><div><h2>${esc(n)}</h2><span class="muted">${esc(o[0]?({kg:'1 kg',l:'1 l',ud:'Unidad',g:'g',ml:'ml'})[o[0].unidad]||'':'')}</span></div><button class="star-btn ${art&&art.favorito?'on':''}" data-a="fav" data-n="${esc(n)}" aria-label="Favorito">★</button></div>
    <div style="padding:0 12px 12px"><div class="seg"><button class="${S.precioSeg==='precio'?'on':''}" data-a="precioSeg" data-k="precio">Precio</button><button class="${S.precioSeg==='barato'?'on':''}" data-a="precioSeg" data-k="barato">Dónde es más barato</button></div></div>${body}</section>
@@ -904,19 +934,20 @@ A.star=async d=>{const v=S.t.valoraciones.find(x=>norm(x.nombre)===norm(d.n)&&x.
 A.fav=async d=>{const a=S.t.articulos.find(x=>norm(x.nombre)===norm(d.n));if(a)await upd('articulos',a.id,{favorito:!a.favorito});else{const i=infoArticulo(d.n);await ins('articulos',{nombre:cap(d.n),categoria:i.categoria,emoji:i.emoji,unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:true})}};
 A.addPrecio=d=>sheet(`<h2>Apuntar precio</h2><div class="fld"><label for="p-n">Producto</label><input class="inp" id="p-n" list="dl-cat2" value="${esc(d.n||'')}" ${d.n?'':'autofocus'}><datalist id="dl-cat2">${[...new Set([...S.t.articulos.map(a=>a.nombre),...S.catalogo.map(c=>c.nombre)])].map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
   <div class="g2"><div class="fld"><label for="p-s">Súper</label><select class="inp" id="p-s">${selOpts(SUPERS,'Mercadona')}</select></div><div class="fld"><label for="p-m">Marca</label><input class="inp" id="p-m" placeholder="Hacendado…"></div></div>
+  <div class="fld"><label for="p-f">Tamaño del envase (opcional)</label><input class="inp" id="p-f" value="" placeholder="400 g, 1 l, 12 ud, 6 x 1 l…" autocomplete="off"></div>
   <div class="g3"><div class="fld"><label for="p-p">Precio (€)</label><input class="inp" id="p-p" type="number" step="0.01" inputmode="decimal" ${d.n?'autofocus':''}></div><div class="fld"><label for="p-u">Por</label><select class="inp" id="p-u">${selOpts(['ud','kg','l'],infoArticulo(d.n||'').unidad==='kg'?'kg':'ud')}</select></div><div class="fld"><label for="p-q">Calidad</label><select class="inp" id="p-q">${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===3?'selected':''}>${'★'.repeat(n)}</option>`).join('')}</select></div></div>
   <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="savePrecio">Guardar</button></div>`);
 A.celda=d=>{const n=d.n,s=d.s;const o=ofertas(n).filter(x=>x.super===s).sort((a,b)=>a.precio-b.precio)[0];const info=infoArticulo(n);const u=o?o.unidad:(info.unidad==='kg'?'kg':info.unidad==='l'?'l':'ud');
   sheet(`<div class="row">${logo(s)}<div class="grow"><h2 style="font-size:19px">${esc(n)}</h2><span class="small muted">${esc(s)}${o?` · último: ${eur(o.precio)} el ${fmtFecha(o.fecha)}`:' · sin precio todavía'}</span></div></div>
    <div class="g3"><div class="fld"><label for="c-p">Precio (€)</label><input class="inp" id="c-p" type="number" step="0.01" inputmode="decimal" autofocus value="${o?o.precio:''}"></div><div class="fld"><label for="c-u">Por</label><select class="inp" id="c-u">${selOpts(['ud','kg','l'],u)}</select></div><div class="fld"><label for="c-q">Calidad</label><select class="inp" id="c-q">${[5,4,3,2,1].map(k=>`<option value="${k}" ${k===(o?o.calidad:3)?'selected':''}>${'★'.repeat(k)}</option>`).join('')}</select></div></div>
-   <div class="fld"><label for="c-m">Marca</label><input class="inp" id="c-m" value="${esc(o?o.marca:'')}" placeholder="Hacendado, Milbona…"></div>
+   <div class="g2"><div class="fld"><label for="c-m">Marca</label><input class="inp" id="c-m" value="${esc(o?o.marca:'')}" placeholder="Hacendado, Milbona…"></div><div class="fld"><label for="c-f">Tamaño del envase (opcional)</label><input class="inp" id="c-f" value="${esc(o?o.formato:'')}" placeholder="400 g, 1 l, 12 ud, 6 x 1 l…" autocomplete="off"></div></div>
    <div class="row">${o?`<button class="btn gl sm" data-a="precioDet" data-n="${esc(n)}">Ver histórico</button>`:''}<span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="saveCelda" data-n="${esc(n)}" data-s="${esc(s)}">Guardar</button></div>`)};
 A.saveCelda=async d=>{const p=num($('#c-p').value);if(!(p>0)){toast('Escribe el precio.');return}const m=$('#c-m').value.trim(),q=+$('#c-q').value;
-  await apuntarPrecio({nombre:d.n,super:d.s,marca:m,precio:p,unidad:$('#c-u').value});
+  await apuntarPrecio({nombre:d.n,super:d.s,marca:m,precio:p,unidad:$('#c-u').value,formato:$('#c-f').value.trim()});
   const v=S.t.valoraciones.find(x=>norm(x.nombre)===norm(d.n)&&x.super===d.s&&(x.marca||'')===m);if(v){if(v.calidad!==q)await upd('valoraciones',v.id,{calidad:q})}else if(q!==3)await ins('valoraciones',{nombre:cap(d.n),super:d.s,marca:m,calidad:q});
   closeSheet()};
 A.savePrecio=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('p-n'));if(!n||!(num(v('p-p'))>0)){toast('Falta el producto o el precio.');return}
-  await apuntarPrecio({nombre:n,super:v('p-s'),marca:v('p-m'),precio:v('p-p'),unidad:v('p-u')});
+  await apuntarPrecio({nombre:n,super:v('p-s'),marca:v('p-m'),precio:v('p-p'),unidad:v('p-u'),formato:v('p-f')});
   const q=+v('p-q');if(q!==3)await A.star({n,s:v('p-s'),m:v('p-m'),v:q});closeSheet();toast('Precio apuntado')};
 
 /* --- recetas y plan --- */
@@ -972,20 +1003,21 @@ const PROMPT_TICKET=`Saca los productos de este ticket de compra. Responde SOLO 
 
 SUPER: nombre del supermercado
 FECHA: AAAA-MM-DD
-Producto; Marca; Cantidad; Unidad; Importe
+Producto; Marca; Cantidad; Unidad; Tamaño; Importe
 
 Reglas:
 - Una línea por producto, separando los campos con punto y coma.
 - Producto: nombre normal en español, sin abreviaturas (Tomate frito, no TOM.FRITO).
 - Marca: si se deduce (Hacendado, Deliplus, Bosque Verde…); si no, déjala vacía.
 - Cantidad y Unidad: ud, kg o l. En productos al peso pon los kg.
+- Tamaño: el tamaño del envase si aparece o se deduce (400 g, 1 l, 6 x 1 l, 12 ud). Si no se sabe, déjalo vacío.
 - Importe: lo pagado por esa línea, con coma decimal (1,90).
 - No incluyas IVA, subtotales, total, bolsas ni forma de pago. Si hay un descuento, réstalo del producto.`;
 const EJEMPLO_TICKET=`SUPER: Mercadona
 FECHA: ${hoy()}
-Tomate frito; Hacendado; 2; ud; 1,90
-Plátano; ; 1,2; kg; 2,34
-Folios; ; 1; ud; 4,50`;
+Tomate frito; Hacendado; 2; ud; 560 g; 1,90
+Plátano; ; 1,2; kg; ; 2,34
+Folios; ; 1; ud; 500 hojas; 4,50`;
 A.ticket=()=>{closeSheet();sheet(`<h2>Importar ticket</h2>
   <p class="small muted" style="margin:0">1. Copia las instrucciones y pégalas en la IA que uses (ChatGPT, Claude, Gemini…) junto con la foto del ticket.<br>2. Copia lo que te responda y pégalo aquí.</p>
   <button class="btn gl" data-a="copiarPrompt">Copiar instrucciones para la IA</button>
@@ -1010,6 +1042,7 @@ function parseTicket(txt){txt=String(txt||'').replace(/```[a-z]*\n?|```/gi,'').t
     if(c.length===3)l.cantidad=num(c[1])||1;
     if(c.length===4){l.marca=c[1];l.cantidad=num(c[2])||1}
     if(c.length>=5){l.marca=c[1];l.cantidad=num(c[2])||1;const u=norm(c[3]);l.unidad=u.startsWith('k')?'kg':(u==='l'||u.startsWith('lit'))?'l':'ud'}
+    if(c.length>=6)l.formato=c[4];
     r.lineas.push(l)}
   return r}
 let TK=null;
@@ -1025,7 +1058,7 @@ A.aplicarTicket=async()=>{if(!TK)return;const b=$('[data-a=aplicarTicket]');b.di
   TK.lineas.forEach((l,i)=>{const nombre=cap($('#tk-n'+i).value);if(!nombre)return;const imp=num($('#tk-p'+i).value);const info=infoArticulo(nombre);
     const cat=info.categoria;const cant=num(l.cantidad)||1,uni=['kg','l'].includes(l.unidad)?l.unidad:'ud';
     const pu=imp/cant;
-    precs.push({nombre,super:sup,marca:l.marca||'',precio:+pu.toFixed(2),unidad:uni,fecha,por:S.me.id});
+    precs.push({nombre,super:sup,marca:l.marca||'',precio:+pu.toFixed(2),unidad:uni,fecha,por:S.me.id,...(l.formato?{formato:l.formato}:{})});
     const li=S.t.lista.find(x=>norm(x.nombre)===norm(nombre)&&!quitar.includes(x.id));if(li)quitar.push(li.id);
     if($('#tk-c'+i).checked)desp.push({nombre,emoji:info.emoji,categoria:cat,cantidad:cant,unidad:uni,caduca:null,super:sup,marca:l.marca||'',precio:imp,por:S.me.id});
     evs.push({tipo:'comprado',nombre,emoji:info.emoji,super:sup,marca:l.marca||'',precio:imp,cantidad:cant,unidad:uni,por:S.me.id});
