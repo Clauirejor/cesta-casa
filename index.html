@@ -11,7 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="Cesta Casa">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" href="icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <style>
 /* Estilo iOS con tarjetas de cristal sobre un fondo cálido desenfocado. Acento azul. */
@@ -227,7 +228,8 @@ video.scan{width:100%;border-radius:16px;background:#000;aspect-ratio:4/3;object
 .banner{display:flex;gap:10px;align-items:center;padding:10px 14px;font-size:14px}
 .welcome{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
 .welcome .glass{width:100%;max-width:440px;padding:22px 18px;display:flex;flex-direction:column;gap:14px}
-.logo-app{width:64px;height:64px;border-radius:18px;background:linear-gradient(180deg,var(--accent2),var(--accent));display:grid;place-items:center;font-size:34px;box-shadow:var(--shadow-btn)}
+.logo-app{width:64px;height:64px;border-radius:16px;overflow:hidden;flex:none;box-shadow:0 10px 24px rgba(14,124,107,.35)}
+.logo-app img{width:100%;height:100%;display:block}
 .part{display:contents}
 .it.sw-ok{position:relative;overflow:hidden}
 .it .del{position:absolute;right:0;top:0;bottom:0;width:96px;border:0;background:var(--red);color:#fff;font-weight:700;font-size:15px;transform:translateX(100%);transition:transform .18s ease}
@@ -1184,21 +1186,21 @@ A.irSetup=()=>{closeSheet();lsSet('cc-mode','');renderSetup()};
 /* ============ PANTALLAS DE ENTRADA ============ */
 function welcome(inner){$('#root').innerHTML=`<div class="welcome"><div class="glass">${inner}</div></div>`}
 function renderSetup(){const c=getConfig()||{};
-  welcome(`<div class="logo-app">🧺</div><div><h1 style="margin:0;font-size:28px">Cesta Casa</h1><p class="muted" style="margin:4px 0 0">Lista de la compra, despensa, menús y precios de toda la familia.</p></div>
+  welcome(`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:28px">Cesta Casa</h1><p class="muted" style="margin:4px 0 0">Lista de la compra, despensa, menús y precios de toda la familia.</p></div>
    <form data-f="saveConfig" style="display:grid;gap:10px"><div class="fld"><label for="cf-u">URL del proyecto Supabase</label><input class="inp" id="cf-u" placeholder="https://xxxx.supabase.co" value="${esc(c.url||'')}" autocomplete="off"></div>
    <div class="fld"><label for="cf-k">Clave pública (anon / publishable)</label><input class="inp" id="cf-k" placeholder="eyJhbGciOi… o sb_publishable_…" value="${esc(c.key||'')}" autocomplete="off"></div>
    <button class="btn pri" type="submit">Conectar</button></form>
    <button class="btn gl" data-a="demo">Probar con datos de ejemplo</button>`)}
 A.saveConfig=()=>{const url=$('#cf-u').value.trim().replace(/\/$/,''),key=$('#cf-k').value.trim();if(!/^https:\/\/.+/.test(url)||key.length<20){toast('Revisa la URL y la clave.');return}lsSet('cc-config',{url,key});lsSet('cc-mode','supa');location.reload()};
 A.demo=()=>{lsSet('cc-mode','demo');location.reload()};
-function renderLogin(msg){welcome(`<div class="logo-app">🧺</div><div><h1 style="margin:0;font-size:26px">Entrar</h1><p class="muted small" style="margin:4px 0 0">Cada persona de la casa usa su propia cuenta.</p></div>
+function renderLogin(msg){welcome(`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:26px">Entrar</h1><p class="muted small" style="margin:4px 0 0">Cada persona de la casa usa su propia cuenta.</p></div>
   ${msg?`<div class="small" style="color:var(--accent)">${esc(msg)}</div>`:''}
   <form data-f="login" style="display:grid;gap:10px"><div class="fld"><label for="lg-e">Correo</label><input class="inp" id="lg-e" type="email" autocomplete="email" required></div><div class="fld"><label for="lg-p">Contraseña</label><input class="inp" id="lg-p" type="password" autocomplete="current-password" minlength="6" required></div>
   <button class="btn pri" type="submit">Entrar</button></form><button class="btn gl" data-a="signup">Crear cuenta nueva</button><button class="link small" data-a="irSetup" style="align-self:center">Cambiar de proyecto</button>`)}
 A.login=async()=>{const {error}=await S.sb.auth.signInWithPassword({email:$('#lg-e').value.trim(),password:$('#lg-p').value});if(error){toast(error.message.includes('Invalid')?'Correo o contraseña incorrectos.':/confirm/i.test(error.message)?'Falta confirmar el correo: pulsa el enlace que te ha llegado.':error.message);return}boot()};
 A.signup=async()=>{const e=$('#lg-e').value.trim(),p=$('#lg-p').value;if(!e||p.length<6){toast('Escribe correo y una contraseña de 6 caracteres o más.');return}
   const {data,error}=await S.sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});if(error){toast(error.message);return}if(!data.session){renderLogin('Te hemos enviado un correo para confirmar la cuenta. Confírmala y vuelve a entrar.');return}boot()};
-function renderHogar(){welcome(`<div class="logo-app">🏠</div><div><h1 style="margin:0;font-size:26px">Tu casa</h1><p class="muted small" style="margin:4px 0 0">Toda la familia comparte una sola casa en la app.</p></div>
+function renderHogar(){welcome(`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:26px">Tu casa</h1><p class="muted small" style="margin:4px 0 0">Toda la familia comparte una sola casa en la app.</p></div>
   <div class="fld"><label for="h-me">Tu nombre</label><input class="inp" id="h-me" placeholder="Ej. Irene" autocomplete="given-name"></div>
   <div class="glass pad" style="display:grid;gap:10px;border:2px solid var(--red);background:var(--red-card)"><b style="color:var(--red);font-size:17px">¿Alguien de tu casa ya usa la app?</b><span class="small">Pídele el <b>código de 6 letras</b> (está en su pestaña <b>Más</b>) y únete. <b>No crees una casa nueva.</b></span>
    <input class="inp code" id="h-c" placeholder="CÓDIGO" maxlength="6" autocapitalize="characters" style="text-transform:uppercase;font-size:20px;text-align:center"><button class="btn pri" data-a="unirse">Unirme a su casa</button></div>
