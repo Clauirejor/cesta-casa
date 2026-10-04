@@ -68,6 +68,7 @@ create table if not exists public.articulos (
   marca text default '',
   ean text default '',
   imagen text default '',
+  descripcion text default '',
   veces int not null default 0,
   ultima timestamptz,
   oculto boolean not null default false,
@@ -127,6 +128,7 @@ create table if not exists public.precios (
   por uuid,
   created_at timestamptz not null default now()
 );
+alter table public.articulos add column if not exists descripcion text default '';
 alter table public.precios add column if not exists formato text default '';
 alter table public.precios add column if not exists hasta date;
 alter table public.precios add column if not exists antes numeric;

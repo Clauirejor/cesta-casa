@@ -12,6 +12,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
 | `supabase/actualizacion-5.sql` | Solo si ya ejecutaste el schema antes: permite **apuntar ofertas** con fecha de caducidad |
+| `supabase/actualizacion-6.sql` | Solo si ya ejecutaste el schema antes: añade la **descripción** de los artículos |
 | `supabase/actualizacion-4.sql` | Solo si ya ejecutaste el schema antes: permite añadir **súper y tiendas propias** (mercadillo, frutería…) |
 | `supabase/actualizacion-3.sql` | Solo si ya ejecutaste el schema antes: guarda el **tamaño del envase** en los precios |
 | `supabase/actualizacion-2.sql` | Solo si ya ejecutaste el schema antes: activa las **fotos** de recetas y productos |
