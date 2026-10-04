@@ -229,6 +229,18 @@ video.scan{width:100%;border-radius:16px;background:#000;aspect-ratio:4/3;object
 .welcome .glass{width:100%;max-width:440px;padding:22px 18px;display:flex;flex-direction:column;gap:14px}
 .logo-app{width:64px;height:64px;border-radius:18px;background:linear-gradient(180deg,var(--accent2),var(--accent));display:grid;place-items:center;font-size:34px;box-shadow:var(--shadow-btn)}
 .part{display:contents}
+.ptab-wrap{overflow-x:auto;padding:0}
+.ptab{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+.ptab th{font-size:11.5px;font-weight:600;color:var(--muted);padding:10px 4px 8px;vertical-align:bottom}
+.ptab th .logo{margin:0 auto 3px;width:26px;height:26px;font-size:11px}
+.ptab th span{display:block}
+.ptab td{border-top:1px solid var(--sep);padding:3px 2px;text-align:center}
+.ptab th:first-child,.ptab td:first-child{position:sticky;left:0;z-index:1;background:var(--glass-strong);text-align:left;min-width:128px;max-width:150px;padding-left:10px}
+.ptab .pn{border:0;background:none;padding:6px 0;text-align:left;font-weight:550;font-size:14px;line-height:1.2;width:100%}
+.ptab td button:not(.pn){border:0;background:none;min-width:70px;width:100%;padding:6px 2px;border-radius:10px;font-weight:600;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ptab td button small{font-size:10.5px;font-weight:400;color:var(--muted)}
+.ptab td button.min{background:var(--green-soft);color:var(--green)}
+.ptab td button.vac{color:var(--muted);font-weight:400;font-size:18px}
 .hidden-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 @media (max-width:370px){.meal .tile{width:84px;height:64px;font-size:36px}.hdr h1{font-size:26px}}
 </style>
@@ -320,7 +332,7 @@ const S={mode:null,sb:null,user:null,hogar:null,me:null,rt:false,
   t:Object.fromEntries(TABLAS.map(t=>[t,[]])),cats:CATS.map(([nombre,emoji,color,desp],i)=>({nombre,emoji,color,va_a_despensa:desp,orden:i})),
   catalogo:CATALOGO.map(([nombre,categoria,emoji,unidad])=>({nombre,categoria,emoji,unidad})),
   tab:lsGet('cc-tab','inicio'),sub:null,day:hoy(),week:lunes(hoy()),listMode:'pasillo',closed:{},
-  despF:'todos',despCat:'',despQ:'',precioQ:'',precioDet:null,precioSeg:'precio',precioSup:'',addQ:'',ready:false};
+  despF:'todos',precioVista:lsGet('cc-pvista','lista'),despCat:'',despQ:'',precioQ:'',precioDet:null,precioSeg:'precio',precioSup:'',addQ:'',ready:false};
 
 const A={};
 /* ============ BACKENDS ============ */
@@ -339,7 +351,8 @@ const Supa={
     const {data:{session}}=await S.sb.auth.getSession();if(!session)return 'login';S.user=session.user;
     const {data,error}=await S.sb.from('miembros').select('*, hogares(*)').eq('user_id',S.user.id).order('created_at');
     if(error)throw error;if(!data||!data.length)return 'hogar';
-    const m=data[0];S.hogar=m.hogares;S.me={...m};delete S.me.hogares;
+    S.casas=data.map(x=>({id:x.hogar_id,nombre:x.hogares?.nombre||'Casa',codigo:x.hogares?.codigo||''}));
+    const pref=lsGet('cc-hogar','');const m=data.find(x=>x.hogar_id===pref)||data[0];lsSet('cc-hogar',m.hogar_id);S.hogar=m.hogares;S.me={...m};delete S.me.hogares;
     await this.loadAll();this.realtime();return 'ok'},
   async loadAll(){const h=S.hogar.id,sb=S.sb;
     const q=t=>sb.from(t).select('*').eq('hogar_id',h);
@@ -543,7 +556,7 @@ function vInicio(){const w=S.week,fin=addDays(w,6);
   const meals=MOMENTOS.map(([k,l])=>{const m=S.t.menu.find(x=>x.fecha===S.day&&x.momento===k);const r=m&&S.t.recetas.find(x=>x.id===m.receta_id);
     return `<div class="mom">${l}</div>`+(r?`<div class="glass meal"><span class="tile" aria-hidden="true">${esc(r.emoji||'🍽️')}</span><button class="t" data-a="verReceta" data-id="${r.id}"><b>${esc(r.nombre)}</b><span>${r.minutos?r.minutos+' min':''}${faltanTxt(r)}</span></button><button class="dots3" data-a="mealMenu" data-m="${k}" aria-label="Opciones">${svg('dots')}</button></div>`
       :`<button class="glass meal empty" data-a="elegirReceta" data-m="${k}">＋ Añadir ${l.toLowerCase()}</button>`)}).join('');
-  return hdr('Plan semanal','',`<button class="round" data-a="tab" data-k="mas" aria-label="Perfil">${avatar(S.me.id,'')||'?'}</button>`)+
+  return hdr('Plan semanal',`<button class="link" data-a="casas" style="font-size:14.5px">🏠 ${esc(S.hogar.nombre)} ▾</button>`,`<button class="round" data-a="tab" data-k="mas" aria-label="Perfil">${avatar(S.me.id,'')||'?'}</button>`)+
    `<section class="glass wk"><div class="wk-nav"><button data-a="semana" data-n="-7" aria-label="Semana anterior">${svg('chevL')}</button><span>${rango}</span><button data-a="semana" data-n="7" aria-label="Semana siguiente">${svg('chevR')}</button></div><div class="days">${days}</div></section>`+
    alerta+meals+
    `<div style="display:grid;gap:12px;margin-top:6px"><button class="btn gl" data-a="planificar">${svg('cal')}Planificar semana</button><button class="btn pri" data-a="genLista">${svg('cart')}Generar lista de la compra</button></div>`}
@@ -602,11 +615,27 @@ function vPrecios(){if(S.precioDet)return vPrecioDet(S.precioDet);
   const q=norm(S.precioQ);const names=[...new Set(S.t.precios.map(p=>p.nombre))];
   const prods=names.filter(n=>!q||norm(n).includes(q)).map(n=>({n,o:ofertas(n),info:infoArticulo(n)})).sort((a,b)=>a.n.localeCompare(b.n,'es'));
   const top=hdr('Precios',`${names.length} productos con precio`,`<button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
-  const keep=`<label class="glass search">${svg('search')}<input id="qprecio" type="search" data-in="precioQ" placeholder="Buscar producto…" value="${esc(S.precioQ)}"></label>`;let html='';
+  const keep=`<label class="glass search">${svg('search')}<input id="qprecio" type="search" data-in="precioQ" placeholder="Buscar producto…" value="${esc(S.precioQ)}"></label>`;
+  let html=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.precioVista!=='tabla'?'on':''}" data-a="precioVista" data-k="lista">Productos</button><button class="${S.precioVista==='tabla'?'on':''}" data-a="precioVista" data-k="tabla">Tabla por súper</button></div>`;
+  if(S.precioVista==='tabla')return {top,keep,body:html+tablaPrecios(q)};
   if(!names.length)html+=`<div class="glass empty"><div class="e">🧾</div><h3>Sin precios todavía</h3><p>Haz una foto al ticket al volver de la compra y se apuntan solos. Valora la calidad con estrellas: la app marca lo más barato y lo que <b>compensa</b>.</p></div>`;
   else html+=`<div class="glass grp"><div class="rows">${prods.map((p,i)=>{const b=p.o.find(x=>x.barato)||p.o[0];const c=p.o.find(x=>x.compensa);const tr=b.prev?(b.precio-b.prev)/b.prev*100:0;
     return `<div class="it" style="${i?'':'border-top:0'}">${thumb(p.info)}<button class="body" data-a="precioDet" data-n="${esc(p.n)}"><div class="nm">${esc(p.n)}</div><div class="mt">Más barato en ${esc(b.super)}${p.o.length>1?` · ${p.o.length} súper`:''}${c&&c!==b?` · compensa ${esc(c.super)}`:''}</div></button><span style="text-align:right"><span class="pr">${eur(b.precio)}</span>${Math.abs(tr)>=.5?`<br><span class="tiny ${tr>0?'up':'down'}">${tr>0?'▲':'▼'} ${Math.abs(tr).toFixed(0)}%</span>`:''}</span></div>`}).join('')}</div></div>`;
   html+=`<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button>`;return {top,keep,body:html}}
+function tablaPrecios(q){const sups=planCfg().sups;const enL=new Set(S.t.lista.filter(i=>!i.comprado).map(i=>norm(i.nombre)));
+  const names=new Map();const add=n=>{const k=norm(n);if(!names.has(k))names.set(k,n)};
+  S.t.lista.filter(i=>!i.comprado).forEach(i=>add(i.nombre));S.t.precios.forEach(p=>add(p.nombre));
+  [...S.t.articulos].filter(a=>!a.oculto).sort((a,b)=>b.veces-a.veces).slice(0,40).forEach(a=>add(a.nombre));
+  let rows=[...names.values()].filter(n=>!q||norm(n).includes(q)).sort((a,b)=>(enL.has(norm(b))-enL.has(norm(a)))||a.localeCompare(b,'es'));
+  const chips=`<div style="display:flex;flex-wrap:wrap;gap:8px">${SUPERS.slice(0,9).map(s=>`<button class="chip ${sups.includes(s)?'on':''}" data-a="tablaSup" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+  if(!rows.length)return chips+`<div class="glass empty"><div class="e">🧾</div><h3>Nada que mostrar</h3><p>Añade productos a la lista o apunta precios.</p></div>`;
+  const body=rows.map(n=>{const o=ofertas(n);const per={};o.forEach(x=>{if(sups.includes(x.super)&&(!per[x.super]||x.precio<per[x.super].precio))per[x.super]=x});
+    const vals=Object.values(per).map(x=>x.precio);const min=vals.length>1?Math.min(...vals):null;const info=infoArticulo(n);
+    return `<tr><td><button class="pn" data-a="${o.length?'precioDet':'celda'}" data-n="${esc(n)}" data-s="${esc(sups[0]||'Mercadona')}"><span aria-hidden="true">${esc(info.emoji)}</span> ${esc(n)}${enL.has(norm(n))?' <span title="En la lista">🛒</span>':''}</button></td>${sups.map(s=>{const x=per[s];
+      return `<td><button class="${x?(x.precio===min?'min':''):'vac'}" data-a="celda" data-n="${esc(n)}" data-s="${esc(s)}" aria-label="${esc(n)} en ${esc(s)}">${x?`${eur(x.precio)}<small>${x.unidad!=='ud'?'/'+x.unidad+' · ':''}${fmtFecha(x.fecha)}</small>`:'＋'}</button></td>`}).join('')}</tr>`}).join('');
+  return chips+`<div class="small muted">Toca una casilla para poner o cambiar el precio. En verde, el más barato. 🛒 = está en la lista.</div>
+   <div class="glass ptab-wrap"><table class="ptab"><thead><tr><th>Producto</th>${sups.map(s=>`<th>${logo(s)}<span>${esc(s)}</span></th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>
+   <button class="btn gl" data-a="addPrecio">${svg('plus')}Añadir otro producto</button>`}
 function vPrecioDet(n){const o=ofertas(n),info=infoArticulo(n);const art=S.t.articulos.find(a=>norm(a.nombre)===norm(n));
   const sel=o.find(x=>x.key===S.precioSup)||o.reduce((a,x)=>x.hist.length>a.hist.length?x:a,o[0]);
   let body='';
@@ -653,7 +682,7 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')re
     <div class="small muted" style="margin-top:8px">Eres <b style="color:var(--ink)">${esc(S.me.nombre)}</b>. ${S.mode==='demo'?'Modo demo: los datos están solo en este dispositivo.':'Todo lo que apunta uno lo ve el otro al momento.'}</div></section>
    <div class="g3"><div class="glass stat"><span class="tiny">Gastado</span><b>${eur(gast)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">este mes</span></div><div class="glass stat"><span class="tiny">Tirado</span><b style="color:var(--red)">${eur(tirE)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">${tir.length} ${tir.length===1?'producto':'productos'}</span></div><div class="glass stat"><span class="tiny">Despensa</span><b>${S.t.despensa.length}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">productos</span></div></div>
    ${Object.keys(ps).length?`<section class="glass pad" style="display:grid;gap:10px"><b>Este mes por súper</b>${Object.entries(ps).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div><div class="row small"><span class="grow">${esc(s)}</span><span class="pr">${eur(v)}</span></div><div class="bar"><i style="width:${v/mx*100}%;background:${superColor(s)}"></i></div></div>`).join('')}</section>`:''}
-   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('notis','bell','Avisos en este móvil','Cuando la otra persona compra algo')}${opt('instalar','phone','Instalar en el móvil')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
+   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('notis','bell','Avisos en este móvil','Cuando la otra persona compra algo')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
 function vRecetas(){const r=[...S.t.recetas].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
@@ -691,9 +720,11 @@ A.semana=d=>{S.week=addDays(S.week,+d.n);S.day=S.week<=hoy()&&hoy()<=addDays(S.w
 A.listMode=d=>{S.listMode=d.k;paint()};
 A.toggleGrp=d=>{S.closed[d.k]=!S.closed[d.k];paint()};
 A.despF=d=>{S.despF=d.k;paint()};
-A.precioDet=d=>{S.precioDet=d.n;S.precioSup='';S.precioSeg='precio';render();window.scrollTo(0,0)};
+A.precioDet=d=>{closeSheet();S.precioDet=d.n;S.precioSup='';S.precioSeg='precio';render();window.scrollTo(0,0)};
 A.precioBack=()=>{S.precioDet=null;render()};
 A.precioSeg=d=>{S.precioSeg=d.k;paint()};
+A.precioVista=d=>{S.precioVista=d.k;lsSet('cc-pvista',d.k);paint()};
+A.tablaSup=d=>{const c=planCfg();const sups=c.sups.includes(d.s)?c.sups.filter(x=>x!==d.s):[...c.sups,d.s];lsSet('cc-plan',{...c,sups});paint()};
 A.precioSup=d=>{S.precioSup=d.k;paint()};
 A.subRecetas=()=>{S.sub='recetas';render();window.scrollTo(0,0)};
 A.subActividad=()=>{S.sub='actividad';render();window.scrollTo(0,0)};
@@ -838,6 +869,15 @@ A.addPrecio=d=>sheet(`<h2>Apuntar precio</h2><div class="fld"><label for="p-n">P
   <div class="g2"><div class="fld"><label for="p-s">Súper</label><select class="inp" id="p-s">${selOpts(SUPERS,'Mercadona')}</select></div><div class="fld"><label for="p-m">Marca</label><input class="inp" id="p-m" placeholder="Hacendado…"></div></div>
   <div class="g3"><div class="fld"><label for="p-p">Precio (€)</label><input class="inp" id="p-p" type="number" step="0.01" inputmode="decimal" ${d.n?'autofocus':''}></div><div class="fld"><label for="p-u">Por</label><select class="inp" id="p-u">${selOpts(['ud','kg','l'],infoArticulo(d.n||'').unidad==='kg'?'kg':'ud')}</select></div><div class="fld"><label for="p-q">Calidad</label><select class="inp" id="p-q">${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===3?'selected':''}>${'★'.repeat(n)}</option>`).join('')}</select></div></div>
   <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="savePrecio">Guardar</button></div>`);
+A.celda=d=>{const n=d.n,s=d.s;const o=ofertas(n).filter(x=>x.super===s).sort((a,b)=>a.precio-b.precio)[0];const info=infoArticulo(n);const u=o?o.unidad:(info.unidad==='kg'?'kg':info.unidad==='l'?'l':'ud');
+  sheet(`<div class="row">${logo(s)}<div class="grow"><h2 style="font-size:19px">${esc(n)}</h2><span class="small muted">${esc(s)}${o?` · último: ${eur(o.precio)} el ${fmtFecha(o.fecha)}`:' · sin precio todavía'}</span></div></div>
+   <div class="g3"><div class="fld"><label for="c-p">Precio (€)</label><input class="inp" id="c-p" type="number" step="0.01" inputmode="decimal" autofocus value="${o?o.precio:''}"></div><div class="fld"><label for="c-u">Por</label><select class="inp" id="c-u">${selOpts(['ud','kg','l'],u)}</select></div><div class="fld"><label for="c-q">Calidad</label><select class="inp" id="c-q">${[5,4,3,2,1].map(k=>`<option value="${k}" ${k===(o?o.calidad:3)?'selected':''}>${'★'.repeat(k)}</option>`).join('')}</select></div></div>
+   <div class="fld"><label for="c-m">Marca</label><input class="inp" id="c-m" value="${esc(o?o.marca:'')}" placeholder="Hacendado, Milbona…"></div>
+   <div class="row">${o?`<button class="btn gl sm" data-a="precioDet" data-n="${esc(n)}">Ver histórico</button>`:''}<span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="saveCelda" data-n="${esc(n)}" data-s="${esc(s)}">Guardar</button></div>`)};
+A.saveCelda=async d=>{const p=num($('#c-p').value);if(!(p>0)){toast('Escribe el precio.');return}const m=$('#c-m').value.trim(),q=+$('#c-q').value;
+  await apuntarPrecio({nombre:d.n,super:d.s,marca:m,precio:p,unidad:$('#c-u').value});
+  const v=S.t.valoraciones.find(x=>norm(x.nombre)===norm(d.n)&&x.super===d.s&&(x.marca||'')===m);if(v){if(v.calidad!==q)await upd('valoraciones',v.id,{calidad:q})}else if(q!==3)await ins('valoraciones',{nombre:cap(d.n),super:d.s,marca:m,calidad:q});
+  closeSheet()};
 A.savePrecio=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('p-n'));if(!n||!(num(v('p-p'))>0)){toast('Falta el producto o el precio.');return}
   await apuntarPrecio({nombre:n,super:v('p-s'),marca:v('p-m'),precio:v('p-p'),unidad:v('p-u')});
   const q=+v('p-q');if(q!==3)await A.star({n,s:v('p-s'),m:v('p-m'),v:q});closeSheet();toast('Precio apuntado')};
@@ -953,6 +993,49 @@ A.aplicarTicket=async()=>{if(!TK)return;const b=$('[data-a=aplicarTicket]');b.di
   TK=null;closeSheet();toast(`Ticket guardado · ${desp.length} a la despensa${quitar.length?` · ${quitar.length} tachados`:''}`,`<a href="${waLink(evs)}" target="_blank" rel="noopener">WhatsApp</a>`)};
 
 /* ============ AJUSTES / SESIÓN ============ */
+A.invitar=()=>{const url=location.origin+location.pathname;const txt=`Únete a nuestra casa en Cesta Casa 🧺\n1. Abre ${url}\n2. Crea tu cuenta\n3. En «¿Alguien de tu casa ya usa la app?» pon este código: ${S.hogar.codigo}\n(No crees una casa nueva)`;
+  sheet(`<h2>Invitar a alguien de casa</h2><p class="small muted" style="margin:0">Que entre con <b>su propio correo</b> y ponga este código. No debe crear una casa nueva.</p><div class="glass pad" style="text-align:center"><span class="code">${esc(S.hogar.codigo)}</span></div>
+   <a class="btn pri" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener" style="text-decoration:none">${svg('whats')}Enviar por WhatsApp</a><button class="btn gl" data-a="copiarInv">Copiar mensaje</button><button class="btn gl" data-a="close">Cerrar</button>`);S._inv=txt};
+A.copiarInv=async(d,b)=>{try{await navigator.clipboard.writeText(S._inv);b.textContent='Copiado ✓'}catch(e){toast('Código: '+S.hogar.codigo)}};
+A.casas=()=>{if(S.mode==='demo'){toast('En el modo demo solo hay una casa.');return}const cs=S.casas||[{id:S.hogar.id,nombre:S.hogar.nombre}];
+  sheet(`<h2>Mis casas</h2><p class="small muted" style="margin:0">Puedes estar en varias: la tuya, la de tus padres, la de un viaje… Cada una tiene su lista, despensa y precios.</p>
+   <div class="glass list-plain">${cs.map(c=>`<button class="opt" data-a="irCasa" data-id="${c.id}"><span style="font-size:22px">🏠</span><span class="grow">${esc(c.nombre)}<span class="tiny muted" style="display:block">Código ${esc(c.codigo||'')}</span></span>${c.id===S.hogar.id?'<span class="pill blue">Ahora</span>':svg('chevR','chev-r')}</button>`).join('')}</div>
+   <div class="glass pad" style="display:grid;gap:8px"><b>Unirme a otra casa</b><span class="small muted">Pide el código a alguien de esa casa (está en su pestaña Más).</span><div class="row"><input class="inp code" id="cs-c" placeholder="CÓDIGO" maxlength="6" autocapitalize="characters" style="text-transform:uppercase;text-align:center"><button class="btn pri sm" data-a="unirseOtra">Unirme</button></div></div>
+   <div class="glass pad" style="display:grid;gap:8px"><b>Crear otra casa</b><span class="small muted">Para un viaje, una temporada en casa de alguien…</span><div class="row"><input class="inp" id="cs-n" placeholder="Ej. Viaje Asturias"><button class="btn gl sm" data-a="crearOtra">Crear</button></div></div>
+   <button class="btn red" data-a="salirCasa">Salir de «${esc(S.hogar.nombre)}»</button>
+   ${esCreador()?`<button class="btn" data-a="borrar1" style="background:none;border:1.5px solid var(--red);color:var(--red)">${svg('trash')}Borrar «${esc(S.hogar.nombre)}» para todos</button>`:''}<button class="btn gl" data-a="close">Cerrar</button>`)};
+const esCreador=()=>!!(S.user&&S.hogar.creado_por&&S.hogar.creado_por===S.user.id);
+const pasos=n=>`<div class="row" style="gap:6px;justify-content:center">${[1,2,3].map(i=>`<span style="width:28px;height:5px;border-radius:3px;background:${i<=n?'var(--red)':'var(--sep)'}"></span>`).join('')}</div><div class="tiny muted" style="text-align:center;margin-top:-6px">Paso ${n} de 3</div>`;
+A.borrar1=()=>{const t=S.t;const otros=t.miembros.filter(m=>m.id!==S.me.id);
+  sheet(`${pasos(1)}<h2>Borrar «${esc(S.hogar.nombre)}»</h2><p class="small" style="margin:0">Se borrará <b>todo</b> lo de esta casa, para siempre:</p>
+   <div class="glass list-plain">${[['🛒','Productos en la lista',t.lista.length],['🥫','Productos en la despensa',t.despensa.length],['🧾','Precios guardados',t.precios.length],['📖','Recetas',t.recetas.length],['📅','Comidas planificadas',t.menu.length],['🧺','Artículos habituales',t.articulos.length],['🕒','Movimientos de actividad',t.eventos.length]].map(([e,l,n])=>`<div class="opt" style="padding:9px 14px"><span style="font-size:20px">${e}</span><span class="grow">${l}</span><b class="num">${n}</b></div>`).join('')}</div>
+   ${otros.length?`<div class="small" style="color:var(--red)"><b>${otros.length===1?'1 persona más':otros.length+' personas más'}</b> ${otros.length===1?'perderá':'perderán'} esta casa: ${esc(otros.map(m=>m.nombre).join(', '))}.</div>`:''}
+   <div class="small muted">Si solo quieres dejar de verla, usa <b>Salir</b> en lugar de borrar.</div>
+   <div class="row"><button class="btn gl sm" data-a="casas">Cancelar</button><span class="grow"></span><button class="btn red sm" data-a="borrar2">Continuar</button></div>`)};
+A.borrar2=()=>{sheet(`${pasos(2)}<h2>¿Seguro?</h2><div class="glass pad small" style="border:2px solid var(--red);background:var(--red-card)">Esto <b>no se puede deshacer</b>. Nadie podrá recuperar la lista, la despensa, los precios ni las recetas de «${esc(S.hogar.nombre)}».</div>
+   <label class="row small"><input type="checkbox" id="b-ok"> Entiendo que se borra para todos y no se puede deshacer</label>
+   <div class="row"><button class="btn gl sm" data-a="casas">Cancelar</button><span class="grow"></span><button class="btn red sm" data-a="borrar3">Continuar</button></div>`)};
+A.borrar3=()=>{if(!$('#b-ok').checked){toast('Marca la casilla para continuar.');return}const nom=S.hogar.nombre;
+  const o=sheet(`${pasos(3)}<h2>Último paso</h2><p class="small" style="margin:0">Para confirmar, escribe el nombre de la casa: <b>${esc(nom)}</b></p>
+   <input class="inp" id="b-nom" autocomplete="off" autocapitalize="off" placeholder="${esc(nom)}">
+   <div class="row"><button class="btn gl sm" data-a="casas">Cancelar</button><span class="grow"></span><button class="btn red sm" data-a="borrarYa" id="b-go" disabled>Borrar definitivamente</button></div>`);
+  o.querySelector('#b-nom').addEventListener('input',e=>{o.querySelector('#b-go').disabled=e.target.value.trim()!==nom.trim()})};
+A.borrarYa=async(d,b)=>{const nom=$('#b-nom').value.trim();if(nom!==S.hogar.nombre.trim())return;b.disabled=true;b.innerHTML='<span class="spin"></span> Borrando';
+  const {error}=await S.sb.rpc('borrar_hogar',{p_hogar:S.hogar.id,p_nombre:nom});if(error){b.disabled=false;b.textContent='Borrar definitivamente';toast(error.message);return}
+  const otra=(S.casas||[]).find(c=>c.id!==S.hogar.id);toast(`«${nom}» se ha borrado`);irA(otra?otra.id:'')};
+async function irA(id){lsSet('cc-hogar',id);closeSheet();if(Supa.ch){S.sb.removeChannel(Supa.ch);Supa.ch=null}S.tab='inicio';lsSet('cc-tab','inicio');S.sub=null;S.precioDet=null;await boot()}
+A.irCasa=d=>{if(d.id===S.hogar.id){closeSheet();return}irA(d.id)};
+A.unirseOtra=async()=>{const c=$('#cs-c').value.trim().toUpperCase();if(c.length<4){toast('Escribe el código.');return}if((S.casas||[]).some(x=>x.codigo===c)){toast('Ya estás en esa casa.');return}
+  const {data,error}=await S.sb.rpc('unirse_hogar',{p_codigo:c,p_mi_nombre:S.me.nombre,p_color:S.me.color});if(error){toast(error.message.includes('Código')?'Ese código no existe.':error.message);return}
+  toast(`Te has unido a «${data.nombre}»`);irA(data.id)};
+A.crearOtra=async()=>{const n=$('#cs-n').value.trim();if(!n){toast('Ponle un nombre a la casa.');return}
+  const {data,error}=await S.sb.rpc('crear_hogar',{p_nombre:n,p_mi_nombre:S.me.nombre,p_color:S.me.color});if(error){toast(error.message);return}
+  toast(`Casa «${data.nombre}» creada. Invita a los demás desde Más.`);irA(data.id)};
+A.salirCasa=()=>{const solo=S.t.miembros.length<=1;
+  sheet(`<h2>¿Salir de «${esc(S.hogar.nombre)}»?</h2>${solo?`<div class="glass pad small" style="border:2px solid var(--red);background:var(--red-card)"><b style="color:var(--red)">Eres la única persona de esta casa.</b> Si sales, se borrará con su lista, despensa y precios.</div>`:`<p class="small muted" style="margin:0">Los demás seguirán teniendo la casa y sus datos. Podrás volver con el código.</p>`}
+   <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="casas">Cancelar</button><button class="btn red sm" data-a="okSalir">Salir</button></div>`)};
+A.okSalir=async()=>{const {error}=await S.sb.rpc('salir_hogar',{p_hogar:S.hogar.id});if(error){toast(error.message);return}
+  const otra=(S.casas||[]).find(c=>c.id!==S.hogar.id);toast('Has salido de la casa');irA(otra?otra.id:'')};
 A.copiarCodigo=async()=>{try{await navigator.clipboard.writeText(S.hogar.codigo);toast('Código copiado')}catch(e){toast('Código: '+S.hogar.codigo)}};
 A.cambiarNombre=()=>sheet(`<h2>Mi nombre y color</h2><div class="fld"><label for="cn-n">Nombre</label><input class="inp" id="cn-n" value="${esc(S.me.nombre)}"></div>
   <div class="row">${COLORES.map(c=>`<button class="av lg" data-a="pickColor" data-c="${c}" style="background:${c};${S.me.color===c?'outline:3px solid var(--ink);outline-offset:2px':''}" aria-label="Color ${c}"></button>`).join('')}</div>
@@ -984,10 +1067,12 @@ function renderLogin(msg){welcome(`<div class="logo-app">🧺</div><div><h1 styl
 A.login=async()=>{const {error}=await S.sb.auth.signInWithPassword({email:$('#lg-e').value.trim(),password:$('#lg-p').value});if(error){toast(error.message.includes('Invalid')?'Correo o contraseña incorrectos.':/confirm/i.test(error.message)?'Falta confirmar el correo: pulsa el enlace que te ha llegado.':error.message);return}boot()};
 A.signup=async()=>{const e=$('#lg-e').value.trim(),p=$('#lg-p').value;if(!e||p.length<6){toast('Escribe correo y una contraseña de 6 caracteres o más.');return}
   const {data,error}=await S.sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});if(error){toast(error.message);return}if(!data.session){renderLogin('Te hemos enviado un correo para confirmar la cuenta. Confírmala y vuelve a entrar.');return}boot()};
-function renderHogar(){welcome(`<div class="logo-app">🏠</div><div><h1 style="margin:0;font-size:26px">Tu hogar</h1><p class="muted small" style="margin:4px 0 0">Uno crea el hogar; el otro se une con el código.</p></div>
-  <div class="fld"><label for="h-me">Tu nombre</label><input class="inp" id="h-me" placeholder="Jorge"></div>
-  <div class="glass pad" style="display:grid;gap:10px"><b>Crear hogar nuevo</b><input class="inp" id="h-n" placeholder="Nombre del hogar (ej. Casa)"><button class="btn pri" data-a="crearHogar">Crear</button></div>
-  <div class="glass pad" style="display:grid;gap:10px"><b>Unirme a un hogar</b><input class="inp code" id="h-c" placeholder="CÓDIGO" maxlength="6" style="text-transform:uppercase;font-size:18px"><button class="btn gl" data-a="unirse">Unirme</button></div>
+function renderHogar(){welcome(`<div class="logo-app">🏠</div><div><h1 style="margin:0;font-size:26px">Tu casa</h1><p class="muted small" style="margin:4px 0 0">Toda la familia comparte una sola casa en la app.</p></div>
+  <div class="fld"><label for="h-me">Tu nombre</label><input class="inp" id="h-me" placeholder="Ej. Irene" autocomplete="given-name"></div>
+  <div class="glass pad" style="display:grid;gap:10px;border:2px solid var(--red);background:var(--red-card)"><b style="color:var(--red);font-size:17px">¿Alguien de tu casa ya usa la app?</b><span class="small">Pídele el <b>código de 6 letras</b> (está en su pestaña <b>Más</b>) y únete. <b>No crees una casa nueva.</b></span>
+   <input class="inp code" id="h-c" placeholder="CÓDIGO" maxlength="6" autocapitalize="characters" style="text-transform:uppercase;font-size:20px;text-align:center"><button class="btn pri" data-a="unirse">Unirme a su casa</button></div>
+  <div class="row small muted" style="justify-content:center">o, si eres la primera persona de tu casa</div>
+  <div class="glass pad" style="display:grid;gap:10px"><b>Crear una casa nueva</b><span class="small muted">Después tendrás que pasar el código al resto de la familia.</span><input class="inp" id="h-n" placeholder="Nombre de la casa (ej. Casa)"><button class="btn gl" data-a="crearHogar">Crear casa nueva</button></div>
   <button class="link small" data-a="logout" style="align-self:center">Cerrar sesión</button>`)}
 A.crearHogar=async()=>{const me=cap($('#h-me').value);if(!me){toast('Escribe tu nombre.');return}const {error}=await S.sb.rpc('crear_hogar',{p_nombre:$('#h-n').value.trim()||'Casa',p_mi_nombre:me,p_color:COLORES[0]});if(error){toast(error.message);return}boot()};
 A.unirse=async()=>{const me=cap($('#h-me').value),c=$('#h-c').value.trim();if(!me||c.length<4){toast('Escribe tu nombre y el código.');return}const {error}=await S.sb.rpc('unirse_hogar',{p_codigo:c,p_mi_nombre:me,p_color:COLORES[1]});if(error){toast(error.message.includes('Código')?'Ese código no existe.':error.message);return}boot()};

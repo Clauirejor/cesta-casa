@@ -11,6 +11,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `index.html` | La app entera |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
+| `supabase/actualizacion-1.sql` | Solo si ya ejecutaste el schema antes del 4/10/2026: permite estar en **varias casas**, salir de una y borrarla (solo quien la creó). Se puede ejecutar más de una vez |
 
 ---
 
@@ -43,11 +44,12 @@ Sin esto, el enlace del correo de confirmación lleva a `localhost` y da error.
 2. Copia la **Project URL** (`https://xxxx.supabase.co`) y la clave **anon public** (o **publishable**, empieza por `sb_publishable_`).
 3. Nunca copies la clave **service_role / secret**.
 
-### 5. Abrir la app y crear el hogar
-1. Abre la app en el móvil. La primera vez te pide la URL y la clave del paso 4: pégalas y pulsa **Conectar**.
-2. **Crear cuenta nueva** con tu correo y una contraseña → escribe tu nombre → **Crear hogar**.
-3. En la pestaña **Más** aparece el **código para unirse** (6 letras).
-4. Tu mujer abre la app en su móvil, pega la misma URL y clave, crea su cuenta, escribe su nombre y el código → **Unirme**.
+### 5. Abrir la app y crear la casa
+1. **Solo una persona crea la casa.** Abre la app → **Crear cuenta nueva** → tu nombre → **Crear casa nueva**.
+2. En **Más → Invitar a alguien de casa** envía el enlace y el código por WhatsApp.
+3. La otra persona crea **su propia cuenta** y, en el recuadro rojo **«¿Alguien de tu casa ya usa la app?»**, pone el código → **Unirme a su casa**.
+4. Cada persona puede estar en **varias casas** (la suya, la de sus padres, la de un viaje…). Se cambia tocando **🏠 nombre de la casa ▾** en Inicio o en **Más → Mis casas**, donde también se puede unir a otra casa, crear una nueva o salir de una (si se queda vacía, se borra).
+5. **Borrar una casa para todos** (Más → Mis casas → Borrar): solo puede hacerlo quien la creó, y hay que pasar tres confirmaciones, la última escribiendo el nombre de la casa.
 
 ### 6. Cerrar la puerta (1 min)
 Cuando estéis los dos dentro: **Authentication** → **Sign In / Providers** → desactiva **Allow new users to sign up** → **Save**. Así nadie más puede crear cuentas.
@@ -92,6 +94,10 @@ Folios; ; 1; ud; 4,50
   - `Producto; Cantidad; Importe`
   - `Producto; Marca; Cantidad; Importe`
 - También acepta columnas separadas por tabulador (copiadas de Excel o Google Sheets), líneas con viñetas (`- `) y JSON.
+
+## Tabla de precios por súper
+
+En **Precios → Tabla por súper** cada fila es un producto (primero los de la lista 🛒) y cada columna un supermercado. Toca una casilla para poner o cambiar el precio; en verde sale el más barato. Las columnas se eligen con los botones de arriba.
 
 ## ¿Dónde compro?
 
