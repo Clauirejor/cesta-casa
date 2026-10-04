@@ -11,6 +11,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `index.html` | La app entera |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Para instalarla en el móvil como una app |
 | `supabase/schema.sql` | Tablas, seguridad, tiempo real, 410 artículos ya cargados y 15 recetas de inicio |
+| `supabase/actualizacion-5.sql` | Solo si ya ejecutaste el schema antes: permite **apuntar ofertas** con fecha de caducidad |
 | `supabase/actualizacion-4.sql` | Solo si ya ejecutaste el schema antes: permite añadir **súper y tiendas propias** (mercadillo, frutería…) |
 | `supabase/actualizacion-3.sql` | Solo si ya ejecutaste el schema antes: guarda el **tamaño del envase** en los precios |
 | `supabase/actualizacion-2.sql` | Solo si ya ejecutaste el schema antes: activa las **fotos** de recetas y productos |
@@ -136,6 +137,13 @@ En la pestaña **Compra** aparece la tarjeta **¿Dónde compro?**. Con los preci
 - **Apuntar el súper en cada producto** pone a cada producto el súper donde conviene comprarlo y agrupa la lista **Por súper**.
 
 Cuantos más tickets importéis los dos, más acertada será la recomendación. Los precios no se consultan solos en internet: Lidl y Aldi no publican en su web los precios del supermercado, y Mercadona no permite leerlos de forma automática.
+
+## Ofertas
+
+- **Búsqueda automática los lunes y jueves**: una tarea programada de Claude lee el folleto de Lidl (PDF) y las bajadas de precio que publica RadarSuper (Mercadona, Carrefour, Dia…), y guarda las ofertas en `precios/ofertas.json`. Aldi y Carrefour publican sus folletos como imágenes, así que de ellos solo salen las ofertas que aparezcan en prensa o webs.
+- En **Inicio** aparece una tarjeta con las ofertas de lo que soléis comprar, y en **Precios → Ofertas** está la lista completa con el % de descuento, la fecha de fin y **＋ Lista**.
+- **Añadir oferta**: para apuntar a mano una oferta del folleto o de la tienda. Cuenta en las comparaciones hasta que caduca.
+- Las ofertas cuentan en **¿Dónde compro?** mientras están vigentes.
 
 ## Editar y quitar
 

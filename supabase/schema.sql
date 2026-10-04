@@ -121,11 +121,15 @@ create table if not exists public.precios (
   precio numeric not null,
   unidad text default 'ud',
   formato text default '',
+  hasta date,
+  antes numeric,
   fecha date not null default current_date,
   por uuid,
   created_at timestamptz not null default now()
 );
 alter table public.precios add column if not exists formato text default '';
+alter table public.precios add column if not exists hasta date;
+alter table public.precios add column if not exists antes numeric;
 create index if not exists precios_hogar_nombre on public.precios (hogar_id, nombre);
 
 create table if not exists public.valoraciones (
