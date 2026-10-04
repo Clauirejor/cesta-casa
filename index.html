@@ -185,6 +185,7 @@ button{cursor:pointer}
 /* sheets */
 .ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.32);display:flex;align-items:flex-end;justify-content:center;animation:fi .18s ease}
 .sheet{width:100%;max-width:560px;max-height:90vh;overflow:auto;background:var(--glass-strong);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border-radius:22px 22px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;animation:su .24s cubic-bezier(.2,.9,.3,1)}
+.sheet>*{flex-shrink:0}
 .sheet .grab{width:38px;height:5px;border-radius:3px;background:var(--sep);margin:2px auto 4px;flex:none}
 .sheet h2{margin:0;font-size:21px;font-weight:700}
 @keyframes su{from{transform:translateY(40px);opacity:.4}} @keyframes fi{from{opacity:0}}
@@ -321,6 +322,7 @@ const S={mode:null,sb:null,user:null,hogar:null,me:null,rt:false,
   tab:lsGet('cc-tab','inicio'),sub:null,day:hoy(),week:lunes(hoy()),listMode:'pasillo',closed:{},
   despF:'todos',despCat:'',despQ:'',precioQ:'',precioDet:null,precioSeg:'precio',precioSup:'',addQ:'',ready:false};
 
+const A={};
 /* ============ BACKENDS ============ */
 const Local={
   key:'cesta-demo-v1',
@@ -399,8 +401,9 @@ function demoSeed(){const h={id:'demo',nombre:'Casa (demo)',codigo:'DEMO42'};
     li('Leche semidesnatada',6,'l',J),li('Huevos',1,'ud',J,{nota:'Docena'}),li('Yogur natural',8,'ud',I),li('Tomate frito',2,'ud',I,{marca:'Hacendado',super:'Mercadona'}),li('Folios',1,'ud',J,{nota:'Paquete de 500'}),li('Zapatillas',1,'ud',I,{nota:'Talla 28 para la peque'}),li('Pilas AA',1,'ud',J)];
   const de=(n,c,u,d,o)=>{const a=infoArticulo(n);return base({nombre:n,emoji:a.emoji,categoria:a.categoria,cantidad:c,unidad:u||a.unidad,caduca:d==null?null:addDays(hoy(),d),super:'Mercadona',marca:'',precio:0,por:J.id,...(o||{})})};
   t.despensa=[de('Yogur natural',2,'ud',2),de('Espinacas',1,'ud',3),de('Pechuga de pollo',1,'ud',4),de('Leche semidesnatada',1,'l',7),de('Macarrones',2,'ud',null),de('Arroz redondo',1,'kg',null),de('Aceite de oliva virgen extra',1,'l',null),de('Garbanzos cocidos',3,'ud',200),de('Papel higiénico',12,'ud',null),de('Detergente',1,'ud',null)];
-  const hist={Tomate:{Mercadona:[1.45,1.52,1.6,1.75,1.89,1.82,1.8,1.89],Carrefour:[1.6,1.7,1.95],Dia:[1.9,2.1],Alcampo:[1.7,1.8]},'Tomate frito':{Mercadona:[0.85,0.89,0.95]},'Leche semidesnatada':{Mercadona:[0.92,0.95,0.97],Lidl:[0.89,0.93]},'Huevos':{Mercadona:[2.2,2.45,2.6],Consum:[2.5,2.75]}};
-  for(const[n,sups]of Object.entries(hist))for(const[s,arr]of Object.entries(sups))arr.forEach((p,i)=>t.precios.push(base({nombre:n,super:s,marca:'',precio:p,unidad:n==='Tomate'?'kg':n.startsWith('Leche')?'l':'ud',fecha:addDays(hoy(),-(arr.length-1-i)*24-3),por:J.id})));
+  const hist={Tomate:{Mercadona:[1.45,1.52,1.6,1.75,1.89,1.82,1.8,1.89],Carrefour:[1.6,1.7,1.95],Dia:[1.9,2.1],Alcampo:[1.7,1.8],Lidl:[1.69],Aldi:[1.75],Consum:[1.95]},'Tomate frito':{Mercadona:[0.85,0.89,0.95],Lidl:[0.89],Aldi:[0.85],Carrefour:[1.05]},'Leche semidesnatada':{Mercadona:[0.92,0.95,0.97],Lidl:[0.89,0.93],Aldi:[0.89],Consum:[1.05],Carrefour:[0.99]},'Huevos':{Mercadona:[2.2,2.45,2.6],Consum:[2.5,2.75],Lidl:[2.39],Aldi:[2.35],Carrefour:[2.69]},'Pechuga de pollo':{Mercadona:[6.9],Lidl:[6.49],Aldi:[6.59],Carrefour:[7.2],Consum:[7.4]},'Yogur natural':{Mercadona:[0.23],Lidl:[0.21],Aldi:[0.2],Consum:[0.27]},'Zanahoria':{Mercadona:[0.99],Lidl:[0.89],Aldi:[0.95]},'Cebolla':{Mercadona:[0.35],Lidl:[0.3],Consum:[0.4]},'Salmón':{Mercadona:[15.9],Lidl:[13.99],Aldi:[14.5],Carrefour:[16.9]},'Calabaza':{Mercadona:[1.49],Consum:[1.69]},'Folios':{Carrefour:[4.5],Aldi:[3.99],Mercadona:[4.2]}};
+  const UK={Tomate:'kg','Pechuga de pollo':'kg',Zanahoria:'kg','Salmón':'kg',Calabaza:'kg'};
+  for(const[n,sups]of Object.entries(hist))for(const[s,arr]of Object.entries(sups))arr.forEach((p,i)=>t.precios.push(base({nombre:n,super:s,marca:'',precio:p,unidad:UK[n]||(n.startsWith('Leche')?'l':'ud'),fecha:addDays(hoy(),-(arr.length-1-i)*24-3),por:J.id})));
   t.valoraciones.push(base({nombre:'Tomate',super:'Carrefour',marca:'',calidad:5}),base({nombre:'Tomate',super:'Mercadona',marca:'',calidad:3}),base({nombre:'Tomate',super:'Alcampo',marca:'',calidad:2}));
   const hab=['Leche semidesnatada','Huevos','Pan de barra','Tomate','Plátano','Yogur natural','Papel higiénico','Tomate frito','Pechuga de pollo','Café en cápsulas','Folios','Detergente'];
   t.articulos=hab.map((n,i)=>{const a=infoArticulo(n);return base({nombre:n,categoria:a.categoria,emoji:a.emoji,unidad:a.unidad,marca:'',ean:'',imagen:'',veces:20-i,ultima:nowIso(),oculto:false,favorito:false})});
@@ -459,6 +462,51 @@ function precioDe(it){if(num(it.precio)>0)return num(it.precio);const o=ofertas(
   const m=o.find(x=>(!it.super||x.super===it.super)&&(!it.marca||norm(x.marca)===norm(it.marca)));return (m||o.find(x=>x.compensa)||o.find(x=>x.barato)).precio}
 function importe(it){const p=precioDe(it);if(!p)return 0;const o=ofertas(it.nombre)[0];const pu=o?o.unidad:'ud';
   if((it.unidad||'ud')==='ud'||it.unidad===pu)return p*(num(it.cantidad)||1);if(it.unidad==='g'&&pu==='kg')return p*num(it.cantidad)/1000;if(it.unidad==='ml'&&pu==='l')return p*num(it.cantidad)/1000;return p}
+/* ¿Dónde compro? */
+const PLAN_DEF={sups:['Mercadona','Lidl','Aldi','Carrefour','Consum'],calidad:false,umbral:5};
+function planCfg(){return {...PLAN_DEF,...lsGet('cc-plan',{})}}
+function cantFactor(it,u){const c=num(it.cantidad)||1;if((it.unidad||'ud')==='ud'||it.unidad===u)return c;if(it.unidad==='g'&&u==='kg')return c/1000;if(it.unidad==='ml'&&u==='l')return c/1000;return 1}
+function median(a){a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function planCompra(cfg){cfg=cfg||planCfg();const sups=cfg.sups;const items=S.t.lista.filter(i=>!i.comprado);
+  const rows=[],sinPrecio=[];
+  for(const it of items){const per={};
+    for(const o of ofertas(it.nombre)){if(!sups.includes(o.super))continue;const q=cantFactor(it,o.unidad);const f=cfg.calidad?Math.max(.5,1-(o.calidad-3)*.1):1;
+      const c={precio:o.precio*q,eff:o.precio*q*f,marca:o.marca};if(!per[o.super]||c.eff<per[o.super].eff)per[o.super]=c}
+    const k=Object.keys(per);if(!k.length){sinPrecio.push(it);continue}
+    rows.push({it,per,estE:median(k.map(x=>per[x].eff)),estP:median(k.map(x=>per[x].precio))})}
+  const val=(r,s)=>r.per[s]?{e:r.per[s].eff,p:r.per[s].precio,est:false}:{e:r.estE,p:r.estP,est:true};
+  const tot=sups.map(s=>{let e=0,p=0,real=0;rows.forEach(r=>{const v=val(r,s);e+=v.e;p+=v.p;if(!v.est)real++});return {s,e,p,real,cobertura:rows.length?real/rows.length:0}});
+  const elig=tot.filter(t=>t.real>0&&t.cobertura>=.5).sort((a,b)=>a.e-b.e);
+  const mejor=elig[0]||null;let par=null;
+  for(let i=0;i<elig.length;i++)for(let j=i+1;j<elig.length;j++){const a=elig[i].s,b=elig[j].s;let e=0,p=0;const asig={[a]:[],[b]:[]};
+    rows.forEach(r=>{const va=val(r,a),vb=val(r,b);let w;if(va.est&&vb.est)w=elig[i].e<=elig[j].e?a:b;else if(va.est)w=b;else if(vb.est)w=a;else w=va.e<=vb.e?a:b;
+      const v=w===a?va:vb;e+=v.e;p+=v.p;asig[w].push({r,v})});
+    if(asig[a].length&&asig[b].length&&(!par||e<par.e))par={a,b,e,p,asig}}
+  const ahorro=mejor&&par?mejor.e-par.e:0;
+  return {cfg,rows,sinPrecio,tot,elig,mejor,par,ahorro,dividir:!!(par&&ahorro>=cfg.umbral)}}
+function dondeCard(){const pl=planCompra();if(!pl.mejor||pl.rows.length<1)return '';
+  const txt=pl.dividir?`Mejor ir a <strong>${esc(pl.par.a)}</strong> y <strong>${esc(pl.par.b)}</strong>: ahorras ${eur(pl.ahorro)}`:`Ve a <strong>${esc(pl.mejor.s)}</strong> · ${eur(pl.mejor.p)}${pl.par&&pl.ahorro>0.5?` <span class="muted">(dividir solo ahorra ${eur(pl.ahorro)})</span>`:''}`;
+  return `<button class="glass alert" data-a="donde" style="text-align:left;width:100%;border:1px solid var(--glass-line)"><span class="ic">🧭</span><span class="grow"><b>¿Dónde compro?</b><span class="small">${txt}</span></span>${svg('chevR','chev-r')}</button>`}
+A.donde=()=>{const pl=planCompra();const c=pl.cfg;const max=Math.max(...pl.tot.map(t=>t.p),1);
+  const rec=!pl.mejor?`<div class="glass pad small">Todavía no hay precios suficientes. Importa algún ticket o apunta precios y aquí verás la comparación.</div>`
+   :pl.dividir?`<div class="glass pad"><div class="small muted">Recomendación</div><b style="font-size:18px">Divide la compra y ahorra ${eur(pl.ahorro)}</b>
+     ${[pl.par.a,pl.par.b].map(s=>`<div class="row" style="margin-top:10px">${logo(s)}<span class="grow"><b>${esc(s)}</b><span class="tiny muted" style="display:block">${pl.par.asig[s].map(x=>esc(x.r.it.nombre)+(x.v.est?' ≈':'')).join(', ')}</span></span><span class="pr">${eur(pl.par.asig[s].reduce((a,x)=>a+x.v.p,0))}</span></div>`).join('')}</div>`
+   :`<div class="glass pad"><div class="small muted">Recomendación</div><div class="row" style="margin-top:6px">${logo(pl.mejor.s)}<span class="grow"><b style="font-size:18px">Todo en ${esc(pl.mejor.s)}</b><span class="tiny muted" style="display:block">${pl.par&&pl.ahorro>0?`Ir también a ${esc(pl.par.a===pl.mejor.s?pl.par.b:pl.par.a)} solo ahorraría ${eur(pl.ahorro)}`:'Es el más barato para tu lista'}</span></span><span class="pr" style="font-size:17px">${eur(pl.mejor.p)}</span></div></div>`;
+  const tabla=`<div class="glass list-plain">${[...pl.tot].sort((a,b)=>(b.cobertura>=.5)-(a.cobertura>=.5)||a.e-b.e).map(t=>`<div class="sup">${logo(t.s)}<span class="grow"><b style="font-weight:550">${esc(t.s)}</b><span class="tiny muted" style="display:block">${t.real} de ${pl.rows.length} con precio${t.cobertura<.5?' · pocos precios':''}</span><div class="bar" style="margin-top:4px"><i style="width:${t.p/max*100}%;background:${superColor(t.s)}"></i></div></span><span class="pr">${t.real?eur(t.p):'—'}</span></div>`).join('')}</div>`;
+  sheet(`<h2>¿Dónde compro?</h2>
+   <div class="small muted" style="margin-top:-4px">Con los precios de vuestros tickets. Lo que falta en un súper se estima con la media de los demás (≈).</div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px">${SUPERS.slice(0,9).map(s=>`<button class="chip ${c.sups.includes(s)?'on':''}" data-a="planSup" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+   <div class="row wrapr small"><label class="row" style="gap:6px"><input type="checkbox" id="pl-cal" ${c.calidad?'checked':''}> Tener en cuenta la calidad (★)</label><span class="grow"></span><label class="row" style="gap:6px">Dividir si ahorro ≥ <select class="inp" id="pl-um" style="width:auto;min-height:34px;padding:4px 8px">${[2,3,5,8,10,15].map(n=>`<option ${n===c.umbral?'selected':''} value="${n}">${n} €</option>`).join('')}</select></label></div>
+   ${rec}${pl.mejor?tabla:''}
+   ${pl.sinPrecio.length?`<div class="small muted">Sin ningún precio (no cuentan): ${pl.sinPrecio.map(i=>esc(i.nombre)).join(', ')}</div>`:''}
+   ${pl.mejor?`<button class="btn pri" data-a="asignarSup">Apuntar el súper en cada producto</button>`:''}<button class="btn gl" data-a="close">Cerrar</button>`);
+  $('#pl-cal').addEventListener('change',e=>{lsSet('cc-plan',{...planCfg(),calidad:e.target.checked});A.donde();paint()});
+  $('#pl-um').addEventListener('change',e=>{lsSet('cc-plan',{...planCfg(),umbral:+e.target.value});A.donde();paint()})};
+A.planSup=d=>{const c=planCfg();const sups=c.sups.includes(d.s)?c.sups.filter(x=>x!==d.s):[...c.sups,d.s];lsSet('cc-plan',{...c,sups});A.donde();paint()};
+A.asignarSup=async()=>{const pl=planCompra();let n=0;
+  if(pl.dividir){for(const s of [pl.par.a,pl.par.b])for(const x of pl.par.asig[s]){if(x.r.it.super!==s){await upd('lista',x.r.it.id,{super:s,marca:x.r.per[s]?.marca||x.r.it.marca});n++}}}
+  else{for(const r of pl.rows){if(r.it.super!==pl.mejor.s){await upd('lista',r.it.id,{super:pl.mejor.s,marca:r.per[pl.mejor.s]?.marca||r.it.marca});n++}}}
+  closeSheet();S.listMode='super';paint();toast(`Súper apuntado en ${n} productos. Lista agrupada por súper.`)};
 async function apuntarPrecio({nombre,super:sup,marca,precio,unidad,fecha}){precio=+num(precio).toFixed(2);if(!(precio>0)||!nombre)return;
   await ins('precios',{nombre:cap(nombre),super:sup||'Otro',marca:marca||'',precio,unidad:unidad||'ud',fecha:fecha||hoy(),por:S.me.id})}
 
@@ -509,16 +557,16 @@ function vCompra(){const pend=S.t.lista.filter(i=>!i.comprado),hechos=S.t.lista.
   const top=hdr('Lista de la compra',`${S.listMode==='pasillo'?'Agrupada por pasillo':'Agrupada por receta'} · ${pend.length} ${pend.length===1?'producto':'productos'} <span class="${S.rt?'live':'live off'}" style="margin-left:6px">${S.mode==='demo'?'Demo':S.rt?'En tiempo real':'Conectando…'}</span>`,`<button class="round" data-a="compraMenu" aria-label="Más opciones">${svg('dots')}</button>`);
   const keep=`<div style="position:relative;z-index:5"><form class="glass search" data-f="add" autocomplete="off">${svg('plus')}<input id="qadd" type="text" placeholder="Añadir: 2 leche, folios, zapatos…" aria-label="Añadir a la lista" enterkeyhint="done" autocomplete="off"><button type="button" class="back" data-a="scan" data-p="lista" aria-label="Escanear código">${svg('barcode')}</button></form><div id="suggbox"></div></div>`;
   const habs=hab.length?`<div class="sec">Habituales <button class="link" data-a="habituales">Ver todos</button></div><div class="chips">${hab.map(a=>`<button class="hab ${inL(a.nombre)?'in':''}" data-a="addHab" data-n="${esc(a.nombre)}" aria-label="Añadir ${esc(a.nombre)}"><span class="e">${a.imagen?`<img src="${esc(a.imagen)}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:6px">`:esc(a.emoji)}</span><span class="n">${esc(a.nombre)}</span></button>`).join('')}</div>`:'';
-  const seg=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.listMode==='pasillo'?'on':''}" data-a="listMode" data-k="pasillo">Por pasillo</button><button class="${S.listMode==='receta'?'on':''}" data-a="listMode" data-k="receta">Por receta</button></div>`;
+  const seg=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.listMode==='pasillo'?'on':''}" data-a="listMode" data-k="pasillo">Por pasillo</button><button class="${S.listMode==='receta'?'on':''}" data-a="listMode" data-k="receta">Por receta</button><button class="${S.listMode==='super'?'on':''}" data-a="listMode" data-k="super">Por súper</button></div>`;
   if(!S.t.lista.length)return {top,keep,body:habs+`<div class="glass empty"><div class="e">🛒</div><h3>La lista está vacía</h3><p>Escribe arriba, toca un habitual o genera la lista desde el plan semanal. También caben cosas de casa: folios, cajas, zapatos…</p></div>`};
   const groups={};
-  const keyOf=i=>S.listMode==='pasillo'?(i.categoria||'Otros'):(i.receta?String(i.receta).split(', ')[0]:'Otros productos');
+  const keyOf=i=>S.listMode==='pasillo'?(i.categoria||'Otros'):S.listMode==='super'?(i.super||'Sin súper asignado'):(i.receta?String(i.receta).split(', ')[0]:'Otros productos');
   pend.forEach(i=>{(groups[keyOf(i)]=groups[keyOf(i)]||[]).push(i)});
-  const keys=Object.keys(groups).sort((a,b)=>S.listMode==='pasillo'?catOrden(a)-catOrden(b):(a==='Otros productos')-(b==='Otros productos')||a.localeCompare(b,'es'));
+  const keys=Object.keys(groups).sort((a,b)=>S.listMode==='pasillo'?catOrden(a)-catOrden(b):((a==='Otros productos'||a==='Sin súper asignado')-(b==='Otros productos'||b==='Sin súper asignado'))||a.localeCompare(b,'es'));
   const card=(k,items,done)=>{const cm=S.listMode==='pasillo'||done?catMeta(k):null;const rec=!cm&&S.t.recetas.find(r=>r.nombre===k);
-    const em=done?'✅':cm?cm.emoji:(rec?rec.emoji:'🧺');const col=done?'#34C759':cm?cm.color:'#2F6BFF';const ck='c-'+k;
+    const sp=!cm&&S.listMode==='super'&&SUPERS.includes(k);const em=done?'✅':cm?cm.emoji:sp?superIni(k):(rec?rec.emoji:'🧺');const col=done?'#34C759':cm?cm.color:sp?superColor(k):'#2F6BFF';const ck='c-'+k;
     return `<section class="glass grp ${S.closed[ck]?'closed':''}"><button class="grp-h" data-a="toggleGrp" data-k="${esc(ck)}" aria-expanded="${!S.closed[ck]}"><span class="grp-ic" style="background:${col}22;color:${col}">${esc(em)}</span><span class="grow"><b>${esc(done?'En el carro':k)}</b><span class="tiny">${items.length} ${items.length===1?'producto':'productos'}</span></span>${svg('chevU','chev')}</button><div class="rows">${items.sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(itemRow).join('')}</div></section>`};
-  return {top,keep,body:habs+seg+keys.map(k=>card(k,groups[k])).join('')+(pend.length?`<div class="total"><span>Estimado${sin?` · ${sin} sin precio`:''}</span><b>${eur(total)}</b></div>`:'')+(hechos.length?card('carro',hechos,true):'')}}
+  return {top,keep,body:habs+dondeCard()+seg+keys.map(k=>card(k,groups[k])).join('')+(pend.length?`<div class="total"><span>Estimado${sin?` · ${sin} sin precio`:''}</span><b>${eur(total)}</b></div>`:'')+(hechos.length?card('carro',hechos,true):'')}}
 function itemRow(i){const casa=enCasa(i.nombre).reduce((a,d)=>a+num(d.cantidad),0);const v=importe(i);
   const mt=[fmtQty(i.cantidad,i.unidad)];if(i.marca||i.super)mt.push(esc([i.marca,i.super].filter(Boolean).join(' · ')));if(i.nota)mt.push(esc(i.nota));
   if(S.listMode==='pasillo'&&i.receta)mt.push('🍽️ '+esc(i.receta));
@@ -572,7 +620,7 @@ function vPrecioDet(n){const o=ofertas(n),info=infoArticulo(n);const art=S.t.art
   return `<header class="hdr center"><button class="back" data-a="precioBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Histórico de precios</h1><button class="back" data-a="addPrecio" data-n="${esc(n)}" aria-label="Apuntar precio">${svg('plus')}</button></header>
    <section class="glass" style="padding-bottom:12px"><div class="prod-h"><span class="big" aria-hidden="true">${art&&art.imagen?`<img src="${esc(art.imagen)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:esc(info.emoji)}</span><div><h2>${esc(n)}</h2><span class="muted">${esc(o[0]?({kg:'1 kg',l:'1 l',ud:'Unidad',g:'g',ml:'ml'})[o[0].unidad]||'':'')}</span></div><button class="star-btn ${art&&art.favorito?'on':''}" data-a="fav" data-n="${esc(n)}" aria-label="Favorito">★</button></div>
    <div style="padding:0 12px 12px"><div class="seg"><button class="${S.precioSeg==='precio'?'on':''}" data-a="precioSeg" data-k="precio">Precio</button><button class="${S.precioSeg==='barato'?'on':''}" data-a="precioSeg" data-k="barato">Dónde es más barato</button></div></div>${body}</section>
-   ${lista}<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button><button class="btn gl" data-a="addLista1" data-n="${esc(n)}">${svg('cart')}Añadir a la lista</button>`}
+   ${lista}<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button><button class="btn gl" data-a="addLista1" data-n="${esc(n)}">${svg('cart')}Añadir a la lista</button><a class="btn gl" href="https://www.google.com/search?q=${encodeURIComponent('precio '+n+' Mercadona Lidl Aldi Carrefour Consum')}" target="_blank" rel="noopener" style="text-decoration:none">${svg('search')}Buscar precios en internet</a>`}
 function chart(rows){const pts=rows.map(r=>({d:r.fecha,p:num(r.precio)}));if(pts.length<2)return `<div class="small muted" style="padding:6px 16px 4px">Solo hay un precio apuntado (${eur(pts[0].p)} el ${fmtFecha(pts[0].d)}). Con más tickets verás la evolución.</div>`;
   const W=340,H=170,L=46,R=14,T=26,Bm=28;const t0=new Date(pts[0].d+'T12:00')/1,t1=new Date(pts[pts.length-1].d+'T12:00')/1||t0+1;
   const ps=pts.map(x=>x.p);let lo=Math.min(...ps),hi=Math.max(...ps);const step=niceStep((hi-lo)||hi*0.2||1);lo=Math.max(0,Math.floor(lo/step)*step-step);hi=Math.ceil(hi/step)*step+step*0;
@@ -629,7 +677,6 @@ const selOpts=(arr,v,blank)=>(blank!=null?`<option value="">${blank}</option>`:'
 const UNIDADES=['ud','kg','g','l','ml'];
 
 /* ============ ACCIONES ============ */
-const A={};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.preventDefault();const f=A[b.dataset.a];if(f)f(b.dataset,b,e)});
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.f;if(f==='add')A.addTyped();if(f&&A[f]&&f!=='add')A[f]()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=t.value;updSugg()}if(t.dataset.in){S[t.dataset.in]=t.value;paint()}});
@@ -934,9 +981,9 @@ function renderLogin(msg){welcome(`<div class="logo-app">🧺</div><div><h1 styl
   ${msg?`<div class="small" style="color:var(--accent)">${esc(msg)}</div>`:''}
   <form data-f="login" style="display:grid;gap:10px"><div class="fld"><label for="lg-e">Correo</label><input class="inp" id="lg-e" type="email" autocomplete="email" required></div><div class="fld"><label for="lg-p">Contraseña</label><input class="inp" id="lg-p" type="password" autocomplete="current-password" minlength="6" required></div>
   <button class="btn pri" type="submit">Entrar</button></form><button class="btn gl" data-a="signup">Crear cuenta nueva</button><button class="link small" data-a="irSetup" style="align-self:center">Cambiar de proyecto</button>`)}
-A.login=async()=>{const {error}=await S.sb.auth.signInWithPassword({email:$('#lg-e').value.trim(),password:$('#lg-p').value});if(error){toast(error.message.includes('Invalid')?'Correo o contraseña incorrectos.':error.message);return}boot()};
+A.login=async()=>{const {error}=await S.sb.auth.signInWithPassword({email:$('#lg-e').value.trim(),password:$('#lg-p').value});if(error){toast(error.message.includes('Invalid')?'Correo o contraseña incorrectos.':/confirm/i.test(error.message)?'Falta confirmar el correo: pulsa el enlace que te ha llegado.':error.message);return}boot()};
 A.signup=async()=>{const e=$('#lg-e').value.trim(),p=$('#lg-p').value;if(!e||p.length<6){toast('Escribe correo y una contraseña de 6 caracteres o más.');return}
-  const {data,error}=await S.sb.auth.signUp({email:e,password:p});if(error){toast(error.message);return}if(!data.session){renderLogin('Te hemos enviado un correo para confirmar la cuenta. Confírmala y vuelve a entrar.');return}boot()};
+  const {data,error}=await S.sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});if(error){toast(error.message);return}if(!data.session){renderLogin('Te hemos enviado un correo para confirmar la cuenta. Confírmala y vuelve a entrar.');return}boot()};
 function renderHogar(){welcome(`<div class="logo-app">🏠</div><div><h1 style="margin:0;font-size:26px">Tu hogar</h1><p class="muted small" style="margin:4px 0 0">Uno crea el hogar; el otro se une con el código.</p></div>
   <div class="fld"><label for="h-me">Tu nombre</label><input class="inp" id="h-me" placeholder="Jorge"></div>
   <div class="glass pad" style="display:grid;gap:10px"><b>Crear hogar nuevo</b><input class="inp" id="h-n" placeholder="Nombre del hogar (ej. Casa)"><button class="btn pri" data-a="crearHogar">Crear</button></div>

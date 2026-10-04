@@ -32,6 +32,12 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 
 (Si lo dejas activado también funciona, pero cada uno tendrá que pulsar el enlace del correo antes de entrar.)
 
+### 3b. Decir a Supabase dónde está la app (1 min)
+Sin esto, el enlace del correo de confirmación lleva a `localhost` y da error.
+1. **Authentication** → **URL Configuration**.
+2. **Site URL**: `https://clauirejor.github.io/cesta-casa/` → **Save**.
+3. **Redirect URLs** → **Add URL**: `https://clauirejor.github.io/cesta-casa/**` → **Save**.
+
 ### 4. Copiar la URL y la clave (1 min)
 1. **Project Settings** (rueda abajo a la izquierda) → **API Keys** (o **Data API**).
 2. Copia la **Project URL** (`https://xxxx.supabase.co`) y la clave **anon public** (o **publishable**, empieza por `sb_publishable_`).
@@ -86,6 +92,18 @@ Folios; ; 1; ud; 4,50
   - `Producto; Cantidad; Importe`
   - `Producto; Marca; Cantidad; Importe`
 - También acepta columnas separadas por tabulador (copiadas de Excel o Google Sheets), líneas con viñetas (`- `) y JSON.
+
+## ¿Dónde compro?
+
+En la pestaña **Compra** aparece la tarjeta **¿Dónde compro?**. Con los precios que habéis ido guardando (tickets y precios a mano), calcula cuánto os costaría la lista en cada supermercado y si compensa ir a dos.
+
+- Elige los súper a los que soléis ir (por defecto Mercadona, Lidl, Aldi, Carrefour y Consum).
+- **Dividir si ahorro ≥**: solo te recomienda ir a dos súper si el ahorro supera esa cantidad (por defecto 5 €).
+- **Tener en cuenta la calidad**: cada estrella por encima de 3 cuenta como un 10 % más barato, y cada estrella por debajo, un 10 % más caro.
+- Si a un súper le falta el precio de algún producto, se estima con la media de los demás (≈). Un súper con menos de la mitad de los precios no entra en la recomendación.
+- **Apuntar el súper en cada producto** pone a cada producto el súper donde conviene comprarlo y agrupa la lista **Por súper**.
+
+Cuantos más tickets importéis los dos, más acertada será la recomendación. Los precios no se consultan solos en internet: Lidl y Aldi no publican en su web los precios del supermercado, y Mercadona no permite leerlos de forma automática.
 
 ## Cómo se usa
 - **Compra:** escribe ("2 leche", "folios", "zapatos") o toca un **Habitual**. Todo lo que apuntáis una vez queda en **Mis artículos** para volver a ponerlo con un toque. Lo de casa (papelería, ropa, bricolaje…) sale en su propio grupo.
