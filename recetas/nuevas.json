@@ -1,0 +1,16 @@
+{
+"actualizado": "2026-10-05",
+"recetas": [
+ {"id": "gazpacho-manzana-verde", "nombre": "Gazpacho de manzana verde", "emoji": "🍏", "minutos": 15, "momento": "comida",
+  "ingredientes": [
+   {"nombre": "Tomate", "cant": 500, "unidad": "g"},
+   {"nombre": "Manzana", "cant": 500, "unidad": "g"},
+   {"nombre": "Cebolla", "cant": 100, "unidad": "g"},
+   {"nombre": "Pepino", "cant": 150, "unidad": "g"},
+   {"nombre": "Ajo", "cant": 1, "unidad": "ud"},
+   {"nombre": "Vinagre", "cant": 25, "unidad": "ml"},
+   {"nombre": "Aceite de oliva virgen extra", "cant": 60, "unidad": "ml"},
+   {"nombre": "Sal", "cant": 5, "unidad": "g"}],
+  "pasos": "Manzana Granny Smith (verde), tomate bien maduro y vinagre de manzana.\n\n1. Pela la manzana y el pepino. Trocea el tomate, la manzana, la cebolla y el pepino, y pela el diente de ajo.\n2. Pon en el vaso todas las verduras, la manzana, el vinagre, el aceite y la sal.\n3. Tritura 1 min subiendo poco a poco de velocidad 5 a 10, hasta que quede fino.\n4. Prueba y ajusta de sal o vinagre. Si queda muy espeso, añade un poco de agua fría.\n5. Enfría en la nevera al menos 1 hora y sirve con un chorrito de aceite por encima."}
+]
+}

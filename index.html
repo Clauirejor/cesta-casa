@@ -490,6 +490,17 @@ function ofertasVigentes(){const casa=S.t.precios.filter(p=>p.hasta&&vigente(p)&
 async function cargarReferencia(){try{const r=await fetch('precios/referencia.json',{cache:'no-cache'});if(!r.ok)return;const j=await r.json();REF=new Map();REF_FECHA=j.actualizado||'';
   (j.precios||[]).forEach((x,i)=>{const k=norm(x.nombre);const row={...x,id:'ref'+i,marca:'',created_at:'',ref:true};if(!REF.has(k))REF.set(k,[]);REF.get(k).push(row)});paint()}catch(e){}}
 const refNombres=()=>[...REF.values()].map(a=>a[0].nombre);
+let RNUEVAS=[];
+async function cargarRecetasNuevas(){try{const r=await fetch('recetas/nuevas.json',{cache:'no-cache'});if(!r.ok)return;const j=await r.json();RNUEVAS=(j.recetas||[]).filter(x=>x&&x.nombre);paint()}catch(e){}}
+const recetasPendientes=()=>{const ya=new Set(S.t.recetas.map(r=>norm(r.nombre)));const no=lsGet('cc-rec-no',[]);return RNUEVAS.filter(x=>!ya.has(norm(x.nombre))&&!no.includes(x.id||x.nombre))};
+async function anadirRecetaNueva(x){await ins('recetas',{nombre:x.nombre,emoji:x.emoji||'🍽️',minutos:x.minutos||null,momento:x.momento||null,ingredientes:(x.ingredientes||[]).map(i=>({nombre:i.nombre,cant:num(i.cant)||1,unidad:i.unidad||'ud'})),pasos:x.pasos||''})}
+A.recNueva=async d=>{const x=RNUEVAS.find(r=>(r.id||r.nombre)===d.id);if(!x)return;await anadirRecetaNueva(x);toast(`Receta añadida: ${x.nombre}`)};
+A.recNuevasTodas=async()=>{const l=recetasPendientes();for(const x of l)await anadirRecetaNueva(x);toast(`${l.length} ${l.length===1?'receta añadida':'recetas añadidas'}`)};
+A.recNuevaNo=d=>{const no=lsGet('cc-rec-no',[]);no.push(d.id);lsSet('cc-rec-no',no);paint()};
+function recetasNuevasCard(){const l=recetasPendientes();if(!l.length)return '';
+  return `<div class="glass pad" style="display:grid;gap:8px;margin-bottom:12px;border:1.5px solid var(--accent)"><b>📖 ${l.length===1?'Hay 1 receta nueva':`Hay ${l.length} recetas nuevas`} para añadir</b>
+   ${l.map(x=>`<div class="row" style="gap:8px"><span style="font-size:22px">${esc(x.emoji||'🍽️')}</span><span class="grow"><b style="font-weight:600">${esc(x.nombre)}</b><span class="tiny muted" style="display:block">${x.minutos?x.minutos+' min · ':''}${(x.ingredientes||[]).length} ingredientes</span></span><button class="btn pri sm" data-a="recNueva" data-id="${esc(x.id||x.nombre)}">Añadir</button><button class="link small" data-a="recNuevaNo" data-id="${esc(x.id||x.nombre)}" aria-label="No añadir ${esc(x.nombre)}">✕</button></div>`).join('')}
+   ${l.length>1?`<button class="btn gl sm" data-a="recNuevasTodas">Añadir todas</button>`:''}</div>`}
 async function cargarImagenesGH(){try{const r=await fetch('img/lista.json',{cache:'no-cache'});if(!r.ok)return;const j=await r.json();GH={productos:new Set(j.productos||[]),recetas:new Set(j.recetas||[])};paint()}catch(e){}}
 const URLS={};const pendFirma=new Set();let firmaT;
 function imgUrl(v){if(!v)return '';if(/^(https?:|data:|img\/)/.test(v))return v;const c=URLS[v];if(c&&c.exp>Date.now())return c.url;
@@ -836,7 +847,7 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')re
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
 function vRecetas(){const r=[...S.t.recetas].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
-  return `<header class="hdr"><button class="back" data-a="subBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Recetas</h1><button class="round blue" data-a="editReceta" aria-label="Nueva receta">${svg('plus')}</button></header>`+
+  return `<header class="hdr"><button class="back" data-a="subBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Recetas</h1><button class="round blue" data-a="editReceta" aria-label="Nueva receta">${svg('plus')}</button></header>`+recetasNuevasCard()+
    (r.length?`<div class="glass grp"><div class="rows">${r.map((x,i)=>`<div class="it" style="${i?'':'border-top:0'}">${recVis(x,'th lg')}<button class="body" data-a="verReceta" data-id="${x.id}"><div class="nm">${esc(x.nombre)}</div><div class="mt">${x.minutos?x.minutos+' min · ':''}${(x.ingredientes||[]).length} ingredientes${faltanTxt(x)}</div></button>${svg('chevR','chev-r')}</div>`).join('')}</div></div>`:`<div class="glass empty"><div class="e">📖</div><h3>Sin recetas</h3><p>Crea las que hacéis en casa. El plan semanal las usa para hacer la lista.</p></div>`)}
 function vActividad(){let last='';const verbo={comprado:'compró',consumido:'gastó',tirado:'tiró'};
   const rows=S.t.eventos.slice().sort((a,b)=>b.created_at.localeCompare(a.created_at)).slice(0,120).map(e=>{const d=ds(e.created_at);const h=d!==last?`<div class="sec small" style="font-size:14px;color:var(--muted);margin:10px 4px 0">${fmtFecha(d,{weekday:'long',day:'numeric',month:'long'})}</div>`:'';last=d;
@@ -1357,7 +1368,7 @@ A.crearHogar=async()=>{const me=cap($('#h-me').value);if(!me){toast('Escribe tu 
 A.unirse=async()=>{const me=cap($('#h-me').value),c=$('#h-c').value.trim();if(!me||c.length<4){toast('Escribe tu nombre y el código.');return}const {error}=await S.sb.rpc('unirse_hogar',{p_codigo:c,p_mi_nombre:me,p_color:COLORES[1]});if(error){toast(error.message.includes('Código')?'Ese código no existe.':error.message);return}boot()};
 
 /* ============ ARRANQUE ============ */
-async function boot(){S.ready=false;cargarImagenesGH();cargarReferencia();cargarOfertas();const fijo=!!(CONFIG.supabaseUrl&&CONFIG.supabaseAnonKey);const mode=fijo?'supa':(lsGet('cc-mode','')||(getConfig()?'supa':''));
+async function boot(){S.ready=false;cargarImagenesGH();cargarReferencia();cargarOfertas();cargarRecetasNuevas();const fijo=!!(CONFIG.supabaseUrl&&CONFIG.supabaseAnonKey);const mode=fijo?'supa':(lsGet('cc-mode','')||(getConfig()?'supa':''));
   if(!mode){renderSetup();return}
   if(mode==='supa'&&(!getConfig()||!window.supabase)){if(!window.supabase){welcome('<p>No se pudo cargar Supabase. Revisa la conexión a internet y recarga.</p>');return}renderSetup();return}
   S.mode=mode;B=mode==='supa'?Supa:Local;
