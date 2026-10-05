@@ -110,6 +110,30 @@ for row in ws.iter_rows(min_row=2):
             'pieza' in producto.lower() or fmt.lower() in ('1 ud', '1 u'))
         filas.append(r)
 
+# hoja «Otros súper»: una fila por precio de cualquier otra cadena o tienda
+cats = {str(r[0].value): str(r[1].value or '') for r in ws.iter_rows(min_row=2) if r[0].value}
+if 'Otros súper' in ws.parent.sheetnames:
+    for row in ws.parent['Otros súper'].iter_rows(min_row=2, values_only=True):
+        nombre, sup, precio, unidad, fmt, producto, desde, hasta, nota, url = (list(row) + [None] * 10)[:10]
+        if not nombre or not sup or not isinstance(precio, (int, float)) or precio <= 0:
+            continue
+        categoria = cats.get(str(nombre), '')
+        unidad = unidad if unidad in ('ud', 'kg', 'l') else 'ud'
+        fmt, producto = str(fmt or ''), str(producto or '')
+        r = {'nombre': nombre, 'categoria': categoria, 'super': str(sup), 'precio': round(float(precio), 2), 'unidad': unidad,
+             'fecha': str(hasta or desde or hoy)[:10], 'producto': producto, 'formato': fmt, 'fuente': 'Folleto de ' + str(sup),
+             'url': str(url or '')}
+        if nota:
+            r['nota'] = str(nota)
+        if unidad in ('kg', 'l'):
+            r['_m'] = {unidad: 1.0}
+        else:
+            r['_m'] = {**medidas(producto, categoria, nombre), **medidas(fmt, categoria, nombre)}
+            if not r['_m'] and categoria in NO_ALIMENTO:
+                r['_m'] = {'ud': 1.0}
+        r['_pieza'] = False
+        filas.append(r)
+
 # base común por producto (la que más precios permiten), y estimación de piezas
 por_producto = {}
 for r in filas:
