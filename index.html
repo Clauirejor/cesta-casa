@@ -860,6 +860,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.f;if(f==='add')A.addTyped();if(f&&A[f]&&f!=='add')A[f]()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=t.value;updSugg()}if(t.dataset.in){S[t.dataset.in]=t.value;paint()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='despCat'){S.despCat=t.value;paint()}
+  if(t.classList&&t.classList.contains('ver-pass'))document.querySelectorAll('#lg-p,#lg-p2').forEach(i=>i.type=t.checked?'text':'password');
   if(t.tagName==='SELECT'&&[...t.options].some(o=>o.value==='Otro'&&!o.dataset.custom)){let w=t.parentElement.querySelector('.otro-sup');
     if(t.value==='Otro'){if(!w){t.insertAdjacentHTML('afterend','<input class="inp otro-sup" placeholder="Nombre del súper o tienda" autocomplete="off" style="margin-top:6px">');w=t.parentElement.querySelector('.otro-sup')}w.focus()}
     else if(w&&!t.selectedOptions[0]?.dataset.custom){w.remove();t.querySelectorAll('option[data-custom]').forEach(o=>o.remove())}}});
@@ -1317,13 +1318,34 @@ function renderSetup(){const c=getConfig()||{};
    <button class="btn gl" data-a="demo">Probar con datos de ejemplo</button>`)}
 A.saveConfig=()=>{const url=$('#cf-u').value.trim().replace(/\/$/,''),key=$('#cf-k').value.trim();if(!/^https:\/\/.+/.test(url)||key.length<20){toast('Revisa la URL y la clave.');return}lsSet('cc-config',{url,key});lsSet('cc-mode','supa');location.reload()};
 A.demo=()=>{lsSet('cc-mode','demo');location.reload()};
-function renderLogin(msg){welcome(`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:26px">Entrar</h1><p class="muted small" style="margin:4px 0 0">Cada persona de la casa usa su propia cuenta.</p></div>
-  ${msg?`<div class="small" style="color:var(--accent)">${esc(msg)}</div>`:''}
-  <form data-f="login" style="display:grid;gap:10px"><div class="fld"><label for="lg-e">Correo</label><input class="inp" id="lg-e" type="email" autocomplete="email" required></div><div class="fld"><label for="lg-p">Contraseña</label><input class="inp" id="lg-p" type="password" autocomplete="current-password" minlength="6" required></div>
-  <button class="btn pri" type="submit">Entrar</button></form><button class="btn gl" data-a="signup">Crear cuenta nueva</button><button class="link small" data-a="irSetup" style="align-self:center">Cambiar de proyecto</button>`)}
-A.login=async()=>{const {error}=await S.sb.auth.signInWithPassword({email:$('#lg-e').value.trim(),password:$('#lg-p').value});if(error){toast(error.message.includes('Invalid')?'Correo o contraseña incorrectos.':/confirm/i.test(error.message)?'Falta confirmar el correo: pulsa el enlace que te ha llegado.':error.message);return}boot()};
-A.signup=async()=>{const e=$('#lg-e').value.trim(),p=$('#lg-p').value;if(!e||p.length<6){toast('Escribe correo y una contraseña de 6 caracteres o más.');return}
-  const {data,error}=await S.sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});if(error){toast(error.message);return}if(!data.session){renderLogin('Te hemos enviado un correo para confirmar la cuenta. Confírmala y vuelve a entrar.');return}boot()};
+function renderLogin(msg,modo,email){modo=modo||(lsGet('cc-ya-cuenta','')?'entrar':'inicio');const em=esc(email||'');
+  const cab=(t,sub)=>`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:26px">${t}</h1><p class="muted small" style="margin:4px 0 0">${sub}</p></div>${msg?`<div class="small" style="color:var(--accent);font-weight:600">${esc(msg)}</div>`:''}`;
+  const proyecto=CONFIG&&CONFIG.supabaseUrl?'':`<button class="link small" data-a="irSetup" style="align-self:center">Cambiar de proyecto</button>`;
+  const ver=`<label class="row small" style="gap:8px"><input type="checkbox" class="ver-pass"> Mostrar contraseña</label>`;
+  if(modo==='inicio'){welcome(`${cab('Bienvenido a Cesta Casa','La lista de la compra, la despensa y los precios, compartidos con tu familia.')}
+    <button class="btn pri" data-a="modoLogin" data-k="crear" style="min-height:58px;font-size:17px">Es mi primera vez: crear cuenta</button>
+    <button class="btn gl" data-a="modoLogin" data-k="entrar" style="min-height:58px;font-size:17px">Ya tengo cuenta: entrar</button>${proyecto}`);return}
+  if(modo==='crear'){welcome(`${cab('Crear cuenta','Cada persona de la casa usa su propia cuenta. Solo hace falta un correo y una contraseña.')}
+    <form data-f="signup" style="display:grid;gap:10px">
+     <div class="fld"><label for="lg-e">Tu correo</label><input class="inp" id="lg-e" type="email" autocomplete="email" inputmode="email" autocapitalize="off" required value="${em}"></div>
+     <div class="fld"><label for="lg-p">Inventa una contraseña</label><input class="inp" id="lg-p" type="password" autocomplete="new-password" minlength="6" required><span class="tiny muted">Mínimo 6 letras o números. Apúntala para no olvidarla.</span></div>
+     <div class="fld"><label for="lg-p2">Repite la contraseña</label><input class="inp" id="lg-p2" type="password" autocomplete="new-password" minlength="6" required></div>
+     ${ver}<button class="btn pri" type="submit" style="min-height:54px;font-size:17px">Crear mi cuenta</button></form>
+    <div style="border-top:1px solid var(--sep);padding-top:12px;text-align:center" class="small muted">¿Ya tenías cuenta? <button class="link small" data-a="modoLogin" data-k="entrar">Entrar aquí</button></div>`);return}
+  welcome(`${cab('Entrar','Escribe el correo y la contraseña de tu cuenta.')}
+   <form data-f="login" style="display:grid;gap:10px"><div class="fld"><label for="lg-e">Correo</label><input class="inp" id="lg-e" type="email" autocomplete="email" inputmode="email" autocapitalize="off" required value="${em}"></div><div class="fld"><label for="lg-p">Contraseña</label><input class="inp" id="lg-p" type="password" autocomplete="current-password" minlength="6" required></div>
+   ${ver}<button class="btn pri" type="submit" style="min-height:54px;font-size:17px">Entrar</button></form>
+   <div style="border-top:1px solid var(--sep);padding-top:12px;text-align:center" class="small muted">¿No tienes cuenta? <button class="link small" data-a="modoLogin" data-k="crear">Crear una</button></div>${proyecto}`)}
+A.modoLogin=d=>{const e=($('#lg-e')||{}).value||'';renderLogin('',d.k,e)};
+const errAuth=m=>/already|registered|exists/i.test(m)?'Ese correo ya tiene una cuenta. Pulsa «Entrar aquí».':/invalid.*email|email.*invalid/i.test(m)?'Ese correo no parece correcto. Revísalo.':/password/i.test(m)&&/short|least|weak/i.test(m)?'La contraseña es demasiado corta: mínimo 6 caracteres.':/rate|many/i.test(m)?'Demasiados intentos. Espera un minuto y vuelve a probar.':m;
+A.login=async()=>{const e=$('#lg-e').value.trim();const {error}=await S.sb.auth.signInWithPassword({email:e,password:$('#lg-p').value});
+  if(error){toast(/Invalid/i.test(error.message)?'Correo o contraseña incorrectos.':/confirm/i.test(error.message)?'Falta confirmar el correo: abre el correo que te hemos enviado y pulsa el enlace.':errAuth(error.message));return}lsSet('cc-ya-cuenta','1');boot()};
+A.signup=async()=>{const e=$('#lg-e').value.trim(),p=$('#lg-p').value,p2=$('#lg-p2').value;
+  if(!e){toast('Escribe tu correo.');return}if(p.length<6){toast('La contraseña tiene que tener 6 caracteres o más.');return}
+  if(p!==p2){toast('Las dos contraseñas no coinciden. Vuelve a escribirlas.');$('#lg-p2').value='';$('#lg-p2').focus();return}
+  const {data,error}=await S.sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});if(error){toast(errAuth(error.message));return}
+  lsSet('cc-ya-cuenta','1');
+  if(!data.session){renderLogin('Cuenta creada. Te hemos enviado un correo: ábrelo y pulsa el enlace para confirmarla. Después vuelve aquí y entra.','entrar',e);return}boot()};
 function renderHogar(){welcome(`<div class="logo-app"><img src="icon-192.png" alt=""></div><div><h1 style="margin:0;font-size:26px">Tu casa</h1><p class="muted small" style="margin:4px 0 0">Toda la familia comparte una sola casa en la app.</p></div>
   <div class="fld"><label for="h-me">Tu nombre</label><input class="inp" id="h-me" placeholder="Ej. Irene" autocomplete="given-name"></div>
   <div class="glass pad" style="display:grid;gap:10px;border:2px solid var(--red);background:var(--red-card)"><b style="color:var(--red);font-size:17px">¿Alguien de tu casa ya usa la app?</b><span class="small">Pídele el <b>código de 6 letras</b> (está en su pestaña <b>Más</b>) y únete. <b>No crees una casa nueva.</b></span>
