@@ -784,7 +784,7 @@ function vPrecios(){if(S.precioDet)return vPrecioDet(S.precioDet);
   const q=norm(S.precioQ);const bs=borradosSet();const names=[...new Map([...S.t.precios.map(p=>p.nombre),...refNombres(),...S.t.articulos.filter(a=>!borrado(a)).map(a=>a.nombre)].map(n=>[norm(n),n])).values()].filter(n=>!bs.has(norm(n)));
   let prods=names.filter(n=>!q||norm(n).includes(q)).map(n=>({n,o:ofertas(n),info:infoArticulo(n)})).sort((a,b)=>a.n.localeCompare(b.n,'es'));
   const sinPrecio=names.filter(n=>!ofertas(n).length);if(S.precioSinP)prods=prods.filter(p=>!p.o.length);
-  const conP=prods.filter(p=>p.o.length).length;const top=hdr('Precios',`${names.length} productos · ${conP} con precio`,`<button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
+  const conP=prods.filter(p=>p.o.length).length;const top=hdr('Precios',`${names.length} productos · ${conP} con precio`,`<button class="round" data-a="scan" data-p="precios" aria-label="Escanear código de barras">${svg('barcode')}</button><button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
   const keep=`<label class="glass search">${svg('search')}<input id="qprecio" type="search" data-in="precioQ" placeholder="Buscar producto…" value="${esc(S.precioQ)}"></label>`;
   let html=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.precioVista!=='tabla'&&S.precioVista!=='ofertas'?'on':''}" data-a="precioVista" data-k="lista">Productos</button><button class="${S.precioVista==='tabla'?'on':''}" data-a="precioVista" data-k="tabla">Tabla por súper</button><button class="${S.precioVista==='ofertas'?'on':''}" data-a="precioVista" data-k="ofertas">Ofertas</button></div>`;
   if(S.precioVista==='ofertas')return {top,keep,body:html+vOfertas(q)};
@@ -1146,25 +1146,29 @@ function despBuscarHtml(q){const k=norm(q);const bs=borradosSet();let l;
   if(!k){l=S.t.articulos.filter(a=>!borrado(a)&&num(a.veces)>0).sort((a,b)=>b.veces-a.veces).slice(0,40);
     if(l.length<20){const ya=new Set(l.map(a=>norm(a.nombre)));l=l.concat(S.catalogo.filter(c=>!ya.has(norm(c.nombre))&&!bs.has(norm(c.nombre))&&c.categoria!=='Ropa y calzado'&&c.categoria!=='Electrónica').slice(0,40-l.length))}}
   else l=sugerencias(q,14);
-  const fila=a=>{const st=enCasa(a.nombre);return `<button class="opt" data-a="despCant" data-n="${esc(a.nombre)}" style="padding:8px 12px;width:100%;text-align:left">${thumb(a)}<span class="grow">${esc(a.nombre)}<span class="tiny muted" style="display:block">${esc(a.categoria||infoArticulo(a.nombre).categoria||'')}</span></span>${st.length?`<span class="pill ok">${esc(st.map(cantTxt).join(' + '))}</span>`:'<span class="small" style="color:var(--accent)">Añadir</span>'}</button>`};
+  const fila=a=>{const st=enCasa(a.nombre);return `<button class="opt" data-a="${S.buscaModo==='precios'?'precioElegir':'despCant'}" data-n="${esc(a.nombre)}" style="padding:8px 12px;width:100%;text-align:left">${thumb(a)}<span class="grow">${esc(a.nombre)}<span class="tiny muted" style="display:block">${esc(a.categoria||infoArticulo(a.nombre).categoria||'')}</span></span>${st.length?`<span class="pill ok">${esc(st.map(cantTxt).join(' + '))}</span>`:'<span class="small" style="color:var(--accent)">Añadir</span>'}</button>`};
   const exacto=l.some(a=>norm(a.nombre)===k);
   return `${!k?'<div class="small muted" style="margin:4px 2px">Lo que soléis comprar</div>':''}<div class="glass list-plain">${l.map(fila).join('')||'<div class="opt muted">No hay ningún producto con ese nombre.</div>'}</div>
-   ${k&&!exacto&&!(S.eanPend&&S.eanPend.off)?`<button class="btn gl sm" data-a="despCrear" data-n="${esc(cap(q.trim()))}" style="border:1.5px dashed var(--sep)">＋ Crear «${esc(cap(q.trim()))}» como producto nuevo</button>`:''}`}
+   ${k&&!exacto&&!(S.eanPend&&S.eanPend.off)?`<button class="btn gl sm" data-a="${S.buscaModo==='precios'?'precioElegir':'despCrear'}" data-n="${esc(cap(q.trim()))}" style="border:1.5px dashed var(--sep)">＋ Crear «${esc(cap(q.trim()))}» como producto nuevo</button>`:''}`}
 const hayDescripcion=()=>S.mode!=='supa'||S.t.articulos.some(a=>'descripcion' in a);
-function eanCardHtml(){const ep=S.eanPend;if(!ep||!ep.off)return '';
-  return `<div class="glass pad" style="display:grid;gap:8px;border:1.5px solid var(--accent)"><div class="row" style="gap:10px">${ep.imagen?`<span class="th lg"><img class="zoom" src="${esc(ep.imagen)}" alt="Foto escaneada" data-n="${esc(ep.off)}"></span>`:''}<span class="grow"><b>Producto escaneado</b><span class="tiny muted" style="display:block">${esc([ep.marca,ep.cantidad].filter(Boolean).join(' · ')||'Datos de Open Food Facts')}</span></span></div>
-   <input class="inp" id="ean-n" value="${esc(ep.off)}" aria-label="Nombre del producto">
-   <button class="btn pri sm" data-a="despCrearEan">＋ Crear con nombre${ep.imagen?', foto':''} y descripción</button>
+function eanCardHtml(){const ep=S.eanPend;if(!ep||!ep.code||ep.yaAsociado)return '';
+  return `<div class="glass pad" style="display:grid;gap:8px;border:1.5px solid var(--accent)"><div class="row" style="gap:10px">${ep.imagen?`<span class="th lg"><img class="zoom" src="${esc(ep.imagen)}" alt="Foto escaneada" data-n="${esc(ep.off)}"></span>`:''}<span class="grow"><b>${ep.off?'Producto escaneado':'Código '+esc(ep.code)+' desconocido'}</b><span class="tiny muted" style="display:block">${esc([ep.marca,ep.cantidad].filter(Boolean).join(' · ')||(ep.off?'Datos de Open Food Facts':'No aparece en internet. Ponle tú el nombre.'))}</span></span></div>
+   <input class="inp" id="ean-n" value="${esc(ep.off||'')}" placeholder="Nombre del producto" aria-label="Nombre del producto">
+   <button class="btn pri sm" data-a="despCrearEan">＋ Añadir como producto nuevo${ep.imagen?' (con foto)':''}</button>
    <span class="tiny muted">¿Es algo que ya tenéis con otro nombre (otra marca)? Búscalo abajo y el código se guardará en ese producto.</span></div>`}
-A.despCrearEan=async()=>{const ep=S.eanPend;if(!ep)return;const n=cap(($('#ean-n')||{}).value?.trim()||ep.off);if(!n){toast('Escribe el nombre.');return}
+A.despCrearEan=async()=>{const ep=S.eanPend;if(!ep)return;const n=cap(($('#ean-n')||{}).value?.trim()||ep.off||'');if(!n){toast('Escribe el nombre del producto.');$('#ean-n')&&$('#ean-n').focus();return}
   let a=S.t.articulos.find(x=>norm(x.nombre)===norm(n));const i=infoArticulo(n);const desc=[ep.marca,ep.cantidad,ep.generico&&norm(ep.generico)!==norm(n)?ep.generico:''].filter(Boolean).join(' · ');
   if(!a){const row={nombre:n,categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:ep.marca||'',ean:'',imagen:ep.imagen||'',veces:0,ultima:nowIso(),oculto:false,favorito:false};if(desc&&hayDescripcion())row.descripcion=desc;[a]=await ins('articulos',row)}
   else{const pch={};if(!a.imagen&&ep.imagen)pch.imagen=ep.imagen;if(!a.marca&&ep.marca)pch.marca=ep.marca;if(desc&&!a.descripcion&&hayDescripcion())pch.descripcion=desc;if(borrado(a)){pch.oculto=false;pch.veces=0}if(Object.keys(pch).length)await upd('articulos',a.id,pch)}
+  if(S.buscaModo==='precios'){await asociarCodigo(a,ep.code,ep.marca,'');S.eanPend=null;A.precioElegir({n:a.nombre,nuevo:1});return}
   A.despCant({n:a.nombre})};
-A.addDesp=d=>{d=d||{};S.despFlujo=true;const q=d.q||'';
-  const o=sheet(`<div class="row"><h2 class="grow" style="margin:0">Añadir a la despensa</h2><button class="btn pri sm" data-a="despListo">Listo</button></div>
+A.precioElegir=async d=>{const ep=S.eanPend;if(ep&&ep.code){let a=S.t.articulos.find(x=>norm(x.nombre)===norm(d.n));if(!a){const i=infoArticulo(d.n);[a]=await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}await asociarCodigo(a,ep.code,ep.marca,'');if(ep.imagen&&!a.imagen)await upd('articulos',a.id,{imagen:ep.imagen});toast(`Código guardado en ${a.nombre}`)}
+  const pw=ep&&ep.precioWeb;S.eanPend=null;S.despFlujo=false;S.buscaModo=null;closeSheet();S.tab='precios';lsSet('cc-tab','precios');S.precioDet=d.n;S.precioSup='';S.precioSeg='precio';render();window.scrollTo(0,0);
+  if(!ofertas(d.n).length)A.celdaNueva({n:d.n});if(pw)toast(`💡 Otro usuario lo vio a ${eur(pw.precio)} en ${[pw.tienda,pw.ciudad].filter(Boolean).join(', ')}`)};
+A.addDesp=d=>{d=d||{};S.despFlujo=true;S.buscaModo=d.modo||'despensa';const q=d.q||'';
+  const o=sheet(`<div class="row"><h2 class="grow" style="margin:0">${S.buscaModo==='precios'?'¿Qué producto es?':'Añadir a la despensa'}</h2><button class="btn pri sm" data-a="despListo">Listo</button></div>
    ${d.aviso?`<div class="small"><b style="color:var(--ink2)">${esc(d.aviso)}</b></div>`:''}
-   <div class="row" style="gap:8px"><label class="search grow" style="background:var(--fill)">${svg('search')}<input id="dq" type="search" placeholder="Busca: calabacín, atún, tomate frito…" value="${esc(q)}" autocomplete="off" enterkeyhint="search"></label><button class="round" data-a="scan" data-p="despensa" aria-label="Escanear código de barras">${svg('barcode')}</button></div>
+   <div class="row" style="gap:8px"><label class="search grow" style="background:var(--fill)">${svg('search')}<input id="dq" type="search" placeholder="Busca: calabacín, atún, tomate frito…" value="${esc(q)}" autocomplete="off" enterkeyhint="search"></label><button class="round" data-a="scan" data-p="${S.buscaModo}" aria-label="Escanear código de barras">${svg('barcode')}</button></div>
    <div id="dlst" style="display:grid;gap:8px">${eanCardHtml()}${despBuscarHtml(q)}</div>`);
   o.classList.add('arriba');
   const inp=o.querySelector('#dq');inp.addEventListener('input',e=>{const l=o.querySelector('#dlst');const nm=(o.querySelector('#ean-n')||{}).value;l.innerHTML=eanCardHtml()+despBuscarHtml(e.target.value);if(nm&&o.querySelector('#ean-n'))o.querySelector('#ean-n').value=nm;l.scrollTop=0});
@@ -1310,11 +1314,13 @@ async function precioWeb(code){try{const r=await fetch(`https://prices.openfoodf
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
   const a=artPorCodigo(code);
   if(a&&S.scanDest==='despensa'){const e=codigos(a).find(x=>x.c===code)||{};S.despFlujo=true;const pw=await precioWeb(code);S.eanPend=pw?{code,marca:e.m||'',precioWeb:pw,yaAsociado:true}:null;toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);A.despCant({n:a.nombre});return}
+  if(a&&S.scanDest==='precios'){const e=codigos(a).find(x=>x.c===code)||{};closeSheet();S.eanPend=null;S.tab='precios';lsSet('cc-tab','precios');S.precioDet=a.nombre;S.precioSup='';S.precioSeg='precio';render();window.scrollTo(0,0);toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   if(a){const e=codigos(a).find(x=>x.c===code)||{};abrirEscaneado({nombre:a.nombre,marca:e.m||a.marca,super:e.s||'',imagen:a.imagen,ean:code,unidad:a.unidad,conocido:true});toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
-  if(S.scanDest==='despensa'){const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;const pw=await precioWeb(code);
+  if(S.scanDest==='despensa'||S.scanDest==='precios'){const modo=S.scanDest;const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;const pw=await precioWeb(code);
     S.eanPend={code,marca:p?(p.brands||'').split(',')[0].trim():'',imagen:p&&(p.image_front_url||p.image_front_small_url)||'',off:nom,cantidad:p&&p.quantity||'',generico:p&&p.generic_name_es||'',precioWeb:pw};
-    if(guess){A.despCant({n:guess});return}A.addDesp({q:nom.split(' ')[0]||'',aviso:nom?`Código nuevo. Créalo con los datos escaneados o elige abajo el producto que ya tengáis.`:'No conozco este código. Busca el producto y lo recordaré para la próxima vez.'});return}
+    if(guess&&modo==='despensa'){A.despCant({n:guess});return}
+    A.addDesp({modo,q:guess||nom.split(' ')[0]||'',aviso:nom?`Este código no está en vuestros artículos. Añádelo con los datos escaneados o elige abajo el producto que ya tengáis.`:'No conozco este código. Escribe el nombre para añadirlo como producto nuevo, o búscalo abajo si ya lo tenéis.'});return}
   if(p){const nom=cap(p.product_name_es||p.product_name||'');const guess=adivinarArticulo(nom);
     abrirEscaneado({nombre:guess||nom,marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code,offNombre:nom})}
   else{abrirEscaneado({nombre:'',ean:code});toast('No conozco ese código. Escribe el nombre y la próxima vez lo recordaré.')}}
