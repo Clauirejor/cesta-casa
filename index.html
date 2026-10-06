@@ -1289,10 +1289,10 @@ function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';const kw=k.spli
   for(const c of S.catalogo){const n=norm(c.nombre);if(bs.has(n))continue;const p=punt(n)-(FRESCAS.has(c.categoria)?40:0);if(p>bp){bp=p;best=c.nombre}}
   return bp>=100?best:''}
 let scanStream=null,scanCtl=null,scanLoop=0,scanApagar=0,scanActivo=false,zxReader=null;
-/* La cámara se mantiene abierta 3 minutos tras escanear: así el móvil no vuelve a pedir permiso en cada código */
+/* La cámara se apaga en cuanto se cierra el escáner */
 function apagarCamara(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
 function stopScan(){scanActivo=false;cancelAnimationFrame(scanLoop);clearTimeout(scanLoop);scanLoop=0;try{scanCtl&&scanCtl.stop()}catch(e){}scanCtl=null;
-  if(scanStream){clearTimeout(scanApagar);scanApagar=setTimeout(apagarCamara,180000)}}
+  clearTimeout(scanApagar);apagarCamara()}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&!scanActivo){clearTimeout(scanApagar);apagarCamara()}});
 async function camara(){if(scanStream&&scanStream.getVideoTracks().some(t=>t.readyState==='live'))return scanStream;
   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}});return scanStream}
