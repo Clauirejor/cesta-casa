@@ -622,7 +622,7 @@ function median(a){a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length
 function planCompra(cfg){cfg=cfg||planCfg();const sups=cfg.sups;const items=S.t.lista.filter(i=>!i.comprado);
   const rows=[],sinPrecio=[];
   for(const it of items){const per={};
-    for(const o of ofertas(it.nombre)){if(!sups.includes(o.super))continue;const f=cfg.calidad?Math.max(.5,1-(o.calidad-3)*.1):1;
+    for(const o of ofertas(it.nombre)){if(it.super&&it.super!=='Regalo'){if(o.super!==it.super)continue}else if(!sups.includes(o.super))continue;const f=cfg.calidad?Math.max(.5,1-(o.calidad-3)*.1):1;
       const u=it.unidad||'ud';const peso=o.pu&&o.comparable&&((o.base==='kg'&&(u==='kg'||u==='g'))||(o.base==='l'&&(u==='l'||u==='ml')));
       let coste;if(peso)coste=o.pu*num(it.cantidad||1)/((u==='g'||u==='ml')?1000:1);
       else if(o.pu&&o.comparable&&u==='ud'){const qs=ofertas(it.nombre).filter(x=>x.comparable&&x.q).map(x=>x.q);coste=o.pu*(qs.length?median(qs):o.q)*(num(it.cantidad)||1)}
@@ -1096,7 +1096,7 @@ async function sacar(x,tipo){await ins('eventos',{tipo,nombre:x.nombre,emoji:x.e
   toast(tipo==='tirado'?`${x.nombre} tirado${num(x.precio)?' ('+eur(x.precio)+')':''}`:`Se acabó ${x.nombre}`,!queda&&!enL?`<button class="act" data-a="reponer" data-n="${esc(x.nombre)}" data-m="${esc(x.marca)}" data-s="${esc(x.super)}">Añadir a la lista</button>`:'')}
 A.gastado=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)sacar(x,'consumido')};
 A.tirado=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)sacar(x,'tirado')};
-A.reponer=async d=>{await addLista(d.n,{marca:d.m,super:d.s});toast(`${d.n} está en la lista`)};
+A.reponer=async d=>{await addLista(d.n,{marca:d.m});toast(`${d.n} está en la lista`)};
 /* ---------- despensa: elegir de la lista, cantidades y frescura ---------- */
 const DURA_CAT={'Frutas y verduras':7,'Carnes y pescados':3,'Panadería':4};
 const DURA_PROD={platano:5,aguacate:4,fresas:3,frambuesas:3,arandanos:5,cerezas:4,uvas:6,melocoton:5,mango:6,kiwi:10,pera:7,manzana:21,naranja:14,mandarina:10,limon:21,lima:14,melon:10,sandia:7,pina:6,patata:30,boniato:21,cebolla:30,'cebolla morada':21,ajo:60,calabaza:45,zanahoria:14,'pimiento rojo':7,'pimiento verde':7,calabacin:6,berenjena:6,pepino:6,tomate:6,'tomate cherry':6,lechuga:5,espinacas:4,rucula:4,canonigos:4,'ensalada en bolsa':4,brocoli:5,coliflor:7,champinones:4,puerro:10,apio:10,'judias verdes':5,'guisantes frescos':3,perejil:5,cilantro:5,albahaca:5,jengibre:21,'pan de barra':2,'pan de molde':8,'pan integral':5,croissants:3,'pechuga de pollo':2,'carne picada':2,'queso fresco':7};
