@@ -528,6 +528,20 @@ async function borrarFoto(v){if(!v||S.mode!=='supa'||/^(https?:|data:|img\/)/.te
 async function cambiarFoto(tabla,id,campo){const f=await elegirFoto();if(!f)return false;const row=S.t[tabla].find(x=>x.id===id);toast('Subiendo foto…');
   try{const v=await subirFoto(f);const viejo=row&&row[campo];await upd(tabla,id,{[campo]:v});borrarFoto(viejo);toast('Foto guardada');return true}catch(e){toast('No se pudo subir la foto: '+(e.message||e));return false}}
 const enCasa=n=>S.t.despensa.filter(d=>norm(d.nombre)===norm(n));
+/* inventario: cantidades en unidad base (g, ml o ud) para comparar recetas y despensa */
+const BASEU={kg:['g',1000],g:['g',1],l:['ml',1000],ml:['ml',1],ud:['ud',1]};
+const aBase=(c,u)=>{const b=BASEU[u||'ud']||['ud',1];return {q:(num(c)||0)*b[1],b:b[0],f:b[1]}};
+const deBase=(q,b)=>b==='g'?(q>=1000?[q/1000,'kg']:[q,'g']):b==='ml'?(q>=1000?[q/1000,'l']:[q,'ml']):[q,'ud'];
+const qtyBase=(q,b)=>fmtQty(...deBase(+q.toFixed(3),b));
+function stockDe(nombre){const items=enCasa(nombre);const por={};items.forEach(d=>{const x=aBase(num(d.cantidad)||1,d.unidad);por[x.b]=(por[x.b]||0)+x.q});return {items,por}}
+function estadoNecesidad(nombre,q,b){const st=stockDe(nombre);const enL=S.t.lista.some(x=>!x.comprado&&norm(x.nombre)===norm(nombre));
+  if(!st.items.length)return {tipo:'falta',falta:q,b,enL,st};
+  if(st.por[b]!=null){const f=q-st.por[b];return f>1e-6?{tipo:'poco',falta:f,hay:st.por[b],b,enL,st}:{tipo:'ok',hay:st.por[b],b,enL,st}}
+  return {tipo:'hay',b,enL,st}}
+const estadoIng=i=>{const n=aBase(num(i.cant)||1,i.unidad);return estadoNecesidad(i.nombre,n.q,n.b)};
+const hayTxt=st=>st.items.map(d=>fmtQty(d.cantidad,d.unidad)).join(' + ');
+function pillIng(e){if(e.tipo==='ok')return '<span class="pill ok">En casa</span>';if(e.tipo==='hay')return '<span class="pill ok">En casa</span>';
+  if(e.enL)return '<span class="pill blue">En lista</span>';return e.tipo==='poco'?`<span class="pill warn">Faltan ${qtyBase(e.falta,e.b)}</span>`:'<span class="pill warn">Falta</span>'}
 
 async function tocarArticulo(info,extra){const a=S.t.articulos.find(x=>norm(x.nombre)===norm(info.nombre));
   if(a){await upd('articulos',a.id,{veces:(a.veces||0)+1,ultima:nowIso(),oculto:false,...(extra||{})});return a}
@@ -1149,12 +1163,44 @@ A.verReceta=d=>{const r=S.t.recetas.find(x=>x.id===d.id);if(!r)return;
   const fu=fotoReceta(r);
   sheet(`${fu?`<img src="${esc(fu)}" alt="Foto de ${esc(r.nombre)}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:16px">`:''}
   <div class="row">${fu?'':recVis(r,'th lg')}<div class="grow"><h2>${esc(r.nombre)}</h2><span class="small muted">${r.minutos?r.minutos+' min':''}${r.momento?' · '+esc(r.momento):''}</span></div></div>
-  <div class="glass list-plain">${(r.ingredientes||[]).map(i=>{const c=enCasa(i.nombre).length,l=S.t.lista.some(x=>norm(x.nombre)===norm(i.nombre));return `<div class="opt" style="padding:9px 14px">${thumb({nombre:i.nombre})}<span class="grow">${esc(i.nombre)}<span class="tiny muted" style="display:block">${fmtQty(i.cant,i.unidad)}</span></span>${c?'<span class="pill ok">En casa</span>':l?'<span class="pill blue">En lista</span>':'<span class="pill warn">Falta</span>'}</div>`}).join('')||'<div class="opt muted">Sin ingredientes</div>'}</div>
+  <div class="glass list-plain">${(r.ingredientes||[]).map(i=>{const e=estadoIng(i);return `<div class="opt" style="padding:9px 14px">${thumb({nombre:i.nombre})}<span class="grow">${esc(i.nombre)}<span class="tiny muted" style="display:block">${fmtQty(i.cant,i.unidad)}${e.st.items.length?' · tenéis '+esc(hayTxt(e.st)):''}</span></span>${pillIng(e)}</div>`}).join('')||'<div class="opt muted">Sin ingredientes</div>'}</div>
   ${r.pasos?`<div class="small" style="white-space:pre-wrap">${esc(r.pasos)}</div>`:''}
   <button class="btn gl" data-a="fotoReceta" data-id="${r.id}">${svg('camera')}${r.imagen?'Cambiar la foto del plato':'Añadir foto del plato'}</button>
-  <div class="g2"><button class="btn gl" data-a="editReceta" data-id="${r.id}">Editar</button><button class="btn pri" data-a="faltaReceta" data-id="${r.id}">${svg('cart')}Lo que falta</button></div>`)};
+  <button class="btn pri" data-a="cocinar" data-id="${r.id}">🍳 La he cocinado: restar de la despensa</button>
+  <div class="g2"><button class="btn gl" data-a="editReceta" data-id="${r.id}">Editar</button><button class="btn gl" data-a="faltaReceta" data-id="${r.id}">${svg('cart')}Lo que falta</button></div>`)};
 A.fotoReceta=async d=>{if(await cambiarFoto('recetas',d.id,'imagen'))A.verReceta(d)};
-A.faltaReceta=async d=>{const r=S.t.recetas.find(x=>x.id===d.id);let n=0;for(const i of r.ingredientes||[]){if(enCasa(i.nombre).length||S.t.lista.some(x=>!x.comprado&&norm(x.nombre)===norm(i.nombre)))continue;await addLista(i.nombre,{cantidad:i.cant,unidad:i.unidad,receta:r.nombre});n++}closeSheet();toast(n?`${n} ingredientes añadidos a la lista`:'Ya tenéis todo para esta receta')};
+A.faltaReceta=d=>{const r=S.t.recetas.find(x=>x.id===d.id);if(!r)return;const filas=(r.ingredientes||[]).map(i=>({i,e:estadoIng(i)}));
+  const falta=filas.filter(f=>(f.e.tipo==='falta'||f.e.tipo==='poco'));const tiene=filas.filter(f=>f.e.tipo==='ok'||f.e.tipo==='hay');
+  const fila=f=>{const [c,u]=f.e.tipo==='poco'?deBase(f.e.falta,f.e.b):[num(f.i.cant)||1,f.i.unidad||'ud'];const cc=+c.toFixed(2);
+    return `<label class="opt" style="padding:9px 14px;gap:10px"><input type="checkbox" class="falta-chk" data-n="${esc(f.i.nombre)}" data-c="${cc}" data-u="${u}" ${f.e.enL?'':'checked'} style="width:22px;height:22px">${thumb({nombre:f.i.nombre})}<span class="grow">${esc(f.i.nombre)}<span class="tiny muted" style="display:block">${f.e.tipo==='poco'?`Necesitas ${fmtQty(f.i.cant,f.i.unidad)}, tenéis ${esc(hayTxt(f.e.st))}: faltan <b>${fmtQty(cc,u)}</b>`:`Necesitas ${fmtQty(f.i.cant,f.i.unidad)}, no hay en la despensa`}${f.e.enL?' · ya está en la lista':''}</span></span></label>`};
+  sheet(`<h2>${esc(r.emoji||'')} ${esc(r.nombre)}</h2><p class="small muted" style="margin:0">Comparado con lo que hay en la despensa. Marca lo que quieres apuntar.</p>
+   ${falta.length?`<div class="sec" style="margin:4px 0 0">Te falta</div><div class="glass list-plain">${falta.map(fila).join('')}</div>`:'<div class="glass pad"><b>✅ Tenéis todo para esta receta.</b></div>'}
+   ${tiene.length?`<div class="sec" style="margin:4px 0 0">Ya tenéis</div><div class="glass list-plain">${tiene.map(f=>`<div class="opt" style="padding:9px 14px">${thumb({nombre:f.i.nombre})}<span class="grow">${esc(f.i.nombre)}<span class="tiny muted" style="display:block">Necesitas ${fmtQty(f.i.cant,f.i.unidad)} · tenéis ${esc(hayTxt(f.e.st))}${f.e.tipo==='hay'?' (comprueba que llega)':''}</span></span><span class="pill ok">En casa</span></div>`).join('')}</div>`:''}
+   <div class="row"><button class="btn gl sm" data-a="close">Cerrar</button><span class="grow"></span>${falta.length?`<button class="btn pri sm" data-a="faltaApuntar" data-r="${esc(r.nombre)}">${svg('cart')}Apuntar en la lista</button>`:''}</div>`)};
+A.faltaApuntar=async d=>{const ch=[...document.querySelectorAll('.falta-chk:checked')];let n=0;
+  for(const c of ch){const nombre=c.dataset.n;if(S.t.lista.some(x=>!x.comprado&&norm(x.nombre)===norm(nombre)))continue;await addLista(nombre,{cantidad:num(c.dataset.c)||1,unidad:c.dataset.u||'ud',receta:d.r});n++}
+  closeSheet();toast(n?`${n} ${n===1?'ingrediente apuntado':'ingredientes apuntados'} en la lista`:'No se ha apuntado nada',n?`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`:'')};
+/* cocinar: descuenta de la despensa */
+A.cocinar=d=>{const r=S.t.recetas.find(x=>x.id===d.id);if(!r)return;
+  const rows=(r.ingredientes||[]).map((i,k)=>{const e=estadoIng(i);
+    if(e.tipo==='ok'||e.tipo==='poco'){const queda=e.tipo==='ok'?e.hay-aBase(num(i.cant)||1,i.unidad).q:0;
+      return `<div class="opt" style="padding:9px 14px">${thumb({nombre:i.nombre})}<span class="grow">${esc(i.nombre)}<span class="tiny muted" style="display:block">Se resta ${e.tipo==='poco'?'todo lo que hay ('+esc(hayTxt(e.st))+')':fmtQty(i.cant,i.unidad)} · ${queda>1e-6?'quedarán '+qtyBase(queda,e.b):'<b>se acaba</b>'}</span></span></div>`}
+    if(e.tipo==='hay')return `<label class="opt" style="padding:9px 14px;gap:10px">${thumb({nombre:i.nombre})}<span class="grow">${esc(i.nombre)}<span class="tiny muted" style="display:block">Tenéis ${esc(hayTxt(e.st))}; la receta usa ${fmtQty(i.cant,i.unidad)}</span></span><span class="small">¿Se acabó?</span><input type="checkbox" class="cocina-chk" data-k="${k}" style="width:22px;height:22px"></label>`;
+    return `<div class="opt" style="padding:9px 14px;opacity:.6">${thumb({nombre:i.nombre})}<span class="grow">${esc(i.nombre)}<span class="tiny muted" style="display:block">No estaba en la despensa</span></span></div>`}).join('');
+  sheet(`<h2>🍳 ${esc(r.nombre)}</h2><p class="small muted" style="margin:0">Esto es lo que se va a quitar de la despensa. Lo que se acabe queda en la Actividad y te ofrezco apuntarlo en la lista.</p>
+   <div class="glass list-plain">${rows||'<div class="opt muted">La receta no tiene ingredientes.</div>'}</div>
+   <div class="row"><button class="btn gl sm" data-a="close">Cancelar</button><span class="grow"></span><button class="btn pri sm" data-a="cocinarOk" data-id="${r.id}">Restar de la despensa</button></div>`)};
+async function gastarDespensa(nombre,q,b){const items=enCasa(nombre).filter(d=>aBase(1,d.unidad).b===b).sort((x,y)=>String(x.caduca||'9999').localeCompare(String(y.caduca||'9999')));const acabados=[];
+  for(const d of items){if(q<=1e-6)break;const x=aBase(num(d.cantidad)||1,d.unidad);const usa=Math.min(q,x.q);q-=usa;const resto=x.q-usa;
+    if(resto<=1e-6){await ins('eventos',{tipo:'consumido',nombre:d.nombre,emoji:d.emoji,super:d.super,marca:d.marca,precio:num(d.precio),cantidad:num(d.cantidad),unidad:d.unidad,por:S.me.id});await rem('despensa',d.id);acabados.push(d)}
+    else await upd('despensa',d.id,{cantidad:+(resto/x.f).toFixed(3)})}return acabados}
+A.cocinarOk=async d=>{const r=S.t.recetas.find(x=>x.id===d.id);if(!r)return;const marcados=new Set([...document.querySelectorAll('.cocina-chk:checked')].map(c=>+c.dataset.k));let n=0;const acab=new Set();
+  for(const [k,i] of (r.ingredientes||[]).entries()){const e=estadoIng(i);
+    if(e.tipo==='ok'||e.tipo==='poco'){const nb=aBase(num(i.cant)||1,i.unidad);const a=await gastarDespensa(i.nombre,nb.q,nb.b);if(!enCasa(i.nombre).length&&a.length)acab.add(i.nombre);n++}
+    else if(e.tipo==='hay'&&marcados.has(k)){for(const x of [...e.st.items]){await ins('eventos',{tipo:'consumido',nombre:x.nombre,emoji:x.emoji,super:x.super,marca:x.marca,precio:num(x.precio),cantidad:num(x.cantidad),unidad:x.unidad,por:S.me.id});await rem('despensa',x.id)}acab.add(i.nombre);n++}}
+  closeSheet();const l=[...acab].filter(x=>!S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(x)));
+  toast(`Despensa actualizada (${n} ${n===1?'ingrediente':'ingredientes'})${l.length?'. Se acabó: '+l.join(', '):''}`,l.length?`<button class="act" data-a="reponerVarios" data-n="${esc(l.join('|'))}">Apuntar en la lista</button>`:'')};
+A.reponerVarios=async d=>{const l=String(d.n||'').split('|').filter(Boolean);for(const n of l)await addLista(n,{});toast(`${l.length} ${l.length===1?'apuntado':'apuntados'} en la lista`)};
 const ingTxt=r=>(r.ingredientes||[]).map(i=>`${String(i.cant).replace('.',',')} ${i.unidad&&i.unidad!=='ud'?i.unidad+' ':''}${i.nombre}`).join('\n');
 function parseIng(t){return t.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=parseAdd(l);const info=infoArticulo(p.nombre);return {nombre:sugerencias(p.nombre,1)[0]&&norm(sugerencias(p.nombre,1)[0].nombre)===norm(p.nombre)?sugerencias(p.nombre,1)[0].nombre:cap(p.nombre),cant:p.cantidad||1,unidad:p.unidad||info.unidad||'ud'}})}
 A.editReceta=d=>{const r=S.t.recetas.find(x=>x.id===d.id)||{};
@@ -1173,16 +1219,15 @@ A.elegirReceta=d=>{const m=d.m;const rs=[...S.t.recetas].sort((a,b)=>(b.momento=
   o.querySelector('#rq').addEventListener('input',e=>{o.querySelector('#rl').innerHTML=html(e.target.value)})};
 A.ponerReceta=async d=>{const ex=S.t.menu.find(x=>x.fecha===S.day&&x.momento===d.m);if(ex)await upd('menu',ex.id,{receta_id:d.id});else await ins('menu',{fecha:S.day,momento:d.m,receta_id:d.id});closeSheet()};
 A.mealMenu=d=>{const ex=S.t.menu.find(x=>x.fecha===S.day&&x.momento===d.m);
-  sheet(`<div class="glass list-plain"><button class="opt" data-a="verReceta" data-id="${ex.receta_id}">${svg('book')}<span class="grow">Ver receta</span></button><button class="opt" data-a="elegirReceta" data-m="${d.m}">${svg('cal')}<span class="grow">Cambiar</span></button><button class="opt" data-a="faltaReceta" data-id="${ex.receta_id}">${svg('cart')}<span class="grow">Añadir lo que falta a la lista</span></button><button class="opt" data-a="quitarMeal" data-id="${ex.id}" style="color:var(--red)">${svg('trash')}<span class="grow">Quitar del plan</span></button></div><button class="btn gl" data-a="close">Cancelar</button>`)};
+  sheet(`<div class="glass list-plain"><button class="opt" data-a="verReceta" data-id="${ex.receta_id}">${svg('book')}<span class="grow">Ver receta</span></button><button class="opt" data-a="elegirReceta" data-m="${d.m}">${svg('cal')}<span class="grow">Cambiar</span></button><button class="opt" data-a="faltaReceta" data-id="${ex.receta_id}">${svg('cart')}<span class="grow">Añadir lo que falta a la lista</span></button><button class="opt" data-a="cocinar" data-id="${ex.receta_id}"><span style="font-size:20px">🍳</span><span class="grow">La he cocinado: restar de la despensa</span></button><button class="opt" data-a="quitarMeal" data-id="${ex.id}" style="color:var(--red)">${svg('trash')}<span class="grow">Quitar del plan</span></button></div><button class="btn gl" data-a="close">Cancelar</button>`)};
 A.quitarMeal=async d=>{await rem('menu',d.id);closeSheet()};
 A.genLista=async()=>{const desde=S.week<hoy()?hoy():S.week,hasta=addDays(S.week,6);const need={};
   S.t.menu.filter(m=>m.fecha>=desde&&m.fecha<=hasta).forEach(m=>{const r=S.t.recetas.find(x=>x.id===m.receta_id);if(!r)return;
-    (r.ingredientes||[]).forEach(i=>{const k=norm(i.nombre)+'|'+(i.unidad||'ud');need[k]=need[k]||{nombre:i.nombre,unidad:i.unidad||'ud',cant:0,rec:[]};need[k].cant+=num(i.cant)||1;if(!need[k].rec.includes(r.nombre))need[k].rec.push(r.nombre)})});
+    (r.ingredientes||[]).forEach(i=>{const x=aBase(num(i.cant)||1,i.unidad);const k=norm(i.nombre)+'|'+x.b;need[k]=need[k]||{nombre:i.nombre,b:x.b,q:0,rec:[]};need[k].q+=x.q;if(!need[k].rec.includes(r.nombre))need[k].rec.push(r.nombre)})});
   const items=Object.values(need);if(!items.length){toast('Elige primero recetas en el plan de esta semana.');return}
-  let add=0,ok=0,ya=0;for(const it of items){const casa=enCasa(it.nombre);let falta=it.cant;
-    if(casa.length){const mismo=casa.filter(d=>(d.unidad||'ud')===it.unidad).reduce((a,d)=>a+num(d.cantidad),0);falta=mismo?it.cant-mismo:0}
-    if(falta<=0){ok++;continue}if(S.t.lista.some(l=>!l.comprado&&norm(l.nombre)===norm(it.nombre))){ya++;continue}
-    await addLista(it.nombre,{cantidad:+falta.toFixed(2),unidad:it.unidad,receta:it.rec.join(', '),sinTocar:false});add++}
+  let add=0,ok=0,ya=0;for(const it of items){const e=estadoNecesidad(it.nombre,it.q,it.b);
+    if(e.tipo==='ok'||e.tipo==='hay'){ok++;continue}if(e.enL){ya++;continue}
+    const [c,u]=deBase(e.falta,it.b);await addLista(it.nombre,{cantidad:+c.toFixed(2),unidad:u,receta:it.rec.join(', '),sinTocar:false});add++}
   toast(`${add} añadidos · ${ok} ya los tenéis${ya?` · ${ya} ya estaban`:''}`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
 A.planificar=()=>sheet(`<h2>Planificar semana</h2><div class="glass list-plain">
   <button class="opt" data-a="copiarSemana">${svg('cal')}<span class="grow">Copiar la semana anterior</span></button>
