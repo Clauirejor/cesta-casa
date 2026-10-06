@@ -928,8 +928,14 @@ A.addTyped=async()=>{const raw=S.addQ.trim();if(!raw)return;const p=parseAdd(raw
 A.addSug=async d=>{const p=parseAdd(S.addQ.trim());limpiarAdd();await añadirConAviso(d.n,p.cantidad,p.unidad)};
 A.addHab=async d=>{const ya=S.t.lista.find(i=>!i.comprado&&norm(i.nombre)===norm(d.n));if(ya){toast(`${d.n} ya está en la lista`,`<button class="act" data-a="editItem" data-id="${ya.id}">Cambiar</button>`);return}await añadirConAviso(d.n,1,'')};
 A.addLista1=async d=>{await añadirConAviso(d.n,1,'')};
-async function añadirConAviso(n,c,u){const r=await addLista(n,{cantidad:c,unidad:u});const casa=enCasa(n);
-  toast(r==='sumado'?`${cap(n)} ya estaba: cantidad sumada`:casa.length?`Apuntado. Ojo: en casa hay ${fmtQty(casa.reduce((a,x)=>a+num(x.cantidad),0),casa[0].unidad)}`:`${cap(n)} añadido a la lista`)}
+const esNuevo=n=>!S.catalogo.some(c=>norm(c.nombre)===norm(n))&&!S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&!borrado(a))&&!fotoProducto({nombre:n});
+async function añadirConAviso(n,c,u){const nuevo=esNuevo(n);const r=await addLista(n,{cantidad:c,unidad:u});const casa=enCasa(n);
+  const foto=nuevo&&!fotoProducto({nombre:n})?`<button class="act" data-a="fotoArtN" data-n="${esc(cap(n))}">📷 Foto</button>`:'';
+  toast(r==='sumado'?`${cap(n)} ya estaba: cantidad sumada`:casa.length?`Apuntado. Ojo: en casa hay ${fmtQty(casa.reduce((a,x)=>a+num(x.cantidad),0),casa[0].unidad)}`:nuevo?`${cap(n)} es nuevo y está en la lista. ¿Le haces una foto?`:`${cap(n)} añadido a la lista`,foto)}
+A.fotoArtN=async d=>{const f=await elegirFoto();if(!f)return;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(d.n));
+  if(!a){const i=infoArticulo(d.n);[a]=await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}
+  toast('Subiendo foto…');try{const v=await subirFoto(f);const viejo=a.imagen;await upd('articulos',a.id,{imagen:v});borrarFoto(viejo);toast(`Foto guardada: ${a.nombre}`);
+    if(document.querySelector('[data-a=qGuardar]'))A.despCant({n:a.nombre})}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
 A.check=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;await upd('lista',i.id,i.comprado?{comprado:false,comprado_por:null,comprado_at:null}:{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()})};
 A.marcarTodo=async()=>{const p=S.t.lista.filter(i=>!i.comprado);for(const i of p)upd('lista',i.id,{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()})};
 A.fotoItem=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(i.nombre));if(!a){const inf=infoArticulo(i.nombre);[a]=await ins('articulos',{nombre:cap(i.nombre),categoria:inf.categoria,emoji:inf.emoji,unidad:inf.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}if(await cambiarFoto('articulos',a.id,'imagen'))A.editItem(d)};
@@ -1123,6 +1129,7 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
   const [s1,pl]=envase(n,info.categoria);const lim=DURA_PROD[norm(n)]!=null?DURA_PROD[norm(n)]:DURA_CAT[info.categoria];
   const ep=S.eanPend;
   sheet(`${heroFoto({nombre:n})}<div class="row">${thumbSiNo({nombre:n,emoji:info.emoji},'lg')}<div class="grow"><h2>${esc(n)}</h2><span class="small muted">${ya.length?'Ahora tenéis: '+esc(ya.map(cantTxt).join(' + ')):'No hay en la despensa'}</span></div></div>
+   <button class="btn gl sm" data-a="fotoArtN" data-n="${esc(n)}">${svg('camera')}${S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&a.imagen)?'Cambiar la foto':'Hacer o subir foto'}</button>
    ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
    <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
     <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?+tot.toFixed(3):(u0==='ud'?1:u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
