@@ -767,15 +767,16 @@ function recetasCon(nombres){const ks=nombres.map(norm);return S.t.recetas.map(r
 
 /* ---------- PRECIOS ---------- */
 function vPrecios(){if(S.precioDet)return vPrecioDet(S.precioDet);
-  const q=norm(S.precioQ);const bs=borradosSet();const names=[...new Map([...S.t.precios.map(p=>p.nombre),...refNombres()].map(n=>[norm(n),n])).values()].filter(n=>!bs.has(norm(n)));
+  const q=norm(S.precioQ);const bs=borradosSet();const names=[...new Map([...S.t.precios.map(p=>p.nombre),...refNombres(),...S.t.articulos.filter(a=>!borrado(a)).map(a=>a.nombre)].map(n=>[norm(n),n])).values()].filter(n=>!bs.has(norm(n)));
   const prods=names.filter(n=>!q||norm(n).includes(q)).map(n=>({n,o:ofertas(n),info:infoArticulo(n)})).sort((a,b)=>a.n.localeCompare(b.n,'es'));
-  const top=hdr('Precios',`${names.length} productos con precio`,`<button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
+  const conP=prods.filter(p=>p.o.length).length;const top=hdr('Precios',`${names.length} productos · ${conP} con precio`,`<button class="round blue" data-a="addPrecio" aria-label="Apuntar precio">${svg('plus')}</button>`);
   const keep=`<label class="glass search">${svg('search')}<input id="qprecio" type="search" data-in="precioQ" placeholder="Buscar producto…" value="${esc(S.precioQ)}"></label>`;
   let html=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.precioVista!=='tabla'&&S.precioVista!=='ofertas'?'on':''}" data-a="precioVista" data-k="lista">Productos</button><button class="${S.precioVista==='tabla'?'on':''}" data-a="precioVista" data-k="tabla">Tabla por súper</button><button class="${S.precioVista==='ofertas'?'on':''}" data-a="precioVista" data-k="ofertas">Ofertas</button></div>`;
   if(S.precioVista==='ofertas')return {top,keep,body:html+vOfertas(q)};
   if(S.precioVista==='tabla')return {top,keep,body:html+tablaPrecios(q)};
   if(!names.length)html+=`<div class="glass empty"><div class="e">🧾</div><h3>Sin precios todavía</h3><p>Haz una foto al ticket al volver de la compra y se apuntan solos. Valora la calidad con estrellas: la app marca lo más barato y lo que <b>compensa</b>.</p></div>`;
-  else html+=`<div class="glass grp"><div class="rows">${prods.map((p,i)=>{const b=p.o.find(x=>x.barato)||p.o[0];const c=p.o.find(x=>x.compensa);const tr=b.prev?(b.precio-b.prev)/b.prev*100:0;
+  else html+=`<div class="glass grp"><div class="rows">${prods.map((p,i)=>{if(!p.o.length)return `<div class="it" style="${i?'':'border-top:0'}">${thumb({nombre:p.n,emoji:p.info.emoji})}<button class="body" data-a="precioDet" data-n="${esc(p.n)}"><div class="nm">${esc(p.n)}</div><div class="mt">Sin precio todavía · toca para apuntarlo</div></button><button class="link small" data-a="celdaNueva" data-n="${esc(p.n)}">＋ Precio</button></div>`;
+    const b=p.o.find(x=>x.barato)||p.o[0];const c=p.o.find(x=>x.compensa);const tr=b.prev?(b.precio-b.prev)/b.prev*100:0;
     return `<div class="it" style="${i?'':'border-top:0'}">${thumb(p.info)}<button class="body" data-a="precioDet" data-n="${esc(p.n)}"><div class="nm">${esc(p.n)}</div><div class="mt">Más barato en ${esc(b.super)}${p.o.length>1?` · ${p.o.length} súper`:''}${c&&c!==b?` · compensa ${esc(c.super)}`:''}</div></button><span style="text-align:right"><span class="pr">${eur(b.precio)}</span>${Math.abs(tr)>=.5?`<br><span class="tiny ${tr>0?'up':'down'}">${tr>0?'▲':'▼'} ${Math.abs(tr).toFixed(0)}%</span>`:''}</span></div>`}).join('')}</div></div>`;
   html+=`<button class="btn pri" data-a="ticket">${svg('camera')}Importar ticket</button>`;return {top,keep,body:html}}
 const FOLLETOS=[['Mercadona','https://www.tiendeo.com/Folletos-Catalogos/mercadona'],['Lidl','https://www.lidl.es/c/descubre-nuevas-ofertas-cada-semana-folletos-lidl/s10087402'],['Aldi','https://www.aldi.es/ofertas.html'],['Carrefour','https://www.tiendeo.com/Folletos-Catalogos/carrefour'],['Consum','https://www.tiendeo.com/Folletos-Catalogos/consum'],['Dia','https://www.tiendeo.com/Folletos-Catalogos/dia']];
@@ -804,7 +805,7 @@ A.saveOferta=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('of-n'))
 function tablaPrecios(q){const sups=planCfg().sups;const enL=new Set(S.t.lista.filter(i=>!i.comprado).map(i=>norm(i.nombre)));
   const names=new Map();const add=n=>{const k=norm(n);if(!names.has(k))names.set(k,n)};
   S.t.lista.filter(i=>!i.comprado).forEach(i=>add(i.nombre));S.t.precios.forEach(p=>add(p.nombre));refNombres().forEach(add);
-  [...S.t.articulos].filter(a=>!a.oculto).sort((a,b)=>b.veces-a.veces).slice(0,40).forEach(a=>add(a.nombre));
+  [...S.t.articulos].filter(a=>!a.oculto&&!borrado(a)).forEach(a=>add(a.nombre));
   const bs=borradosSet();let rows=[...names.values()].filter(n=>(!bs.has(norm(n))||enL.has(norm(n)))&&(!q||norm(n).includes(q))).sort((a,b)=>(enL.has(norm(b))-enL.has(norm(a)))||a.localeCompare(b,'es'));
   const chips=`<div style="display:flex;flex-wrap:wrap;gap:8px">${supChips().map(s=>`<button class="chip ${sups.includes(s)?'on':''}" data-a="tablaSup" data-s="${esc(s)}">${esc(tiendaEmoji(s)?tiendaEmoji(s)+' ':'')}${esc(s)}</button>`).join('')}<button class="chip" data-a="nuevaTienda" style="border-style:dashed">＋ Súper o tienda</button></div>`;
   if(!rows.length)return chips+`<div class="glass empty"><div class="e">🧾</div><h3>Nada que mostrar</h3><p>Añade productos a la lista o apunta precios.</p></div>`;
