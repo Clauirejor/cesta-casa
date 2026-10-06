@@ -157,7 +157,7 @@ img.zoom{cursor:zoom-in}
 .alert .ic{font-size:26px}
 .alert b{display:block;font-size:15px}
 /* despensa */
-.stp{display:flex;align-items:center;gap:6px;flex:none}.stp button{width:34px;height:34px;border-radius:50%;border:0;background:var(--fill);font-size:21px;font-weight:600;color:var(--accent);display:grid;place-items:center;line-height:1}.stp b{min-width:24px;text-align:center;font-size:17px}
+.stp{display:flex;align-items:center;gap:4px;flex:none}.stp button{width:32px;height:32px;border-radius:50%;border:0;background:var(--fill);font-size:21px;font-weight:600;color:var(--accent);display:grid;place-items:center;line-height:1}.stp b{min-width:24px;text-align:center;font-size:17px}
 .stp.big button{width:52px;height:52px;font-size:28px}.stp.big input{width:96px;text-align:center;font-size:26px;font-weight:700;padding:8px}
 .qchips{display:flex;flex-wrap:wrap;gap:8px}
 .exp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--red-card);border:1px solid var(--glass-line);width:100%;text-align:left}
@@ -760,8 +760,11 @@ function vDespensa(){const q=norm(S.despQ);
     <span class="chip ${S.despCat?'on':''}"><select data-ch="despCat" aria-label="Categoría"><option value="">Categorías ▾</option>${catsUsadas.map(c=>`<option ${c===S.despCat?'selected':''}>${esc(c)}</option>`).join('')}</select></span>
     ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:`<span class="chip" style="color:var(--orange)">📍 Sitios: falta la actualización 7 en Supabase</span>`}</div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
-  const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);
-    return `<div class="it" style="border-top-color:var(--sep)">${thumb(d)}<button class="body" data-a="verDesp" data-id="${d.id}"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}<button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}" style="margin-left:6px">${svg('edit')}</button></div>`};
+  const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);const enL=S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(d.nombre));
+    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
+      <div class="row" style="gap:10px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
+      ${enL?`<span class="pill ok">${svg('check')} En la lista</span>`:`<button class="chip" data-a="despALista" data-n="${esc(d.nombre)}" style="padding:6px 12px;color:var(--accent)">${svg('cart')} A la lista</button>`}</div></div>
+      <button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div>`};
   const row=fila;
   let html=chips;
   if(pronto.length)html+=`<div class="sec">Próximos a caducar ${S.despF!=='pronto'&&pronto.length>3?`<button class="link" data-a="despF" data-k="pronto">Ver todos</button>`:''}</div><div class="glass grp" style="border:1px solid var(--red-soft)"><div class="rows">${(S.despF==='pronto'?pronto:pronto.slice(0,5)).map(row).join('').replace('<div class="it" style="border-top-color:var(--sep)">','<div class="it" style="border-top:0">')}</div></div>`;
@@ -1069,19 +1072,26 @@ A.saveArt=async d=>{const v=id=>$('#'+id).value.trim();const a=S.t.articulos.fin
   if(S.editDesde){S.editDesde=null;closeSheet();paint();toast('Artículo guardado')}else habSheet(S.habQ||'')};
 
 /* --- guardar compra: lista → despensa --- */
-A.guardarCompra=()=>{const h=S.t.lista.filter(i=>i.comprado);const stock=h.filter(i=>catMeta(i.categoria).va_a_despensa),otros=h.filter(i=>!catMeta(i.categoria).va_a_despensa);
-  sheet(`<h2>Guardar compra</h2><p class="small muted" style="margin:0">La comida, limpieza e higiene van a la despensa. Pon caducidad solo a lo que se estropea. Lo demás (folios, zapatos…) queda apuntado como comprado.</p>
+A.guardarCompra=()=>{const h=S.t.lista.filter(i=>i.comprado);
+  sheet(`<h2>Guardar compra</h2><p class="small muted" style="margin:0">Todo lo marcado va a la despensa. <b>Desmarca</b> lo que no vaya a guardarse en casa (una barbacoa, algo para otra casa, algo que se consume ya). La caducidad es opcional.</p>
   <div class="g2"><div class="fld"><label for="gc-s">Súper</label><select class="inp" id="gc-s">${selOpts(SUP(),h.find(i=>i.super)?.super||'','Varios')}</select></div><div class="fld"><label>&nbsp;</label><span class="small muted" style="padding-top:12px">${h.length} productos</span></div></div>
-  ${stock.length?`<div><div class="small" style="font-weight:600;margin-bottom:2px">A la despensa</div>${stock.map(i=>`<div class="tline" style="grid-template-columns:1fr 150px"><span>${esc(i.emoji)} ${esc(i.nombre)}<span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}</span></span><input class="inp" type="date" id="cd-${i.id}" aria-label="Caducidad de ${esc(i.nombre)}"></div>`).join('')}</div>`:''}
-  ${otros.length?`<div><div class="small" style="font-weight:600;margin:6px 0 2px">Comprado (no va a la despensa)</div><div class="small muted">${otros.map(i=>esc(i.emoji+' '+i.nombre)).join(' · ')}</div></div>`:''}
+  <div class="row small" style="gap:12px"><button class="link small" data-a="gcTodos" data-v="1">Marcar todo</button><button class="link small" data-a="gcTodos" data-v="0">Desmarcar todo</button></div>
+  <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:center"><input type="checkbox" class="gc-chk" data-id="${i.id}" checked style="width:24px;height:24px;flex:none" aria-label="${esc(i.nombre)} a la despensa">
+    <span class="grow" style="min-width:0">${esc(i.emoji)} ${esc(i.nombre)}<span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${enCasa(i.nombre).length?' · se suma a lo que hay':''}</span></span>
+    <input class="inp" type="date" id="cd-${i.id}" aria-label="Caducidad de ${esc(i.nombre)}" style="width:150px;flex:none;padding:8px"></div>`).join('')}</div>
   <button class="btn pri" data-a="confirmCompra">Guardar</button><button class="btn gl" data-a="close">Cancelar</button>`)};
+A.gcTodos=d=>{document.querySelectorAll('.gc-chk').forEach(c=>c.checked=d.v==='1')};
 A.confirmCompra=async()=>{const h=S.t.lista.filter(i=>i.comprado);const b=$('[data-a=confirmCompra]');b.disabled=true;b.innerHTML='<span class="spin"></span> Guardando';
   const supG=$('#gc-s').value;const desp=[],precs=[],evs=[];
   for(const i of h){const sup=i.super||supG||'';const valor=+importe(i).toFixed(2);
-    if(catMeta(i.categoria).va_a_despensa)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id});
+    const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id});
     if(num(i.precio)>0&&sup)precs.push({nombre:i.nombre,super:sup,marca:i.marca||'',precio:num(i.precio),unidad:i.unidad==='kg'||i.unidad==='l'?i.unidad:'ud',fecha:hoy(),por:S.me.id});
     evs.push({tipo:'comprado',nombre:i.nombre,emoji:i.emoji,super:sup,marca:i.marca||'',precio:valor,cantidad:num(i.cantidad)||1,unidad:i.unidad,por:i.comprado_por||S.me.id})}
-  if(desp.length)await ins('despensa',desp);if(precs.length)await ins('precios',precs);await ins('eventos',evs);await rem('lista',h.map(i=>i.id));
+  const nuevos=[];for(const x of desp){const u=x.unidad||'ud';const ex=enCasa(x.nombre).find(y=>(y.unidad||'ud')===u||(esCuenta(y.unidad)&&esCuenta(u)));
+    const lug=S.lugaresOk?((ex&&ex.lugar)||lsGet('cc-lugar',{})[norm(x.nombre)]||''):'';
+    if(ex){const p={cantidad:+((num(ex.cantidad)||0)+x.cantidad).toFixed(3),created_at:nowIso()};if(x.caduca)p.caduca=x.caduca;if(x.super)p.super=x.super;if(x.precio)p.precio=x.precio;await upd('despensa',ex.id,p)}
+    else nuevos.push(lug?{...x,lugar:lug}:x)}
+  if(nuevos.length)await ins('despensa',nuevos);if(precs.length)await ins('precios',precs);await ins('eventos',evs);await rem('lista',h.map(i=>i.id));
   closeSheet();toast(`${h.length} guardados${desp.length?` · ${desp.length} en la despensa`:''}`,`<a href="${waLink(evs)}" target="_blank" rel="noopener">WhatsApp</a>`)};
 function waLink(evs){const sup=[...new Set(evs.map(e=>e.super).filter(Boolean))].join(', ');
   return 'https://wa.me/?text='+encodeURIComponent(`🛒 ${S.me.nombre} ha comprado${sup?' en '+sup:''}:\n`+evs.map(e=>`• ${e.nombre}${e.marca?' ('+e.marca+')':''}`).join('\n'))}
@@ -1228,6 +1238,7 @@ A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{
     else await apuntarPrecio({nombre:art?art.nombre:cap(n),super:qs,marca:(epf&&epf.marca)||'',precio:qp,unidad:'ud',formato:(epf&&epf.cantidad)||(pc>0?`${pc} ${pu}`:'')})}
   const sinP=!ofertas(n).length;
   toast(`${reg?'🎁 ':''}${n}: ${cantTxt({nombre:n,categoria:info.categoria,cantidad:c,unidad:uf})}${packTxt}${lug?' · 📍 '+lug:''}${cad?' · caduca '+fmtFecha(cad):''}${sinP&&!reg?' · sin precio':''}`);A.qVolver()};
+A.despALista=async d=>{await addLista(d.n,{});toast(`${d.n} apuntado en la lista de la compra`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
 A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
 A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=(num(x.cantidad)||1)-1;if(c<=0)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
 function despRevisarCard(){if(!S.hogar)return '';const k='cc-desp-rev-'+S.hogar.id;const v=lsGet(k,'');if(v)return '';
