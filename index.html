@@ -157,6 +157,9 @@ img.zoom{cursor:zoom-in}
 .alert .ic{font-size:26px}
 .alert b{display:block;font-size:15px}
 /* despensa */
+.stp{display:flex;align-items:center;gap:6px;flex:none}.stp button{width:34px;height:34px;border-radius:50%;border:0;background:var(--fill);font-size:21px;font-weight:600;color:var(--accent);display:grid;place-items:center;line-height:1}.stp b{min-width:24px;text-align:center;font-size:17px}
+.stp.big button{width:52px;height:52px;font-size:28px}.stp.big input{width:96px;text-align:center;font-size:26px;font-weight:700;padding:8px}
+.qchips{display:flex;flex-wrap:wrap;gap:8px}
 .exp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--red-card);border:1px solid var(--glass-line);width:100%;text-align:left}
 .exp-card .nm{font-weight:600}
 .exp-card .mt{font-size:13.5px;color:var(--muted)}
@@ -704,7 +707,7 @@ function vInicio(){const w=S.week,fin=addDays(w,6);
       :`<button class="glass meal empty" data-a="elegirReceta" data-m="${k}">＋ Añadir ${l.toLowerCase()}</button>`)}).join('');
   return hdr('Plan semanal',`<button class="link" data-a="casas" style="font-size:14.5px">🏠 ${esc(S.hogar.nombre)} ▾</button>`,`<button class="round" data-a="tab" data-k="mas" aria-label="Perfil">${avatar(S.me.id,'')||'?'}</button>`)+
    `<section class="glass wk"><div class="wk-nav"><button data-a="semana" data-n="-7" aria-label="Semana anterior">${svg('chevL')}</button><span>${rango}</span><button data-a="semana" data-n="7" aria-label="Semana siguiente">${svg('chevR')}</button></div><div class="days">${days}</div></section>`+
-   ofertasCard()+alerta+meals+
+   despRevisarCard()+ofertasCard()+alerta+meals+
    `<div style="display:grid;gap:12px;margin-top:6px"><button class="btn gl" data-a="planificar">${svg('cal')}Planificar semana</button><button class="btn pri" data-a="genLista">${svg('cart')}Generar lista de la compra</button></div>`}
 function ofertasCard(){const v=ofertasVigentes();if(!v.length)return '';const mias=v.filter(o=>relevancia(o.nombre)>0);const nuevo=OFER_FECHA&&OFER_FECHA!==lsGet('cc-ofertas-vistas','');
   return `<button class="glass alert" data-a="verOfertas" style="text-align:left;width:100%;border:1px solid var(--glass-line)"><span class="ic">🏷️</span><span class="grow"><b>${mias.length?`${mias.length} ${mias.length===1?'oferta':'ofertas'} de lo que compráis`:`${v.length} ofertas esta semana`}${nuevo?' <span class="pill bad">Nuevas</span>':''}</b><span class="small">${esc(mias.concat(v).slice(0,3).map(o=>o.nombre+' '+eur(o.precio)+' ('+o.super+')').filter((x,i,a)=>a.indexOf(x)===i).join(' · '))}</span></span>${svg('chevR','chev-r')}</button>`}
@@ -739,23 +742,26 @@ function itemRow(i){if(S.editLista&&!i.comprado)return `<div class="it">${'<butt
 /* ---------- DESPENSA ---------- */
 function vDespensa(){const q=norm(S.despQ);
   let arr=S.t.despensa.filter(d=>(!q||norm(d.nombre).includes(q)||norm(d.marca).includes(q))&&(!S.despCat||d.categoria===S.despCat));
-  const pronto=arr.filter(d=>{const n=diasHasta(d.caduca);return n!=null&&n<=5}).sort((a,b)=>a.caduca.localeCompare(b.caduca));
+  const pronto=arr.filter(d=>frescura(d).nivel>=1).sort((a,b)=>frescura(b).nivel-frescura(a).nivel||String(a.caduca||'').localeCompare(String(b.caduca||'')));
   const resto=arr.filter(d=>!pronto.includes(d)).sort((a,b)=>catOrden(a.categoria)-catOrden(b.categoria)||a.nombre.localeCompare(b.nombre,'es'));
-  const nPronto=S.t.despensa.filter(d=>{const n=diasHasta(d.caduca);return n!=null&&n<=5}).length;
+  const nPronto=S.t.despensa.filter(d=>frescura(d).nivel>=1).length;
   const catsUsadas=[...new Set(S.t.despensa.map(d=>d.categoria))].sort((a,b)=>catOrden(a)-catOrden(b));
   const top=hdr('Despensa','',`<button class="round" data-a="scan" data-p="despensa" aria-label="Escanear código de barras">${svg('barcode')}</button><button class="round blue" data-a="addDesp" aria-label="Añadir a la despensa">${svg('plus')}</button>`);
   const keep=`<label class="glass search">${svg('search')}<input id="qdesp" type="search" data-in="despQ" placeholder="Buscar en tu despensa…" value="${esc(S.despQ)}"></label>`;
   const chips=`<div class="chips"><button class="chip ${S.despF==='todos'?'on':''}" data-a="despF" data-k="todos">Todos</button><button class="chip ${S.despF==='pronto'?'on':''}" data-a="despF" data-k="pronto">Próximos a caducar ${nPronto?`<span class="cnt">${nPronto}</span>`:''}</button>
     <span class="chip ${S.despCat?'on':''}"><select data-ch="despCat" aria-label="Categoría"><option value="">Categorías ▾</option>${catsUsadas.map(c=>`<option ${c===S.despCat?'selected':''}>${esc(c)}</option>`).join('')}</select></span></div>`;
-  if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. Cuando algo se acaba pulsa <b>Gastado</b>; si se estropea, <b>Tirado</b>.</p></div>`};
-  const row=d=>{const n=diasHasta(d.caduca);return `<button class="exp-card" data-a="verDesp" data-id="${d.id}">${thumb(d,'')}<span class="grow"><span class="nm">${esc(d.nombre)}</span><br><span class="mt">${fmtQty(d.cantidad,d.unidad)} · <em>${caducaTxt(d.caduca)}</em></span></span>${svg('chevR','chev-r')}</button>`};
+  if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
+  const fila=d=>{const f=frescura(d);const ud=(d.unidad||'ud')==='ud';
+    return `<div class="it" style="border-top-color:var(--sep)">${thumb(d)}<button class="body" data-a="verDesp" data-id="${d.id}"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:svg('chevR','chev-r')}</div>`};
+  const row=fila;
   let html=chips;
-  if(pronto.length)html+=`<div class="sec">Próximos a caducar ${S.despF!=='pronto'&&pronto.length>3?`<button class="link" data-a="despF" data-k="pronto">Ver todos</button>`:''}</div><div style="display:grid;gap:10px">${(S.despF==='pronto'?pronto:pronto.slice(0,3)).map(row).join('')}</div>`;
-  else if(S.despF==='pronto')html+=`<div class="glass empty"><div class="e">👌</div><h3>Nada caduca pronto</h3><p>Nada caduca en los próximos 5 días.</p></div>`;
+  if(pronto.length)html+=`<div class="sec">Próximos a caducar ${S.despF!=='pronto'&&pronto.length>3?`<button class="link" data-a="despF" data-k="pronto">Ver todos</button>`:''}</div><div class="glass grp" style="border:1px solid var(--red-soft)"><div class="rows">${(S.despF==='pronto'?pronto:pronto.slice(0,5)).map(row).join('').replace('<div class="it" style="border-top-color:var(--sep)">','<div class="it" style="border-top:0">')}</div></div>`;
+  else if(S.despF==='pronto')html+=`<div class="glass empty"><div class="e">👌</div><h3>Nada caduca pronto</h3><p>Nada caduca en los próximos 5 días ni lleva demasiado tiempo en la nevera.</p></div>`;
   if(pronto.length){const sug=recetasCon(pronto.map(p=>p.nombre));
     html+=`<div class="sec">Sugerencias con lo que caduca</div><div class="cards-h">${sug.map(r=>`<button class="glass rc" data-a="verReceta" data-id="${r.id}">${recVis(r,'ph')}<div class="ti"><b>${esc(r.nombre)}</b><span>⏱ ${r.minutos||'–'} min · usa ${esc(r.usa.slice(0,2).join(', '))}</span></div></button>`).join('')}
       </div>`}
-  if(S.despF!=='pronto'&&resto.length){html+=`<div class="sec">${pronto.length?'Resto de la despensa':'En la despensa'}</div><div class="glass grp"><div class="rows">${resto.map(d=>`<div class="it" style="border-top-color:var(--sep)">${thumb(d)}<button class="body" data-a="verDesp" data-id="${d.id}"><div class="nm">${esc(d.nombre)}</div><div class="mt">${fmtQty(d.cantidad,d.unidad)}${d.caduca?' · '+caducaTxt(d.caduca):''}${d.marca?' · '+esc(d.marca):''}</div></button>${svg('chevR','chev-r')}</div>`).join('')}</div></div>`}
+  if(S.despF!=='pronto'&&resto.length){html+=`<div class="sec">${pronto.length?'Resto de la despensa':'En la despensa'}</div><div class="glass grp"><div class="rows">${resto.map(fila).join('')}</div></div>`}
+  html+=`<button class="btn gl" data-a="addDesp">${svg('plus')}Añadir o actualizar productos</button>`;
   return {top,keep,body:html.replace('<div class="rows"><div class="it" style="border-top-color:var(--sep)">','<div class="rows"><div class="it" style="border-top:0">')}}
 function recetasCon(nombres){const ks=nombres.map(norm);return S.t.recetas.map(r=>({...r,usa:(r.ingredientes||[]).filter(i=>ks.some(k=>norm(i.nombre)===k||norm(i.nombre).includes(k)||k.includes(norm(i.nombre)))).map(i=>i.nombre)})).filter(r=>r.usa.length).sort((a,b)=>b.usa.length-a.usa.length).slice(0,6)}
 
@@ -1068,6 +1074,86 @@ async function sacar(x,tipo){await ins('eventos',{tipo,nombre:x.nombre,emoji:x.e
 A.gastado=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)sacar(x,'consumido')};
 A.tirado=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)sacar(x,'tirado')};
 A.reponer=async d=>{await addLista(d.n,{marca:d.m,super:d.s});toast(`${d.n} está en la lista`)};
+/* ---------- despensa: elegir de la lista, cantidades y frescura ---------- */
+const DURA_CAT={'Frutas y verduras':7,'Carnes y pescados':3,'Panadería':4};
+const DURA_PROD={platano:5,aguacate:4,fresas:3,frambuesas:3,arandanos:5,cerezas:4,uvas:6,melocoton:5,mango:6,kiwi:10,pera:7,manzana:21,naranja:14,mandarina:10,limon:21,lima:14,melon:10,sandia:7,pina:6,patata:30,boniato:21,cebolla:30,'cebolla morada':21,ajo:60,calabaza:45,zanahoria:14,'pimiento rojo':7,'pimiento verde':7,calabacin:6,berenjena:6,pepino:6,tomate:6,'tomate cherry':6,lechuga:5,espinacas:4,rucula:4,canonigos:4,'ensalada en bolsa':4,brocoli:5,coliflor:7,champinones:4,puerro:10,apio:10,'judias verdes':5,'guisantes frescos':3,perejil:5,cilantro:5,albahaca:5,jengibre:21,'pan de barra':2,'pan de molde':8,'pan integral':5,croissants:3,'pechuga de pollo':2,'carne picada':2,'queso fresco':7};
+const duraDias=d=>DURA_PROD[norm(d.nombre)]!=null?DURA_PROD[norm(d.nombre)]:(DURA_CAT[d.categoria]||null);
+function frescura(d){const n=diasHasta(d.caduca);
+  if(n!=null)return {txt:caducaTxt(d.caduca),nivel:n<0?3:n<=2?2:n<=5?1:0};
+  const lim=duraDias(d);if(!lim||!d.created_at)return {txt:'',nivel:0};const age=Math.max(0,Math.floor((Date.now()-new Date(d.created_at))/864e5));
+  if(age<lim-1)return {txt:age>=1?`Desde hace ${age} ${age===1?'día':'días'}`:'',nivel:0};
+  return {txt:`Lleva ${age} ${age===1?'día':'días'} (suele durar ${lim})`,nivel:age>lim?3:2}}
+const frescHtml=f=>f.txt?`<span style="${f.nivel>=3?'color:var(--red);font-weight:600':f.nivel>=1?'color:var(--orange);font-weight:600':''}">${esc(f.txt)}</span>`:'';
+function pluralNombre(s){const w=String(s).trim().split(' ');const pl=x=>{const l=x.toLowerCase();if(/s$/.test(l)||/y$/.test(l))return x;if(/[aeiouáéó]$/.test(l))return x+'s';if(/z$/.test(l))return x.slice(0,-1)+'ces';
+    const m={'ín':'ines','ón':'ones','án':'anes','én':'enes'};for(const k in m)if(l.endsWith(k))return x.slice(0,-2)+m[k];return x+'es'};
+  if(/s$/i.test(w[0]))return s;w[0]=pl(w[0]);if(w[1]&&/[oa]$/i.test(w[1]))w[1]=pl(w[1]);return w.join(' ')}
+function envase(nombre,cat){const n=norm(nombre);cat=cat||infoArticulo(nombre).categoria;
+  if(/^huevo/.test(n))return ['huevo','huevos'];
+  if(/^(yogur|petit|natillas|flan|kefir)/.test(n))return ['unidad','unidades'];
+  if(/^(leche|bebida de|zumo|caldo|nata|horchata)/.test(n))return ['brick','bricks'];
+  if(/^(cerveza|refresco|tonica|bebida isotonica)/.test(n))return ['lata','latas'];
+  if(/^(aceite|vinagre|vino|cava|agua|lejia|friegasuelos|suavizante|limpiacristales|multiusos)/.test(n))return ['botella','botellas'];
+  if(/tomate (frito|triturado)|salsa|ketchup|mayonesa|mostaza|alioli|pesto|mermelada|^miel|crema de cacao|cacao|cafe soluble|colorante|pimenton|oregano|comino|curry|pimienta|azafran|laurel/.test(n))return ['bote','botes'];
+  if(cat==='Conservas')return /esparrago|pimiento|alcachofa|aceituna|pepinillo|melocoton|pate/.test(n)?['tarro','tarros']:['lata','latas'];
+  if(cat==='Frutas y verduras')return /s$/.test(n.split(' ')[0])||/^(ensalada|perejil|cilantro|albahaca)/.test(n)?['bolsa','bolsas']:[String(nombre).toLowerCase(),pluralNombre(nombre).toLowerCase()];
+  if(/^pan de barra/.test(n))return ['barra','barras'];
+  if(cat==='Carnes y pescados')return ['bandeja','bandejas'];
+  if(cat==='Congelados')return ['bolsa','bolsas'];
+  if(['Pasta, arroz y legumbres','Desayuno y dulces','Panadería','Charcutería y quesos','Bebé','Mascotas'].includes(cat))return ['paquete','paquetes'];
+  return ['unidad','unidades']}
+const cantTxt=d=>{if((d.unidad||'ud')!=='ud')return fmtQty(d.cantidad,d.unidad);const c=num(d.cantidad)||1;const [s1,pl]=envase(d.nombre,d.categoria);return `${String(+c.toFixed(2)).replace('.',',')} ${c===1?s1:pl}`};
+function despBuscarHtml(q){const k=norm(q);const bs=borradosSet();let l;
+  if(!k){l=S.t.articulos.filter(a=>!borrado(a)&&num(a.veces)>0).sort((a,b)=>b.veces-a.veces).slice(0,40);
+    if(l.length<20){const ya=new Set(l.map(a=>norm(a.nombre)));l=l.concat(S.catalogo.filter(c=>!ya.has(norm(c.nombre))&&!bs.has(norm(c.nombre))&&c.categoria!=='Ropa y calzado'&&c.categoria!=='Electrónica').slice(0,40-l.length))}}
+  else l=sugerencias(q,14);
+  const fila=a=>{const st=enCasa(a.nombre);return `<button class="opt" data-a="despCant" data-n="${esc(a.nombre)}" style="padding:8px 12px;width:100%;text-align:left">${thumb(a)}<span class="grow">${esc(a.nombre)}<span class="tiny muted" style="display:block">${esc(a.categoria||infoArticulo(a.nombre).categoria||'')}</span></span>${st.length?`<span class="pill ok">${esc(st.map(cantTxt).join(' + '))}</span>`:'<span class="small" style="color:var(--accent)">Añadir</span>'}</button>`};
+  const exacto=l.some(a=>norm(a.nombre)===k);
+  return `${!k?'<div class="small muted" style="margin:4px 2px">Lo que soléis comprar</div>':''}<div class="glass list-plain">${l.map(fila).join('')||'<div class="opt muted">No hay ningún producto con ese nombre.</div>'}</div>
+   ${k&&!exacto?`<button class="btn gl sm" data-a="despCrear" data-n="${esc(cap(q.trim()))}" style="border:1.5px dashed var(--sep)">＋ Crear «${esc(cap(q.trim()))}» como producto nuevo</button>`:''}`}
+A.addDesp=d=>{d=d||{};S.despFlujo=true;const q=d.q||'';
+  const o=sheet(`<h2>Añadir a la despensa</h2><p class="small muted" style="margin:0">Busca el producto y tócalo para poner cuánto tenéis.${d.aviso?`<br><b style="color:var(--ink2)">${esc(d.aviso)}</b>`:''}</p>
+   <div class="row" style="gap:8px"><label class="search grow" style="background:var(--fill)">${svg('search')}<input id="dq" type="search" placeholder="Calabacín, atún, tomate frito…" value="${esc(q)}" autocomplete="off"></label><button class="round" data-a="scan" data-p="despensa" aria-label="Escanear código de barras">${svg('barcode')}</button></div>
+   <div id="dlst" style="display:grid;gap:8px">${despBuscarHtml(q)}</div><button class="btn pri" data-a="despListo">Listo</button>`);
+  o.querySelector('#dq').addEventListener('input',e=>{o.querySelector('#dlst').innerHTML=despBuscarHtml(e.target.value)})};
+A.despListo=()=>{S.despFlujo=false;S.eanPend=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
+A.despCrear=async d=>{const i=infoArticulo(d.n);if(!S.t.articulos.some(a=>norm(a.nombre)===norm(d.n)))await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});A.despCant({n:cap(d.n)})};
+const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
+A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(info.unidad==='kg'?'kg':info.unidad==='l'?'l':'ud');
+  const tot=ya.filter(x=>(x.unidad||'ud')===u0).reduce((a,x)=>a+(num(x.cantidad)||0),0);const cad=ya.map(x=>x.caduca).filter(Boolean).sort()[0]||'';
+  const [s1,pl]=envase(n,info.categoria);const lim=DURA_PROD[norm(n)]!=null?DURA_PROD[norm(n)]:DURA_CAT[info.categoria];
+  const ep=S.eanPend;
+  sheet(`${heroFoto({nombre:n})}<div class="row">${thumbSiNo({nombre:n,emoji:info.emoji},'lg')}<div class="grow"><h2>${esc(n)}</h2><span class="small muted">${ya.length?'Ahora tenéis: '+esc(ya.map(cantTxt).join(' + ')):'No hay en la despensa'}</span></div></div>
+   ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
+   <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
+    <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?+tot.toFixed(3):(u0==='ud'?1:u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
+    <select class="inp" id="q-u" style="width:auto">${[['ud',pl],['kg','kg'],['g','g'],['l','litros'],['ml','ml']].map(([v,t])=>`<option value="${v}" ${v===u0?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+   <div class="fld"><label for="q-f">Caducidad (opcional)</label><div class="qchips">${CAD_CHIPS.map(([t,dd])=>`<button class="chip" data-a="qCad" data-d="${dd}">${t}</button>`).join('')}</div><input class="inp" id="q-f" type="date" value="${esc(cad)}" style="margin-top:6px">
+    ${lim?`<span class="tiny muted">Si no pones fecha, en la despensa se pondrá en rojo cuando lleve más de ${lim} días.</span>`:''}</div>
+   ${ya.length?'':`<label class="row small" style="gap:10px"><input type="checkbox" id="q-reg" style="width:22px;height:22px"> 🎁 Me lo han dado (gratis)</label>`}
+   <div class="row">${ya.length?`<button class="btn red sm" data-a="qCero" data-n="${esc(n)}">Ya no queda</button>`:''}<span class="grow"></span><button class="btn gl sm" data-a="qVolver">Volver</button><button class="btn pri sm" data-a="qGuardar" data-n="${esc(n)}">Guardar</button></div>`)};
+const qPaso=()=>({ud:1,kg:.25,g:100,l:.5,ml:100})[$('#q-u').value]||1;
+A.qMas=()=>{const i=$('#q-c');i.value=+((num(i.value)||0)+qPaso()).toFixed(3)};
+A.qMenos=()=>{const i=$('#q-c');i.value=Math.max(0,+((num(i.value)||0)-qPaso()).toFixed(3))};
+A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[data-a=qCad]').forEach(x=>x.classList.remove('on'));b.classList.add('on')};
+A.qVolver=()=>{if(S.despFlujo)A.addDesp();else closeSheet()};
+A.qCero=async d=>{for(const x of enCasa(d.n))await rem('despensa',x.id);toast(`${d.n}: ya no queda`);A.qVolver()};
+A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const c=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+  const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
+  let art=S.t.articulos.find(a=>norm(a.nombre)===norm(n));
+  if(!art)[art]=await ins('articulos',{nombre:cap(n),categoria:info.categoria||'Otros',emoji:info.emoji||'📦',unidad:info.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});
+  else if(borrado(art))await upd('articulos',art.id,{oculto:false,veces:0});
+  const ep=S.eanPend;if(ep&&art){await asociarCodigo(art,ep.code,ep.marca,'');if(ep.imagen&&!art.imagen)await upd('articulos',art.id,{imagen:ep.imagen});S.eanPend=null}
+  if(ya.length){const prev=ya.filter(x=>(x.unidad||'ud')===u).reduce((a,x)=>a+(num(x.cantidad)||0),0);const p={cantidad:c,unidad:u,caduca:cad};if(c>prev+1e-9)p.created_at=nowIso();
+    await upd('despensa',ya[0].id,p);if(ya.length>1)await rem('despensa',ya.slice(1).map(x=>x.id))}
+  else await ins('despensa',{nombre:art?art.nombre:cap(n),emoji:info.emoji||'📦',categoria:info.categoria||'Otros',cantidad:c,unidad:u,caduca:cad,super:reg?'Regalo':'',marca:'',precio:0,por:S.me.id});
+  toast(`${reg?'🎁 ':''}${n}: ${cantTxt({nombre:n,categoria:info.categoria,cantidad:c,unidad:u})}${cad?' · caduca '+fmtFecha(cad):''}`);A.qVolver()};
+A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
+A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=(num(x.cantidad)||1)-1;if(c<=0)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
+function despRevisarCard(){if(!S.hogar)return '';const k='cc-desp-rev-'+S.hogar.id;const v=lsGet(k,'');if(v==='hecho'||(v&&Date.now()<+v))return '';
+  return `<div class="glass pad" style="display:grid;gap:10px;border:1.5px solid var(--accent)"><b style="font-size:17px">🥫 ¿Quieres actualizar los productos de tu despensa?</b><span class="small muted">Apunta lo que tenéis en casa (latas, botes, verduras…). Así la app no te hará comprar lo que ya tienes y te marcará en rojo lo que está a punto de caducar.</span>
+   <div class="row" style="gap:8px"><button class="btn pri sm grow" data-a="despRevisar">Sí, ahora</button><button class="btn gl sm" data-a="despLuego">Más tarde</button></div></div>`}
+A.despRevisar=()=>{lsSet('cc-desp-rev-'+S.hogar.id,'hecho');S.tab='despensa';lsSet('cc-tab','despensa');render();window.scrollTo(0,0);A.addDesp()};
+A.despLuego=()=>{lsSet('cc-desp-rev-'+S.hogar.id,String(Date.now()+3*864e5));paint()};
 function despForm(x){x=x||{};return `<h2>${x.id?'Editar':'Añadir a la despensa'}</h2>
   <div class="row">${imgUrl(x.imagen)?`<span class="th lg"><img src="${esc(imgUrl(x.imagen))}" alt=""></span>`:''}<div class="fld grow"><label for="n-n">Producto</label><input class="inp" id="n-n" list="dl-cat" value="${esc(x.nombre)}" ${x.nombre?'':'autofocus'}></div></div>
   ${x.ean&&!x.id&&!x.conocido?`<div class="small muted" style="margin-top:-4px">Código nuevo${x.offNombre?`: <b style="color:var(--ink2)">${esc(x.offNombre)}</b>`:''}. Si es algo que ya compráis (aunque sea de otra marca o súper), elige o escribe ese artículo y el código se guardará en él.</div>
@@ -1079,7 +1165,7 @@ function despForm(x){x=x||{};return `<h2>${x.id?'Editar':'Añadir a la despensa'
   ${x.id?'':`<label class="glass pad row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="n-reg" style="width:22px;height:22px"><span class="grow"><b>🎁 Me lo han dado (gratis)</b><span class="tiny muted" style="display:block">Regalo, de la familia, del huerto… Entra en la despensa con coste 0 € y no cuenta como precio de ningún súper.</span></span></label>`}
   <input type="hidden" id="n-ean" value="${esc(x.ean||'')}"><input type="hidden" id="n-img" value="${esc(x.imagen||'')}">
   <div class="g2"><button class="btn gl" data-a="nuevoALista">${svg('cart')}A la lista</button><button class="btn pri" data-a="nuevoADesp">A la despensa</button></div>`}
-A.addDesp=()=>sheet(despForm());
+A.addDespForm=()=>sheet(despForm());
 A.pickArtEan=(d,b)=>{document.querySelectorAll('[data-a=pickArtEan]').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#n-n').value=d.n};
 async function guardarArticuloDeForm(){const v=id=>($('#'+id)||{}).value?.trim()||'';const nombre=cap(v('n-n'));if(!nombre){toast('Escribe qué producto es.');return null}
   const info=infoArticulo(nombre);let a=S.t.articulos.find(x=>norm(x.nombre)===norm(nombre));
@@ -1100,10 +1186,12 @@ const codigosTxt=l=>l.map(x=>[x.c,(x.m||'').replace(/[|,]/g,' '),(x.s||'').repla
 const artPorCodigo=code=>S.t.articulos.find(a=>!borrado(a)&&codigos(a).some(x=>x.c===code));
 async function asociarCodigo(art,code,marca,sup){for(const o of S.t.articulos.filter(a=>a.id!==art.id&&codigos(a).some(x=>x.c===code)))await upd('articulos',o.id,{ean:codigosTxt(codigos(o).filter(x=>x.c!==code))});
   const l=codigos(art).filter(x=>x.c!==code);l.push({c:code,m:marca||'',s:sup||''});await upd('articulos',art.id,{ean:codigosTxt(l)})}
-function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';let best='',bl=0;
-  for(const a of S.t.articulos.filter(a=>!borrado(a))){const n=norm(a.nombre);if(n.length>bl&&(k===n||k.startsWith(n+' ')||k.includes(' '+n+' ')||k.endsWith(' '+n))){best=a.nombre;bl=n.length}}
-  if(best)return best;const bs=borradosSet();
-  for(const c of S.catalogo){const n=norm(c.nombre);if(!bs.has(n)&&n.length>bl&&(k===n||k.startsWith(n+' ')||k.includes(' '+n+' ')||k.endsWith(' '+n))){best=c.nombre;bl=n.length}}return best}
+const FRESCAS=new Set(['Frutas y verduras','Carnes y pescados']);/* lo que tiene código de barras suele ser envasado */
+function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';const kw=k.split(' ')[0];const bs=borradosSet();let best='',bp=0;
+  const punt=n=>{if(k===n)return 1000;if(k.startsWith(n+' '))return 500+n.length;const nw=n.split(' ')[0];if(nw===kw&&nw.length>=4)return 300+(k.includes(n)?50:0)+n.split(' ').slice(1).filter(w=>w.length>2&&k.includes(w)).length*10;if(k.includes(' '+n+' ')||k.endsWith(' '+n))return 100+n.length;return 0};
+  for(const a of S.t.articulos.filter(a=>!borrado(a))){const p=punt(norm(a.nombre))+(num(a.veces)>0?5:0)-(FRESCAS.has(a.categoria)?40:0);if(p>bp){bp=p;best=a.nombre}}
+  for(const c of S.catalogo){const n=norm(c.nombre);if(bs.has(n))continue;const p=punt(n)-(FRESCAS.has(c.categoria)?40:0);if(p>bp){bp=p;best=c.nombre}}
+  return bp>=100?best:''}
 let scanStream=null,scanCtl=null,scanLoop=0;
 function stopScan(){cancelAnimationFrame(scanLoop);scanLoop=0;try{scanCtl&&scanCtl.stop()}catch(e){}scanCtl=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
 A.scan=async d=>{const destino=d.p||'despensa';
@@ -1123,8 +1211,12 @@ A.eanManual=()=>{const v=$('#eanin').value.replace(/\D/g,'');if(v.length>=8)onEA
 function loadScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
   const a=artPorCodigo(code);
+  if(a&&S.scanDest==='despensa'){const e=codigos(a).find(x=>x.c===code)||{};S.despFlujo=true;S.eanPend=null;toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);A.despCant({n:a.nombre});return}
   if(a){const e=codigos(a).find(x=>x.c===code)||{};abrirEscaneado({nombre:a.nombre,marca:e.m||a.marca,super:e.s||'',imagen:a.imagen,ean:code,unidad:a.unidad,conocido:true});toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,brands,image_front_small_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
+  if(S.scanDest==='despensa'){const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;
+    S.eanPend={code,marca:p?(p.brands||'').split(',')[0].trim():'',imagen:p&&p.image_front_small_url||'',off:nom};
+    if(guess){A.despCant({n:guess});return}A.addDesp({q:nom.split(' ').slice(0,2).join(' '),aviso:nom?`Código nuevo: «${nom}». Elige qué producto es y lo recordaré.`:'No conozco este código. Busca el producto y lo recordaré para la próxima vez.'});return}
   if(p){const nom=cap(p.product_name_es||p.product_name||'');const guess=adivinarArticulo(nom);
     abrirEscaneado({nombre:guess||nom,marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code,offNombre:nom})}
   else{abrirEscaneado({nombre:'',ean:code});toast('No conozco ese código. Escribe el nombre y la próxima vez lo recordaré.')}}
