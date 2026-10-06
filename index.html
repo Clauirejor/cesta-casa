@@ -162,6 +162,7 @@ img.zoom{cursor:zoom-in}
 .qchips{display:flex;flex-wrap:wrap;gap:8px}
 .nivel{display:inline-block;width:60px;height:8px;border-radius:4px;background:var(--fill);overflow:hidden;vertical-align:middle;margin-left:6px}.nivel i{display:block;height:100%;border-radius:4px}
 .rango{width:100%;accent-color:var(--accent);height:32px}
+.chip.mini,.pill.mini{font-size:13.5px;padding:5px 10px;min-height:0}
 .chip svg,.pill svg{width:16px;height:16px;vertical-align:-3px;margin-right:2px}
 .exp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--red-card);border:1px solid var(--glass-line);width:100%;text-align:left}
 .exp-card .nm{font-weight:600}
@@ -767,9 +768,10 @@ function vDespensa(){const q=norm(S.despQ);
     ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:`<span class="chip" style="color:var(--orange)">📍 Sitios: falta la actualización 7 en Supabase</span>`}</div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
   const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);const enL=S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(d.nombre));
-    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${barraHtml(d)}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
-      <div class="row" style="gap:10px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:17px">${(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})()}</button><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
-      ${enL?`<span class="pill ok">${svg('check')} En la lista</span>`:`<button class="chip" data-a="despALista" data-n="${esc(d.nombre)}" style="padding:6px 12px;color:var(--accent)">${svg('cart')} A la lista</button>`}</div></div>
+    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${barraHtml(d)}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
+      ${S.lugaresOk?`<button class="link small" data-a="despSitio" data-id="${d.id}" style="display:block;margin-top:2px;padding:4px 0;${d.lugar?'color:var(--ink2)':''}">📍 ${d.lugar?esc(d.lugar)+' <span class="muted">· cambiar</span>':'Poner sitio'}</button>`:''}
+      <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:17px">${(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})()}</button><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
+      ${enL?`<span class="pill ok mini">${svg('check')} En lista</span>`:`<button class="chip mini" data-a="despALista" data-n="${esc(d.nombre)}" style="color:var(--accent)">${svg('cart')} Lista</button>`}</div></div>
       <button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div>`};
   const row=fila;
   let html=chips;
@@ -1107,7 +1109,7 @@ function waLink(evs){const sup=[...new Set(evs.map(e=>e.super).filter(Boolean))]
 A.whatsHoy=()=>{const ev=S.t.eventos.filter(e=>e.tipo==='comprado'&&ds(e.created_at)===hoy());if(!ev.length){toast('Hoy no se ha guardado ninguna compra.');return}window.open(waLink(ev),'_blank')};
 
 /* --- despensa --- */
-A.verDesp=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;S.verDespId=x.id;const r=recetasCon([x.nombre]).slice(0,3);
+A.verDesp=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;S.verDespId=x.id;S.sitioRapido=false;const r=recetasCon([x.nombre]).slice(0,3);
   sheet(`${heroFoto(x)}<div class="row">${thumbSiNo(x,'lg')}<div class="grow"><h2>${esc(x.nombre)}</h2><span class="small muted">${fmtQty(x.cantidad,x.unidad)}${x.caduca?' · '+caducaTxt(x.caduca):''}${x.marca||x.super?' · '+esc([x.marca,x.super].filter(Boolean).join(' · ')):''}</span></div></div>
   <div class="g3">${num(x.cantidad)>1&&esCuenta(x.unidad)?`<button class="btn gl sm" style="width:100%" data-a="usar1" data-id="${x.id}">Usar 1</button>`:'<span></span>'}<button class="btn gl sm" style="width:100%" data-a="gastado" data-id="${x.id}">Gastado</button><button class="btn red sm" style="width:100%" data-a="tirado" data-id="${x.id}">Tirado</button></div>
   <div class="fld"><label>¿Dónde está?</label>${lugarChips(x.lugar||'','v')}</div>
@@ -1207,7 +1209,9 @@ A.lugares=()=>sheet(`<h2>Sitios de la despensa</h2><p class="small muted" style=
   ${lugarChips('','m')}<button class="btn gl" data-a="close">Cerrar</button>`);
 A.borrarLugar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro?';return}const l=(S.t.lugares||[]).find(x=>x.id===d.id);if(!l)return;await rem('lugares',l.id);
   for(const x of S.t.despensa.filter(x=>x.lugar===l.nombre))await upd('despensa',x.id,{lugar:''});toast(`Quitado: ${l.nombre}`);A.lugares()};
-A.lugarDespGuardar=async()=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await asegurarLugar(l);await upd('despensa',x.id,{lugar:l});toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`)};
+A.despSitio=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;S.verDespId=x.id;S.sitioRapido=true;
+  sheet(`<div class="row">${thumb(x,'lg')}<div class="grow"><h2>¿Dónde está?</h2><span class="small muted">${esc(x.nombre)}</span></div></div>${lugarChips(x.lugar||'','v')}<span class="tiny muted">Elige un sitio y se guarda solo. Con «＋ Crear un sitio nuevo…» añades otro (armario, cajón…).</span><button class="btn gl" data-a="close">Cerrar</button>`)};
+A.lugarDespGuardar=async()=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await asegurarLugar(l);await upd('despensa',x.id,{lugar:l});toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`);if(S.sitioRapido){S.sitioRapido=false;closeSheet()}};
 const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
 A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(['kg','l','g','ml'].includes(info.unidad)||ENV[info.unidad]?info.unidad:'ud');
   const tot=ya.filter(x=>(x.unidad||'ud')===u0).reduce((a,x)=>a+(num(x.cantidad)||0),0);const cad=ya.map(x=>x.caduca).filter(Boolean).sort()[0]||'';
