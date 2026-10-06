@@ -967,7 +967,8 @@ const esNuevo=n=>!S.catalogo.some(c=>norm(c.nombre)===norm(n))&&!S.t.articulos.s
 async function añadirConAviso(n,c,u){const nuevo=esNuevo(n);const r=await addLista(n,{cantidad:c,unidad:u});const casa=enCasa(n);
   const foto=nuevo&&!fotoProducto({nombre:n})?`<button class="act" data-a="fotoArtN" data-n="${esc(cap(n))}">📷 Foto</button>`:'';
   toast(r==='sumado'?`${cap(n)} ya estaba: cantidad sumada`:casa.length?`Apuntado. Ojo: en casa hay ${fmtQty(casa.reduce((a,x)=>a+num(x.cantidad),0),casa[0].unidad)}`:nuevo?`${cap(n)} es nuevo y está en la lista. ¿Le haces una foto?`:`${cap(n)} añadido a la lista`,foto)}
-A.fotoArtN=async d=>{const f=await elegirFoto();if(!f)return;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(d.n));
+A.fotoArtN=async d=>{const f=await elegirFoto();if(!f)return;
+  if(S.nuevoArt&&$('#q-nombre')){S.nuevoArt.nombre=cap($('#q-nombre').value.trim())||S.nuevoArt.nombre;toast('Subiendo foto…');try{S.nuevoArt.imagen=await subirFoto(f);A.despCant({n:S.nuevoArt.nombre})}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}return}let a=S.t.articulos.find(x=>norm(x.nombre)===norm(d.n));
   if(!a){const i=infoArticulo(d.n);[a]=await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}
   toast('Subiendo foto…');try{const v=await subirFoto(f);const viejo=a.imagen;await upd('articulos',a.id,{imagen:v});borrarFoto(viejo);toast(`Foto guardada: ${a.nombre}`);
     if(document.querySelector('[data-a=qGuardar]'))A.despCant({n:a.nombre})}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
@@ -1174,6 +1175,7 @@ function eanCardHtml(){const ep=S.eanPend;if(!ep||!ep.code||ep.yaAsociado)return
    <span class="tiny muted">¿Es algo que ya tenéis con otro nombre (otra marca)? Búscalo abajo y el código se guardará en ese producto.</span></div>`}
 A.despCrearEan=async()=>{const ep=S.eanPend;if(!ep)return;const n=cap(($('#ean-n')||{}).value?.trim()||ep.off||'');if(!n){toast('Escribe el nombre del producto.');$('#ean-n')&&$('#ean-n').focus();return}
   let a=S.t.articulos.find(x=>norm(x.nombre)===norm(n));const i=infoArticulo(n);const desc=[ep.marca,ep.cantidad,ep.generico&&norm(ep.generico)!==norm(n)?ep.generico:''].filter(Boolean).join(' · ');
+  if(S.buscaModo!=='precios'&&!a){S.nuevoArt={nombre:n,imagen:ep.imagen||'',marca:ep.marca||'',descripcion:desc};A.despCant({n});return}
   if(!a){const row={nombre:n,categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:ep.marca||'',ean:'',imagen:ep.imagen||'',veces:0,ultima:nowIso(),oculto:false,favorito:false};if(desc&&hayDescripcion())row.descripcion=desc;[a]=await ins('articulos',row)}
   else{const pch={};if(!a.imagen&&ep.imagen)pch.imagen=ep.imagen;if(!a.marca&&ep.marca)pch.marca=ep.marca;if(desc&&!a.descripcion&&hayDescripcion())pch.descripcion=desc;if(borrado(a)){pch.oculto=false;pch.veces=0}if(Object.keys(pch).length)await upd('articulos',a.id,pch)}
   if(S.buscaModo==='precios'){await asociarCodigo(a,ep.code,ep.marca,'');S.eanPend=null;A.precioElegir({n:a.nombre,nuevo:1});return}
@@ -1189,8 +1191,8 @@ A.addDesp=d=>{d=d||{};S.despFlujo=true;S.buscaModo=d.modo||'despensa';const q=d.
   o.classList.add('arriba');
   const inp=o.querySelector('#dq');inp.addEventListener('input',e=>{const l=o.querySelector('#dlst');const nm=(o.querySelector('#ean-n')||{}).value;l.innerHTML=eanCardHtml()+despBuscarHtml(e.target.value);if(nm&&o.querySelector('#ean-n'))o.querySelector('#ean-n').value=nm;l.scrollTop=0});
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}})};
-A.despListo=()=>{S.despFlujo=false;S.eanPend=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
-A.despCrear=async d=>{const i=infoArticulo(d.n);if(!S.t.articulos.some(a=>norm(a.nombre)===norm(d.n)))await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});A.despCant({n:cap(d.n)})};
+A.despListo=()=>{S.despFlujo=false;S.eanPend=null;S.nuevoArt=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
+A.despCrear=d=>{S.nuevoArt={nombre:cap(d.n)};A.despCant({n:cap(d.n)})};
 /* sitios de la despensa */
 const lugares=()=>(S.t.lugares||[]).slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
 const LUG_SUG=['Nevera','Congelador','Despensa','Armario de la cocina','Cajón','Frutero'];
@@ -1218,7 +1220,8 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
   const [s1,pl]=envase(n,info.categoria);const lim=DURA_PROD[norm(n)]!=null?DURA_PROD[norm(n)]:DURA_CAT[info.categoria];
   const ep=S.eanPend;const pk=lsGet('cc-pack',{})[norm(n)];const u0b=pk&&!ya.length&&pk.env?pk.env:null;
   const heroEan=!fotoProducto({nombre:n})&&ep&&ep.imagen?heroFoto({nombre:n,imagen:ep.imagen}):'';
-  sheet(`${heroFoto({nombre:n})||heroEan}<div class="row">${heroEan?'':thumbSiNo({nombre:n,emoji:info.emoji},'lg')}<div class="grow"><h2>${esc(n)}</h2><span class="small muted">${ya.length?'Ahora tenéis: '+esc(ya.map(cantTxt).join(' + ')):'No hay en la despensa'}</span></div></div>
+  const pend=S.nuevoArt;const heroPend=pend&&pend.imagen?heroFoto({nombre:n,imagen:pend.imagen}):'';
+  sheet(`${heroPend||heroFoto({nombre:n})||heroEan}<div class="row">${heroEan||heroPend?'':thumbSiNo({nombre:n,emoji:info.emoji},'lg')}<div class="grow">${pend?`<label class="small muted" for="q-nombre">Nombre del producto nuevo (revísalo antes de guardar)</label><input class="inp" id="q-nombre" value="${esc(pend.nombre||n)}" autocomplete="off" style="font-size:19px;font-weight:600">`:`<h2>${esc(n)}</h2>`}<span class="small muted">${ya.length?'Ahora tenéis: '+esc(ya.map(cantTxt).join(' + ')):'No hay en la despensa'}</span></div></div>
    <button class="btn gl sm" data-a="fotoArtN" data-n="${esc(n)}">${svg('camera')}${S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&a.imagen)?'Cambiar la foto':'Hacer o subir foto'}</button>
    ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
    <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
@@ -1243,9 +1246,13 @@ A.qMas=()=>{const i=$('#q-c');i.value=+((num(i.value)||0)+qPaso()).toFixed(3)};
 A.qMenos=()=>{const i=$('#q-c');i.value=Math.max(0,+((num(i.value)||0)-qPaso()).toFixed(3))};
 A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[data-a=qCad]').forEach(x=>x.classList.remove('on'));b.classList.add('on')};
 function packLabel(u,s1){const e=u==='ud'?s1:u;return `¿Cuánto trae cada ${e}?`}
-A.qVolver=()=>{if(S.despFlujo)A.addDesp();else closeSheet()};
+A.qVolver=()=>{S.nuevoArt=null;if(S.despFlujo)A.addDesp();else closeSheet()};
 A.qCero=async d=>{for(const x of enCasa(d.n))await rem('despensa',x.id);toast(`${d.n}: ya no queda`);A.qVolver()};
-A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const u=$('#q-u').value||'ud',c0=(num($('#q-c').value)||0)+(esCuenta($('#q-u').value||'ud')?(num(($('#qr-q')||{}).value)||0)/100:0),cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+A.qGuardar=async d=>{let n=d.n;if(S.nuevoArt){const pn=cap((($('#q-nombre')||{}).value||'').trim());if(!pn){toast('Escribe el nombre del producto.');$('#q-nombre')&&$('#q-nombre').focus();return}n=pn;
+    const pend=S.nuevoArt;S.nuevoArt=null;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(n));const ii=infoArticulo(n);
+    if(!a){const row={nombre:n,categoria:ii.categoria||'Otros',emoji:ii.emoji||'📦',unidad:ii.unidad||'ud',marca:pend.marca||'',ean:'',imagen:pend.imagen||'',veces:0,ultima:nowIso(),oculto:false,favorito:false};if(pend.descripcion&&hayDescripcion())row.descripcion=pend.descripcion;await ins('articulos',row)}
+    else if(borrado(a))await upd('articulos',a.id,{oculto:false,veces:0})}
+  const info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const u=$('#q-u').value||'ud',c0=(num($('#q-c').value)||0)+(esCuenta($('#q-u').value||'ud')?(num(($('#qr-q')||{}).value)||0)/100:0),cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
   const pc=esCuenta(u)?num(($('#q-pc')||{}).value):0,pu=($('#q-pu')||{}).value||'ud';let c=c0,uf=u,packTxt='';
   const packs=lsGet('cc-pack',{});if(pc>0){c=+(c0*pc).toFixed(3);uf=pu;packTxt=` (${fmtQty(c0,u==='ud'?'ud':u)} de ${fmtQty(pc,pu)})`;packs[norm(n)]={env:u,n:pc,u:pu};lsSet('cc-pack',packs)}
   const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
