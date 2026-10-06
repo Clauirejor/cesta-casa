@@ -529,7 +529,7 @@ function verFoto(src,nombre){const o=document.createElement('div');o.className='
   o.innerHTML=`<img src="${esc(src)}" alt="Foto de ${esc(nombre)}"><div class="lb-pie">${esc(nombre)}</div><button class="lb-x" aria-label="Cerrar">✕</button>`;
   o.addEventListener('click',()=>o.remove());document.body.appendChild(o)}
 document.addEventListener('click',e=>{const im=e.target.closest&&e.target.closest('img.zoom');if(!im)return;e.preventDefault();e.stopPropagation();verFoto(im.currentSrc||im.src,im.dataset.n||'')},true);
-function elegirFoto(){return new Promise(ok=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>ok(i.files&&i.files[0]||null);i.click()})}
+function elegirFoto(cam){return new Promise(ok=>{const i=document.createElement('input');i.type='file';i.accept='image/*';if(cam)i.setAttribute('capture','environment');i.onchange=()=>ok(i.files&&i.files[0]||null);i.click()})}
 function reducirFoto(file,max){return new Promise((ok,ko)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);c.toBlob(b=>b?ok(b):ko(new Error('No se pudo preparar la foto')),'image/jpeg',.82)};img.onerror=()=>ko(new Error('No se pudo leer la foto'));img.src=url})}
 async function subirFoto(file){const blob=await reducirFoto(file,S.mode==='supa'?900:420);
@@ -1288,21 +1288,35 @@ function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';const kw=k.spli
   for(const a of S.t.articulos.filter(a=>!borrado(a))){const p=punt(norm(a.nombre))+(num(a.veces)>0?5:0)-(FRESCAS.has(a.categoria)?40:0);if(p>bp){bp=p;best=a.nombre}}
   for(const c of S.catalogo){const n=norm(c.nombre);if(bs.has(n))continue;const p=punt(n)-(FRESCAS.has(c.categoria)?40:0);if(p>bp){bp=p;best=c.nombre}}
   return bp>=100?best:''}
-let scanStream=null,scanCtl=null,scanLoop=0;
-function stopScan(){cancelAnimationFrame(scanLoop);scanLoop=0;try{scanCtl&&scanCtl.stop()}catch(e){}scanCtl=null;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
+let scanStream=null,scanCtl=null,scanLoop=0,scanApagar=0,scanActivo=false,zxReader=null;
+/* La cámara se mantiene abierta 3 minutos tras escanear: así el móvil no vuelve a pedir permiso en cada código */
+function apagarCamara(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
+function stopScan(){scanActivo=false;cancelAnimationFrame(scanLoop);clearTimeout(scanLoop);scanLoop=0;try{scanCtl&&scanCtl.stop()}catch(e){}scanCtl=null;
+  if(scanStream){clearTimeout(scanApagar);scanApagar=setTimeout(apagarCamara,180000)}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&!scanActivo){clearTimeout(scanApagar);apagarCamara()}});
+async function camara(){if(scanStream&&scanStream.getVideoTracks().some(t=>t.readyState==='live'))return scanStream;
+  scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}});return scanStream}
+async function leerImagen(src){/* src: vídeo o imagen; devuelve el código o '' */
+  if('BarcodeDetector'in window){try{const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});const c=await det.detect(src);if(c[0])return c[0].rawValue}catch(e){}return ''}
+  if(!window.ZXingBrowser)await loadScript('https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js');
+  zxReader=zxReader||new ZXingBrowser.BrowserMultiFormatReader();
+  const w=src.videoWidth||src.naturalWidth||src.width,h=src.videoHeight||src.naturalHeight||src.height;if(!w||!h)return '';
+  const c=document.createElement('canvas');const k=Math.min(1,1280/Math.max(w,h));c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+  try{return zxReader.decodeFromCanvas(c).getText()}catch(e){return ''}}
 A.scan=async d=>{const destino=d.p||'despensa';
   sheet(`<h2>Escanear código de barras</h2><video class="scan" id="scanv" playsinline muted></video><p class="small muted" id="scanmsg" style="margin:0">Apunta al código de barras del producto.</p>
+   <button class="btn gl sm" data-a="scanFoto">📷 Hacer una foto al código (sin permiso de cámara)</button>
    <form class="row" data-f="eanManual"><input class="inp" id="eanin" inputmode="numeric" placeholder="O escribe el número"><button class="btn gl sm" type="submit">Buscar</button></form>
    <button class="btn gl" data-a="close">Cancelar</button>`);
-  S.scanDest=destino;const v=$('#scanv');
+  S.scanDest=destino;const v=$('#scanv');clearTimeout(scanApagar);
   try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('sin cámara');
-    if('BarcodeDetector'in window){scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=scanStream;await v.play();
-      const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
-      const tick=async()=>{if(!scanStream)return;try{const c=await det.detect(v);if(c[0]){onEAN(c[0].rawValue);return}}catch(e){}scanLoop=requestAnimationFrame(tick)};tick()}
-    else{if(!window.ZXingBrowser)await loadScript('https://cdn.jsdelivr.net/npm/@zxing/browser@0.2.1/umd/zxing-browser.min.js');
-      if(!$('#scanv'))return;const r=new ZXingBrowser.BrowserMultiFormatReader();
-      scanCtl=await r.decodeFromConstraints({video:{facingMode:'environment'}},$('#scanv'),(res)=>{if(res){onEAN(res.getText())}})}}
-  catch(e){const m=$('#scanmsg');if(m)m.textContent='No se pudo abrir la cámara. Da permiso a la cámara o escribe el número del código.'}};
+    const st=await camara();if(!$('#scanv'))return;v.srcObject=st;await v.play();scanActivo=true;
+    const tick=async()=>{if(!scanActivo||!$('#scanv'))return;const code=await leerImagen(v);if(code&&scanActivo){onEAN(code);return}scanLoop=setTimeout(tick,'BarcodeDetector'in window?120:250)};tick()}
+  catch(e){const m=$('#scanmsg');if(m)m.textContent='No se pudo abrir la cámara. Usa «Hacer una foto al código» o escribe el número.'}};
+A.scanFoto=async()=>{const dest=S.scanDest;const f=await elegirFoto(true);if(!f)return;const m=$('#scanmsg');if(m)m.textContent='Leyendo la foto…';
+  const img=new Image();img.src=URL.createObjectURL(f);try{await img.decode()}catch(e){}
+  let code='';if('BarcodeDetector'in window){try{code=await leerImagen(await createImageBitmap(f))}catch(e){}}if(!code)code=await leerImagen(img);URL.revokeObjectURL(img.src);
+  S.scanDest=dest;if(code)onEAN(code);else if(m)m.textContent='No he podido leer el código en la foto. Prueba más cerca y con luz, o escribe el número.'};
 A.eanManual=()=>{const v=$('#eanin').value.replace(/\D/g,'');if(v.length>=8)onEAN(v);else toast('El código tiene 8 o 13 números.')};
 function loadScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
 /* precios que publican otros usuarios en Open Prices (Open Food Facts) */
