@@ -758,7 +758,7 @@ function vDespensa(){const q=norm(S.despQ);
   const keep=`<label class="glass search">${svg('search')}<input id="qdesp" type="search" data-in="despQ" placeholder="Buscar en tu despensa…" value="${esc(S.despQ)}"></label>`;
   const chips=`<div class="chips"><button class="chip ${S.despF==='todos'?'on':''}" data-a="despF" data-k="todos">Todos</button><button class="chip ${S.despF==='pronto'?'on':''}" data-a="despF" data-k="pronto">Próximos a caducar ${nPronto?`<span class="cnt">${nPronto}</span>`:''}</button>
     <span class="chip ${S.despCat?'on':''}"><select data-ch="despCat" aria-label="Categoría"><option value="">Categorías ▾</option>${catsUsadas.map(c=>`<option ${c===S.despCat?'selected':''}>${esc(c)}</option>`).join('')}</select></span>
-    ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:''}</div>`;
+    ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:`<span class="chip" style="color:var(--orange)">📍 Sitios: falta la actualización 7 en Supabase</span>`}</div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
   const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);
     return `<div class="it" style="border-top-color:var(--sep)">${thumb(d)}<button class="body" data-a="verDesp" data-id="${d.id}"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}<button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}" style="margin-left:6px">${svg('edit')}</button></div>`};
@@ -907,6 +907,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.f;if(f==='add')A.addTyped();if(f&&A[f]&&f!=='add')A[f]()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=t.value;updSugg()}if(t.dataset.in){S[t.dataset.in]=t.value;paint()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='despCat'){S.despCat=t.value;paint()}if(t.dataset.ch==='despLug'){S.despLug=t.value;paint()}
+  if(t.classList&&t.classList.contains('lug-sel')){const c=t.dataset.c;const r=$('#lugn-'+c);if(t.value==='__nuevo'){r.style.display='flex';$('#lugi-'+c).focus()}else{r.style.display='none';if(c==='v')A.lugarDespGuardar()}}
   if(t.id==='q-reg'){const f=$('#q-precf');if(f)f.style.display=t.checked?'none':''}
   if(t.id==='q-u'){const f=$('#q-packf');if(f){f.style.display=esCuenta(t.value)?'':'none';$('#q-packl').textContent=packLabel(t.value,t.dataset.s1||'unidad')}}
   if(t.id==='n-reg'){['n-p','n-s'].forEach(id=>{const el=$('#'+id);if(el){el.disabled=t.checked;if(t.checked&&id==='n-p')el.value=''}})}
@@ -1162,22 +1163,23 @@ A.despListo=()=>{S.despFlujo=false;S.eanPend=null;closeSheet();if(S.tab!=='despe
 A.despCrear=async d=>{const i=infoArticulo(d.n);if(!S.t.articulos.some(a=>norm(a.nombre)===norm(d.n)))await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});A.despCant({n:cap(d.n)})};
 /* sitios de la despensa */
 const lugares=()=>(S.t.lugares||[]).slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
-function lugarChips(sel,ctx){if(!S.lugaresOk)return `<span class="tiny muted">Para guardar dónde está cada cosa falta un paso en Supabase (actualización 7).</span>`;
-  return `<div class="qchips" id="lug-${ctx}">${lugares().map(l=>`<button class="chip ${l.nombre===sel?'on':''}" data-a="pickLugar" data-c="${ctx}" data-l="${esc(l.nombre)}">${esc(l.emoji||'📍')} ${esc(l.nombre)}</button>`).join('')}<button class="chip" data-a="nuevoLugarIn" data-c="${ctx}" style="border-style:dashed">＋ Nuevo sitio</button></div>
-   <div class="row" id="lugn-${ctx}" style="gap:8px;display:none;margin-top:6px"><input class="inp grow" id="lugi-${ctx}" placeholder="Ej. Armario al lado de la cocina" autocomplete="off"><button class="btn pri sm" data-a="nuevoLugarOk" data-c="${ctx}">Añadir</button></div>`}
-const lugarSel=ctx=>{const b=document.querySelector(`#lug-${ctx} .chip.on[data-l]`);return b?b.dataset.l:''};
-A.pickLugar=(d,b)=>{const on=b.classList.contains('on');document.querySelectorAll(`#lug-${d.c} .chip`).forEach(x=>x.classList.remove('on'));if(!on)b.classList.add('on');if(d.c==='v')A.lugarDespGuardar(d)};
-A.nuevoLugarIn=d=>{const r=$('#lugn-'+d.c);r.style.display='flex';$('#lugi-'+d.c).focus()};
-A.nuevoLugarOk=async d=>{const n=cap($('#lugi-'+d.c).value.trim());if(!n){toast('Escribe el nombre del sitio.');return}
-  if(!lugares().some(l=>norm(l.nombre)===norm(n)))await ins('lugares',{nombre:n,emoji:'📍'});
-  const sel=n;const tmp=document.createElement('div');tmp.innerHTML=lugarChips(sel,d.c);
-  $('#lug-'+d.c).replaceWith(tmp.firstElementChild);$('#lugn-'+d.c).replaceWith(tmp.lastElementChild);toast(`Sitio creado: ${n}`);if(d.c==='v')A.lugarDespGuardar({c:'v',l:n});if(d.c==='m')A.lugares()};
+const LUG_SUG=['Nevera','Congelador','Despensa','Armario de la cocina','Cajón','Frutero'];
+function lugarChips(sel,ctx){if(!S.lugaresOk)return `<span class="tiny muted" style="color:var(--orange)">Para guardar dónde está cada cosa falta un paso en Supabase (actualización 7).</span>`;
+  const ex=lugares().map(l=>l.nombre);const sug=LUG_SUG.filter(x=>!ex.some(e=>norm(e)===norm(x)));
+  return `<select class="inp lug-sel" id="lug-${ctx}" data-c="${ctx}"><option value="">— Sin sitio —</option>${ex.map(n=>`<option ${n===sel?'selected':''}>${esc(n)}</option>`).join('')}
+    ${sug.length?`<optgroup label="Sugerencias">${sug.map(n=>`<option ${n===sel?'selected':''}>${esc(n)}</option>`).join('')}</optgroup>`:''}<option value="__nuevo">＋ Crear un sitio nuevo…</option></select>
+   <div class="row" id="lugn-${ctx}" style="gap:8px;display:none;margin-top:6px"><input class="inp grow" id="lugi-${ctx}" placeholder="Ej. Armario al lado de la ventana" autocomplete="off"><button class="btn pri sm" data-a="nuevoLugarOk" data-c="${ctx}">Crear</button></div>`}
+const lugarSel=ctx=>{const v=($('#lug-'+ctx)||{}).value||'';return v==='__nuevo'?'':v};
+async function asegurarLugar(n){if(n&&S.lugaresOk&&!lugares().some(l=>norm(l.nombre)===norm(n)))await ins('lugares',{nombre:n,emoji:'📍'})}
+A.nuevoLugarOk=async d=>{const n=cap($('#lugi-'+d.c).value.trim());if(!n){toast('Escribe el nombre del sitio.');return}await asegurarLugar(n);
+  const tmp=document.createElement('div');tmp.innerHTML=lugarChips(n,d.c);$('#lug-'+d.c).replaceWith(tmp.querySelector('select'));$('#lugn-'+d.c).replaceWith(tmp.querySelector('.row'));
+  toast(`Sitio creado: ${n}`);if(d.c==='v')A.lugarDespGuardar();if(d.c==='m')A.lugares()};
 A.lugares=()=>sheet(`<h2>Sitios de la despensa</h2><p class="small muted" style="margin:0">Dónde guardáis las cosas. Los ve toda la casa.</p>
   <div class="glass list-plain">${lugares().map(l=>`<div class="opt" style="padding:10px 14px"><span class="grow">${esc(l.emoji||'📍')} ${esc(l.nombre)}<span class="tiny muted" style="display:block">${S.t.despensa.filter(d=>d.lugar===l.nombre).length} productos</span></span><button class="link small" data-a="borrarLugar" data-id="${l.id}" style="color:var(--red)">Quitar</button></div>`).join('')||'<div class="opt muted">Todavía no hay sitios.</div>'}</div>
   ${lugarChips('','m')}<button class="btn gl" data-a="close">Cerrar</button>`);
 A.borrarLugar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro?';return}const l=(S.t.lugares||[]).find(x=>x.id===d.id);if(!l)return;await rem('lugares',l.id);
   for(const x of S.t.despensa.filter(x=>x.lugar===l.nombre))await upd('despensa',x.id,{lugar:''});toast(`Quitado: ${l.nombre}`);A.lugares()};
-A.lugarDespGuardar=async d=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await upd('despensa',x.id,{lugar:l});toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`)};
+A.lugarDespGuardar=async()=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await asegurarLugar(l);await upd('despensa',x.id,{lugar:l});toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`)};
 const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
 A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(['kg','l','g','ml'].includes(info.unidad)||ENV[info.unidad]?info.unidad:'ud');
   const tot=ya.filter(x=>(x.unidad||'ud')===u0).reduce((a,x)=>a+(num(x.cantidad)||0),0);const cad=ya.map(x=>x.caduca).filter(Boolean).sort()[0]||'';
@@ -1210,7 +1212,7 @@ A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[d
 function packLabel(u,s1){const e=u==='ud'?s1:u;return `¿Cuánto trae cada ${e}?`}
 A.qVolver=()=>{if(S.despFlujo)A.addDesp();else closeSheet()};
 A.qCero=async d=>{for(const x of enCasa(d.n))await rem('despensa',x.id);toast(`${d.n}: ya no queda`);A.qVolver()};
-A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const c0=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const c0=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
   const pc=esCuenta(u)?num(($('#q-pc')||{}).value):0,pu=($('#q-pu')||{}).value||'ud';let c=c0,uf=u,packTxt='';
   const packs=lsGet('cc-pack',{});if(pc>0){c=+(c0*pc).toFixed(3);uf=pu;packTxt=` (${fmtQty(c0,u==='ud'?'ud':u)} de ${fmtQty(pc,pu)})`;packs[norm(n)]={env:u,n:pc,u:pu};lsSet('cc-pack',packs)}
   const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
