@@ -202,6 +202,11 @@ img.zoom{cursor:zoom-in}
 .sheet .grab{width:38px;height:5px;border-radius:3px;background:var(--sep);margin:2px auto 4px;flex:none}
 .sheet h2{margin:0;font-size:21px;font-weight:700}
 @keyframes su{from{transform:translateY(40px);opacity:.4}} @keyframes fi{from{opacity:0}}
+.ov.arriba{align-items:flex-start}
+.ov.arriba .sheet{border-radius:0 0 22px 22px;height:var(--vvh,100dvh);max-height:var(--vvh,100dvh);padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;overflow:hidden;animation:sd .22s cubic-bezier(.2,.9,.3,1)}
+.ov.arriba .sheet .grab{display:none}
+.ov.arriba #dlst{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;align-content:start}
+@keyframes sd{from{transform:translateY(-30px);opacity:.4}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.ov,.sheet{animation:none}}
 .fld{display:flex;flex-direction:column;gap:5px}
 .fld label{font-size:13px;font-weight:600;color:var(--muted);padding-left:2px}
@@ -878,6 +883,7 @@ function vActividad(){let last='';const verbo={comprado:'compró',consumido:'gas
   return `<header class="hdr"><button class="back" data-a="subBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Actividad</h1></header>`+(rows||`<div class="glass empty"><div class="e">🕒</div><h3>Sin movimientos</h3><p>Aquí veréis quién compra, gasta o tira cada cosa.</p></div>`)}
 
 /* ============ HOJAS (modales) ============ */
+(function(){const vv=window.visualViewport;const set=()=>document.documentElement.style.setProperty('--vvh',(vv?vv.height:innerHeight)+'px');set();if(vv){vv.addEventListener('resize',set);vv.addEventListener('scroll',()=>{if(document.querySelector('.ov.arriba'))window.scrollTo(0,0)})}addEventListener('resize',set)})();
 function sheet(html){closeSheet();const ov=document.createElement('div');ov.className='ov';ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div>`;
   ov.addEventListener('click',e=>{if(e.target===ov)closeSheet()});document.body.appendChild(ov);document.body.style.overflow='hidden';
   const f=ov.querySelector('[autofocus]');if(f)setTimeout(()=>f.focus(),80);return ov}
@@ -1120,10 +1126,13 @@ function despBuscarHtml(q){const k=norm(q);const bs=borradosSet();let l;
   return `${!k?'<div class="small muted" style="margin:4px 2px">Lo que soléis comprar</div>':''}<div class="glass list-plain">${l.map(fila).join('')||'<div class="opt muted">No hay ningún producto con ese nombre.</div>'}</div>
    ${k&&!exacto?`<button class="btn gl sm" data-a="despCrear" data-n="${esc(cap(q.trim()))}" style="border:1.5px dashed var(--sep)">＋ Crear «${esc(cap(q.trim()))}» como producto nuevo</button>`:''}`}
 A.addDesp=d=>{d=d||{};S.despFlujo=true;const q=d.q||'';
-  const o=sheet(`<h2>Añadir a la despensa</h2><p class="small muted" style="margin:0">Busca el producto y tócalo para poner cuánto tenéis.${d.aviso?`<br><b style="color:var(--ink2)">${esc(d.aviso)}</b>`:''}</p>
-   <div class="row" style="gap:8px"><label class="search grow" style="background:var(--fill)">${svg('search')}<input id="dq" type="search" placeholder="Calabacín, atún, tomate frito…" value="${esc(q)}" autocomplete="off"></label><button class="round" data-a="scan" data-p="despensa" aria-label="Escanear código de barras">${svg('barcode')}</button></div>
-   <div id="dlst" style="display:grid;gap:8px">${despBuscarHtml(q)}</div><button class="btn pri" data-a="despListo">Listo</button>`);
-  o.querySelector('#dq').addEventListener('input',e=>{o.querySelector('#dlst').innerHTML=despBuscarHtml(e.target.value)})};
+  const o=sheet(`<div class="row"><h2 class="grow" style="margin:0">Añadir a la despensa</h2><button class="btn pri sm" data-a="despListo">Listo</button></div>
+   ${d.aviso?`<div class="small"><b style="color:var(--ink2)">${esc(d.aviso)}</b></div>`:''}
+   <div class="row" style="gap:8px"><label class="search grow" style="background:var(--fill)">${svg('search')}<input id="dq" type="search" placeholder="Busca: calabacín, atún, tomate frito…" value="${esc(q)}" autocomplete="off" enterkeyhint="search"></label><button class="round" data-a="scan" data-p="despensa" aria-label="Escanear código de barras">${svg('barcode')}</button></div>
+   <div id="dlst" style="display:grid;gap:8px">${despBuscarHtml(q)}</div>`);
+  o.classList.add('arriba');
+  const inp=o.querySelector('#dq');inp.addEventListener('input',e=>{const l=o.querySelector('#dlst');l.innerHTML=despBuscarHtml(e.target.value);l.scrollTop=0});
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}})};
 A.despListo=()=>{S.despFlujo=false;S.eanPend=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
 A.despCrear=async d=>{const i=infoArticulo(d.n);if(!S.t.articulos.some(a=>norm(a.nombre)===norm(d.n)))await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});A.despCant({n:cap(d.n)})};
 const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
