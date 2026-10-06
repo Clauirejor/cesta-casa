@@ -227,6 +227,9 @@ img.zoom{cursor:zoom-in}
 .opt svg{width:20px;height:20px;color:var(--muted)}
 .sugg{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;max-height:320px;overflow:auto;border-radius:16px;background:var(--glass-strong);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid var(--glass-line);box-shadow:var(--shadow)}
 .sugg .opt{padding:9px 14px;font-size:15.5px}
+.supbar{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:8px 12px;border-radius:12px;border:1px dashed var(--glass-line);background:none;color:var(--ink2);font-size:14px;text-align:left}
+.supbar.on{border:0;background:#34C759;color:#fff;font-weight:600}
+.gcgrid{display:grid;grid-template-columns:1fr 128px;gap:6px;margin-top:6px}.gcgrid>.row{grid-column:1/-1;order:3}.gcgrid select,.gcgrid input{padding:7px 8px;font-size:14px;min-width:0}
 .sugg .opt .e{font-size:22px;width:28px;text-align:center}
 .tline{display:grid;grid-template-columns:24px 1fr 84px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--sep)}
 .tline .inp{min-height:38px;padding:7px 9px;font-size:15px}
@@ -573,11 +576,13 @@ async function tocarArticulo(info,extra){const a=S.t.articulos.find(x=>norm(x.no
 async function addLista(nombre,o){o=o||{};nombre=cap(nombre);if(!nombre)return;
   const info=infoArticulo(nombre);
   const ya=S.t.lista.find(i=>!i.comprado&&norm(i.nombre)===norm(nombre));
+  const cmp=o.comprado?{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()}:{comprado:false};
+  if(ya&&o.comprado){const p={...cmp};if(o.super&&!ya.super)p.super=o.super;if(o.marca&&!ya.marca)p.marca=o.marca;await upd('lista',ya.id,p);return 'carro'}
   if(ya){const p={};if(o.cantidad&&(o.unidad||ya.unidad)===ya.unidad)p.cantidad=+(num(ya.cantidad)+num(o.cantidad)).toFixed(3);
     if(o.receta&&!String(ya.receta||'').includes(o.receta))p.receta=ya.receta?ya.receta+', '+o.receta:o.receta;
     if(Object.keys(p).length)await upd('lista',ya.id,p);return 'sumado'}
   await ins('lista',{nombre:info.nombre&&norm(info.nombre)===norm(nombre)?info.nombre:nombre,emoji:info.emoji||'📦',categoria:info.categoria||'Otros',cantidad:num(o.cantidad)||1,unidad:o.unidad||info.unidad||'ud',
-    receta:o.receta||'',super:o.super||'',marca:o.marca||info.marca||'',precio:0,nota:o.nota||'',por:S.me.id,comprado:false});
+    receta:o.receta||'',super:o.super||'',marca:o.marca||info.marca||'',precio:0,nota:o.nota||'',por:S.me.id,...cmp});
   if(!o.sinTocar)tocarArticulo({...info,nombre});return 'nuevo'}
 
 /* ============ PRECIOS ============ */
@@ -739,7 +744,7 @@ function vCompra(){const pend=S.t.lista.filter(i=>!i.comprado),hechos=S.t.lista.
   const hab=S.t.articulos.filter(a=>!a.oculto).sort((a,b)=>(b.favorito-a.favorito)||(b.veces-a.veces)||String(b.ultima).localeCompare(String(a.ultima))).slice(0,20);
   const inL=n=>S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(n));
   const top=hdr('Lista de la compra',`${S.listMode==='pasillo'?'Agrupada por pasillo':'Agrupada por receta'} · ${pend.length} ${pend.length===1?'producto':'productos'} <span class="${S.rt?'live':'live off'}" style="margin-left:6px">${S.mode==='demo'?'Demo':S.rt?'En tiempo real':'Conectando…'}</span>`,`${pend.length?`<button class="btn gl sm" data-a="editLista" style="min-height:40px">${S.editLista?'Hecho':'Editar'}</button>`:''}<button class="round" data-a="compraMenu" aria-label="Más opciones">${svg('dots')}</button>`);
-  const keep=`<div style="position:relative;z-index:5"><form class="glass search" data-f="add" autocomplete="off">${svg('plus')}<input id="qadd" type="text" placeholder="Añadir: 2 leche, folios, zapatos…" aria-label="Añadir a la lista" enterkeyhint="done" autocomplete="off"><button type="button" class="back" data-a="scan" data-p="lista" aria-label="Escanear código">${svg('barcode')}</button></form><div id="suggbox"></div></div>`;
+  const keep=`<div style="position:relative;z-index:5"><form class="glass search" data-f="add" autocomplete="off">${svg('plus')}<input id="qadd" type="text" placeholder="${enSuper()?'Al carro: escribe o escanea…':'Añadir: 2 leche, folios, zapatos…'}" aria-label="Añadir a la lista" enterkeyhint="done" autocomplete="off"><button type="button" class="back" data-a="scan" data-p="lista" aria-label="Escanear código">${svg('barcode')}</button></form><div id="suggbox"></div>${supbarHtml()}</div>`;
   const habs=hab.length?`<div class="sec">Habituales <button class="link" data-a="habituales">Ver todos</button></div><div class="chips">${hab.map(a=>`<button class="hab ${inL(a.nombre)?'in':''}" data-a="addHab" data-n="${esc(a.nombre)}" aria-label="Añadir ${esc(a.nombre)}"><span class="e">${a.imagen?`<img src="${esc(a.imagen)}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:6px">`:esc(a.emoji)}</span><span class="n">${esc(a.nombre)}</span></button>`).join('')}</div>`:'';
   const seg=`<div class="seg glass" style="padding:3px;border-radius:14px"><button class="${S.listMode==='pasillo'?'on':''}" data-a="listMode" data-k="pasillo">Por pasillo</button><button class="${S.listMode==='receta'?'on':''}" data-a="listMode" data-k="receta">Por receta</button><button class="${S.listMode==='super'?'on':''}" data-a="listMode" data-k="super">Por súper</button></div>`;
   if(!S.t.lista.length)return {top,keep,body:habs+`<div class="glass empty"><div class="e">🛒</div><h3>La lista está vacía</h3><p>Escribe arriba, toca un habitual o genera la lista desde el plan semanal. También caben cosas de casa: folios, cajas, zapatos…</p></div>`};
@@ -977,10 +982,23 @@ function parseAdd(raw){const m=raw.match(/^(\d+(?:[.,]\d+)?)\s*(kg|g|gr|l|ml|ud|
 A.addTyped=async()=>{const raw=S.addQ.trim();if(!raw)return;const p=parseAdd(raw);const sug=sugerencias(p.nombre,1)[0];
   const nombre=sug&&norm(sug.nombre)===norm(p.nombre)?sug.nombre:p.nombre;limpiarAdd();await añadirConAviso(nombre,p.cantidad,p.unidad)};
 A.addSug=async d=>{const p=parseAdd(S.addQ.trim());limpiarAdd();await añadirConAviso(d.n,p.cantidad,p.unidad)};
-A.addHab=async d=>{const ya=S.t.lista.find(i=>!i.comprado&&norm(i.nombre)===norm(d.n));if(ya){toast(`${d.n} ya está en la lista`,`<button class="act" data-a="editItem" data-id="${ya.id}">Cambiar</button>`);return}await añadirConAviso(d.n,1,'')};
+A.addHab=async d=>{const ya=S.t.lista.find(i=>!i.comprado&&norm(i.nombre)===norm(d.n));if(ya&&!enSuper()){toast(`${d.n} ya está en la lista`,`<button class="act" data-a="editItem" data-id="${ya.id}">Cambiar</button>`);return}await añadirConAviso(d.n,1,'')};
 A.addLista1=async d=>{await añadirConAviso(d.n,1,'')};
+const supbarHtml=()=>`<button class="supbar ${enSuper()?'on':''}" data-a="enSuper">${enSuper()?'🛒 Estoy en el súper: lo que añadas o escanees va directo al carro <span class="grow"></span><u>Salir</u>':'🛒 ¿Estás en el súper? Toca aquí y lo que añadas irá directo al carro'}</button>`;
+const enSuper=()=>{const t=lsGet('cc-en-super',0);return !!t&&Date.now()-t<4*3600e3};
+A.enSuper=()=>{const on=!enSuper();lsSet('cc-en-super',on?Date.now():0);const sb=$('.supbar');if(sb)sb.outerHTML=supbarHtml();const q=$('#qadd');if(q)q.placeholder=on?'Al carro: escribe o escanea…':'Añadir: 2 leche, folios, zapatos…';paint();toast(on?'🛒 Modo súper: lo que añadas o escanees va directo al carro':'Modo súper desactivado')};
+const hayLugArt=()=>S.mode!=='supa'||S.t.articulos.some(a=>'lugar' in a);
+function lugarDe(nombre,cat){const n=norm(nombre);
+  const d=S.t.despensa.find(x=>norm(x.nombre)===n&&x.lugar);if(d)return {l:d.lugar};
+  const a=S.t.articulos.find(x=>norm(x.nombre)===n&&x.lugar);if(a)return {l:a.lugar};
+  const m=lsGet('cc-lugar',{})[n];if(m)return {l:m};
+  const c={};S.t.despensa.filter(x=>x.lugar&&cat&&x.categoria===cat).forEach(x=>c[x.lugar]=(c[x.lugar]||0)+1);
+  const best=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return best?{l:best[0],sug:true}:{l:''}}
+async function recordarLugar(nombre,l){if(!l)return;const m=lsGet('cc-lugar',{});m[norm(nombre)]=l;lsSet('cc-lugar',m);
+  const a=S.t.articulos.find(x=>norm(x.nombre)===norm(nombre)&&!borrado(x));if(a&&hayLugArt()&&a.lugar!==l){try{await upd('articulos',a.id,{lugar:l})}catch(e){}}}
 const esNuevo=n=>!S.catalogo.some(c=>norm(c.nombre)===norm(n))&&!S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&!borrado(a))&&!fotoProducto({nombre:n});
-async function añadirConAviso(n,c,u){const nuevo=esNuevo(n);const r=await addLista(n,{cantidad:c,unidad:u});const casa=enCasa(n);
+async function añadirConAviso(n,c,u,ex){const nuevo=esNuevo(n);const carro=enSuper();const r=await addLista(n,{cantidad:c,unidad:u,...(ex||{}),comprado:carro});const casa=enCasa(n);
+  if(carro){toast(`🛒 ${cap(n)} en el carro`,nuevo&&!fotoProducto({nombre:n})?`<button class="act" data-a="fotoArtN" data-n="${esc(cap(n))}">📷 Foto</button>`:'');return}
   const foto=nuevo&&!fotoProducto({nombre:n})?`<button class="act" data-a="fotoArtN" data-n="${esc(cap(n))}">📷 Foto</button>`:'';
   toast(r==='sumado'?`${cap(n)} ya estaba: cantidad sumada`:casa.length?`Apuntado. Ojo: en casa hay ${fmtQty(casa.reduce((a,x)=>a+num(x.cantidad),0),casa[0].unidad)}`:nuevo?`${cap(n)} es nuevo y está en la lista. ¿Le haces una foto?`:`${cap(n)} añadido a la lista`,foto)}
 A.fotoArtN=async d=>{const f=await elegirFoto();if(!f)return;
@@ -1103,23 +1121,23 @@ A.saveArt=async d=>{const v=id=>$('#'+id).value.trim();const a=S.t.articulos.fin
 
 /* --- guardar compra: lista → despensa --- */
 A.guardarCompra=()=>{const h=S.t.lista.filter(i=>i.comprado);
-  sheet(`<h2>Guardar compra</h2><p class="small muted" style="margin:0">Todo lo marcado va a la despensa. <b>Desmarca</b> lo que no vaya a guardarse en casa (una barbacoa, algo para otra casa, algo que se consume ya). La caducidad es opcional.</p>
+  const sitio=i=>{const r=lugarDe(i.nombre,i.categoria);return S.lugaresOk?`<div class="gcgrid">${lugarChips(r.l,'g'+i.id)}<input class="inp" type="date" id="cd-${i.id}" aria-label="Caducidad de ${esc(i.nombre)}"></div>${r.sug?'<span class="tiny muted">📍 sitio sugerido por el tipo de producto</span>':''}`:`<div class="gcgrid"><span></span><input class="inp" type="date" id="cd-${i.id}" aria-label="Caducidad de ${esc(i.nombre)}"></div>`};
+  sheet(`<h2>Guardar compra</h2><p class="small muted" style="margin:0">Todo lo marcado va a la despensa. Elige <b>dónde va</b> cada cosa (se recuerda para la próxima vez) y, si quieres, la caducidad. <b>Desmarca</b> lo que no vaya a guardarse en casa.</p>${S.lugaresOk?'':'<span class="tiny" style="color:var(--orange)">Para elegir el sitio de cada cosa falta un paso en Supabase (actualización 7).</span>'}
   <div class="g2"><div class="fld"><label for="gc-s">Súper</label><select class="inp" id="gc-s">${selOpts(SUP(),h.find(i=>i.super)?.super||'','Varios')}</select></div><div class="fld"><label>&nbsp;</label><span class="small muted" style="padding-top:12px">${h.length} productos</span></div></div>
   <div class="row small" style="gap:12px"><button class="link small" data-a="gcTodos" data-v="1">Marcar todo</button><button class="link small" data-a="gcTodos" data-v="0">Desmarcar todo</button></div>
-  <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:center"><input type="checkbox" class="gc-chk" data-id="${i.id}" checked style="width:24px;height:24px;flex:none" aria-label="${esc(i.nombre)} a la despensa">
-    <span class="grow" style="min-width:0">${esc(i.emoji)} ${esc(i.nombre)}<span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${enCasa(i.nombre).length?' · se suma a lo que hay':''}</span></span>
-    <input class="inp" type="date" id="cd-${i.id}" aria-label="Caducidad de ${esc(i.nombre)}" style="width:150px;flex:none;padding:8px"></div>`).join('')}</div>
+  <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:flex-start"><input type="checkbox" class="gc-chk" data-id="${i.id}" checked style="width:24px;height:24px;flex:none;margin-top:2px" aria-label="${esc(i.nombre)} a la despensa">
+    <div class="grow" style="min-width:0"><span>${esc(i.emoji)} ${esc(i.nombre)}</span><span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${enCasa(i.nombre).length?' · se suma a lo que hay':''}</span>${sitio(i)}</div></div>`).join('')}</div>
   <button class="btn pri" data-a="confirmCompra">Guardar</button><button class="btn gl" data-a="close">Cancelar</button>`)};
 A.gcTodos=d=>{document.querySelectorAll('.gc-chk').forEach(c=>c.checked=d.v==='1')};
 A.confirmCompra=async()=>{const h=S.t.lista.filter(i=>i.comprado);const b=$('[data-a=confirmCompra]');b.disabled=true;b.innerHTML='<span class="spin"></span> Guardando';
   const supG=$('#gc-s').value;const desp=[],precs=[],evs=[];
-  for(const i of h){const sup=i.super||supG||'';const valor=+importe(i).toFixed(2);
-    const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id});
+  for(const i of h){const sup=i.super||supG||'';const valor=+importe(i).toFixed(2);const lgi=S.lugaresOk?lugarSel('g'+i.id):'';
+    const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id,_lug:lgi});
     if(num(i.precio)>0&&sup)precs.push({nombre:i.nombre,super:sup,marca:i.marca||'',precio:num(i.precio),unidad:i.unidad==='kg'||i.unidad==='l'?i.unidad:'ud',fecha:hoy(),por:S.me.id});
     evs.push({tipo:'comprado',nombre:i.nombre,emoji:i.emoji,super:sup,marca:i.marca||'',precio:valor,cantidad:num(i.cantidad)||1,unidad:i.unidad,por:i.comprado_por||S.me.id})}
-  const nuevos=[];for(const x of desp){const u=x.unidad||'ud';const ex=enCasa(x.nombre).find(y=>(y.unidad||'ud')===u||(esCuenta(y.unidad)&&esCuenta(u)));
-    const lug=S.lugaresOk?((ex&&ex.lugar)||lsGet('cc-lugar',{})[norm(x.nombre)]||''):'';
-    if(ex){const p={cantidad:+((num(ex.cantidad)||0)+x.cantidad).toFixed(3),created_at:nowIso()};if(x.caduca)p.caduca=x.caduca;if(x.super)p.super=unirSuper(ex.super,x.super);if(x.precio)p.precio=x.precio;await upd('despensa',ex.id,p)}
+  const nuevos=[];for(const x0 of desp){const {_lug:lug,...x}=x0;const u=x.unidad||'ud';const ex=enCasa(x.nombre).find(y=>(y.unidad||'ud')===u||(esCuenta(y.unidad)&&esCuenta(u)));
+    if(lug){await asegurarLugar(lug);await recordarLugar(x.nombre,lug)}
+    if(ex){const p={cantidad:+((num(ex.cantidad)||0)+x.cantidad).toFixed(3),created_at:nowIso()};if(lug&&lug!==ex.lugar)p.lugar=lug;if(x.caduca)p.caduca=x.caduca;if(x.super)p.super=unirSuper(ex.super,x.super);if(x.precio)p.precio=x.precio;await upd('despensa',ex.id,p)}
     else nuevos.push(lug?{...x,lugar:lug}:x)}
   if(nuevos.length)await ins('despensa',nuevos);if(precs.length)await ins('precios',precs);await ins('eventos',evs);await rem('lista',h.map(i=>i.id));
   closeSheet();toast(`${h.length} guardados${desp.length?` · ${desp.length} en la despensa`:''}`,`<a href="${waLink(evs)}" target="_blank" rel="noopener">WhatsApp</a>`)};
@@ -1225,6 +1243,7 @@ const lugarSel=ctx=>{const v=($('#lug-'+ctx)||{}).value||'';return v==='__nuevo'
 async function asegurarLugar(n){if(n&&S.lugaresOk&&!lugares().some(l=>norm(l.nombre)===norm(n)))await ins('lugares',{nombre:n,emoji:'📍'})}
 A.nuevoLugarOk=async d=>{const n=cap($('#lugi-'+d.c).value.trim());if(!n){toast('Escribe el nombre del sitio.');return}await asegurarLugar(n);
   const tmp=document.createElement('div');tmp.innerHTML=lugarChips(n,d.c);$('#lug-'+d.c).replaceWith(tmp.querySelector('select'));$('#lugn-'+d.c).replaceWith(tmp.querySelector('.row'));
+  if(String(d.c).startsWith('g'))document.querySelectorAll('.lug-sel').forEach(s=>{if(!s.querySelector(`option[value="${CSS.escape(n)}"]`)&&![...s.options].some(o=>o.text===n)){const o=new Option(n,n);s.insertBefore(o,s.options[1])}});
   toast(`Sitio creado: ${n}`);if(d.c==='v')A.lugarDespGuardar();if(d.c==='m')A.lugares()};
 A.lugares=()=>sheet(`<h2>Sitios de la despensa</h2><p class="small muted" style="margin:0">Dónde guardáis las cosas. Los ve toda la casa.</p>
   <div class="glass list-plain">${lugares().map(l=>`<div class="opt" style="padding:10px 14px"><span class="grow">${esc(l.emoji||'📍')} ${esc(l.nombre)}<span class="tiny muted" style="display:block">${S.t.despensa.filter(d=>d.lugar===l.nombre).length} productos</span></span><button class="link small" data-a="borrarLugar" data-id="${l.id}" style="color:var(--red)">Quitar</button></div>`).join('')||'<div class="opt muted">Todavía no hay sitios.</div>'}</div>
@@ -1233,7 +1252,7 @@ A.borrarLugar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent
   for(const x of S.t.despensa.filter(x=>x.lugar===l.nombre))await upd('despensa',x.id,{lugar:''});toast(`Quitado: ${l.nombre}`);A.lugares()};
 A.despSitio=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;S.verDespId=x.id;S.sitioRapido=true;
   sheet(`<div class="row">${thumb(x,'lg')}<div class="grow"><h2>¿Dónde está?</h2><span class="small muted">${esc(x.nombre)}</span></div></div>${lugarChips(x.lugar||'','v')}<span class="tiny muted">Elige un sitio y se guarda solo. Con «＋ Crear un sitio nuevo…» añades otro (armario, cajón…).</span><button class="btn gl" data-a="close">Cerrar</button>`)};
-A.lugarDespGuardar=async()=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await asegurarLugar(l);await upd('despensa',x.id,{lugar:l});toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`);if(S.sitioRapido){S.sitioRapido=false;closeSheet()}};
+A.lugarDespGuardar=async()=>{const x=S.t.despensa.find(y=>y.id===S.verDespId);if(!x)return;const l=lugarSel('v');await asegurarLugar(l);await upd('despensa',x.id,{lugar:l});recordarLugar(x.nombre,l);toast(l?`${x.nombre} → ${l}`:`${x.nombre}: sin sitio`);if(S.sitioRapido){S.sitioRapido=false;closeSheet()}};
 const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
 A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(['kg','l','g','ml'].includes(info.unidad)||ENV[info.unidad]?info.unidad:'ud');
   const tot=ya.filter(x=>(x.unidad||'ud')===u0).reduce((a,x)=>a+(num(x.cantidad)||0),0);const cad=ya.map(x=>x.caduca).filter(Boolean).sort()[0]||'';
@@ -1255,7 +1274,7 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
     <select class="inp" id="q-pu" style="width:auto">${[['lata','latas'],['ud','unidades'],['g','g'],['kg','kg'],['ml','ml'],['l','litros'],['bote','botes'],['bolsa','bolsas'],['paquete','paquetes'],['botella','botellas'],['brick','bricks'],['pieza','piezas']].map(([v,t])=>`<option value="${v}" ${pk&&!ya.length&&pk.u===v?'selected':''}>${t}</option>`).join('')}</select></div>
     <span class="tiny muted">Opcional. Ej.: 1 paquete de 3 latas, o 2 botes de 400 g. Se guarda el total (3 latas, 800 g) y así cuadra con las recetas.</span></div>
    <div class="fld"><label for="q-para">¿Para quién es? (opcional)</label>${paraSel('q-para',pend?'':paraDe(n))}</div>
-   <div class="fld"><label>¿Dónde está? (opcional)</label>${lugarChips(ya.find(x=>x.lugar)?.lugar||lsGet('cc-lugar',{})[norm(n)]||'','q')}</div>
+   <div class="fld"><label>¿Dónde está? (opcional)</label>${lugarChips(lugarDe(n,info.categoria).l,'q')}</div>
    <div class="fld"><label for="q-f">Caducidad (opcional)</label><div class="qchips">${CAD_CHIPS.map(([t,dd])=>`<button class="chip" data-a="qCad" data-d="${dd}">${t}</button>`).join('')}</div><input class="inp" id="q-f" type="date" value="${esc(cad)}" style="margin-top:6px">
     ${lim?`<span class="tiny muted">Si no pones fecha, en la despensa se pondrá en rojo cuando lleve más de ${lim} días.</span>`:''}</div>
    ${ya.length?'':`<label class="row small" style="gap:10px"><input type="checkbox" id="q-reg" style="width:22px;height:22px"> 🎁 Me lo han dado (gratis)</label>`}
@@ -1275,7 +1294,7 @@ A.qGuardar=async d=>{let n=d.n;if(S.nuevoArt){const pn=cap((($('#q-nombre')||{})
     const pend=S.nuevoArt;S.nuevoArt=null;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(n));const ii=infoArticulo(n);
     if(!a){const row={nombre:n,categoria:ii.categoria||'Otros',emoji:ii.emoji||'📦',unidad:ii.unidad||'ud',marca:pend.marca||'',ean:'',imagen:pend.imagen||'',veces:0,ultima:nowIso(),oculto:false,favorito:false};if(pend.descripcion&&hayDescripcion())row.descripcion=pend.descripcion;await ins('articulos',row)}
     else if(borrado(a))await upd('articulos',a.id,{oculto:false,veces:0})}
-  const info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const u=$('#q-u').value||'ud',c0=(num($('#q-c').value)||0)+(esCuenta($('#q-u').value||'ud')?(num(($('#qr-q')||{}).value)||0)/100:0),cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+  const info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug)recordarLugar(n,lug);const u=$('#q-u').value||'ud',c0=(num($('#q-c').value)||0)+(esCuenta($('#q-u').value||'ud')?(num(($('#qr-q')||{}).value)||0)/100:0),cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
   const pc=esCuenta(u)?num(($('#q-pc')||{}).value):0,pu=($('#q-pu')||{}).value||'ud';let c=c0,uf=u,packTxt='';
   const packs=lsGet('cc-pack',{});if(pc>0){c=+(c0*pc).toFixed(3);uf=pu;packTxt=` (${fmtQty(c0,u==='ud'?'ud':u)} de ${fmtQty(pc,pu)})`;packs[norm(n)]={env:u,n:pc,u:pu};lsSet('cc-pack',packs)}
   const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
@@ -1367,7 +1386,7 @@ function despRevisarCard(){if(!S.hogar)return '';const k='cc-desp-rev-'+S.hogar.
    <div class="row" style="gap:8px"><button class="btn pri sm grow" data-a="despRevisar">Sí, ahora</button><button class="btn gl sm" data-a="despLuego">En otro momento</button></div></div>`}
 A.despRevisar=()=>{lsSet('cc-desp-rev-'+S.hogar.id,'hecho');S.tab='despensa';lsSet('cc-tab','despensa');render();window.scrollTo(0,0);A.addDesp()};
 A.despLuego=()=>{lsSet('cc-desp-rev-'+S.hogar.id,'hecho');paint();toast('Cuando quieras, pulsa «Actualizar despensa» en Inicio.')};
-function despForm(x){x=x||{};return `<h2>${x.id?'Editar':'Añadir a la despensa'}</h2>
+function despForm(x){x=x||{};const car=x.deLista&&enSuper();return `<h2>${x.id?'Editar':x.deLista?'Producto escaneado':'Añadir a la despensa'}</h2>${x.deLista?`<p class="small muted" style="margin:0">Producto nuevo: revisa el nombre y pulsa <b>${car?'🛒 Al carro':'A la lista'}</b>. Queda dado de alta para la próxima vez.</p>`:''}
   <div class="row">${imgUrl(x.imagen)?`<span class="th lg"><img src="${esc(imgUrl(x.imagen))}" alt=""></span>`:''}<div class="fld grow"><label for="n-n">Producto</label><input class="inp" id="n-n" list="dl-cat" value="${esc(x.nombre)}" ${x.nombre?'':'autofocus'}></div></div>
   ${x.ean&&!x.id&&!x.conocido?`<div class="small muted" style="margin-top:-4px">Código nuevo${x.offNombre?`: <b style="color:var(--ink2)">${esc(x.offNombre)}</b>`:''}. Si es algo que ya compráis (aunque sea de otra marca o súper), elige o escribe ese artículo y el código se guardará en él.</div>
    <div class="chips" style="margin:0">${[...new Set([x.nombre,...sugerencias((x.offNombre||x.nombre||'').split(' ').slice(0,2).join(' '),5).map(g=>g.nombre),x.offNombre].filter(Boolean))].slice(0,6).map(n=>`<button class="chip ${n===x.nombre?'on':''}" data-a="pickArtEan" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}
@@ -1377,7 +1396,7 @@ function despForm(x){x=x||{};return `<h2>${x.id?'Editar':'Añadir a la despensa'
   <div class="g2"><div class="fld"><label for="n-f">Caduca</label><input class="inp" id="n-f" type="date" value="${esc(x.caduca||'')}"></div><div class="fld"><label for="n-p">Precio (€)</label><input class="inp" id="n-p" type="number" step="0.01" inputmode="decimal" value="${num(x.precio)||''}"></div></div>
   ${x.id?'':`<label class="glass pad row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="n-reg" style="width:22px;height:22px"><span class="grow"><b>🎁 Me lo han dado (gratis)</b><span class="tiny muted" style="display:block">Regalo, de la familia, del huerto… Entra en la despensa con coste 0 € y no cuenta como precio de ningún súper.</span></span></label>`}
   <input type="hidden" id="n-ean" value="${esc(x.ean||'')}"><input type="hidden" id="n-img" value="${esc(x.imagen||'')}">
-  <div class="g2"><button class="btn gl" data-a="nuevoALista">${svg('cart')}A la lista</button><button class="btn pri" data-a="nuevoADesp">A la despensa</button></div>`}
+  ${x.deLista?`<button class="btn pri" data-a="nuevoALista">${svg('cart')}${car?'Al carro':'A la lista'}</button><button class="btn gl" data-a="nuevoADesp">Directo a la despensa</button>`:`<div class="g2"><button class="btn gl" data-a="nuevoALista">${svg('cart')}A la lista</button><button class="btn pri" data-a="nuevoADesp">A la despensa</button></div>`}`}
 A.addDespForm=()=>sheet(despForm());
 A.pickArtEan=(d,b)=>{document.querySelectorAll('[data-a=pickArtEan]').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#n-n').value=d.n};
 async function guardarArticuloDeForm(){const v=id=>($('#'+id)||{}).value?.trim()||'';const nombre=cap(v('n-n'));if(!nombre){toast('Escribe qué producto es.');return null}
@@ -1390,7 +1409,8 @@ async function guardarArticuloDeForm(){const v=id=>($('#'+id)||{}).value?.trim()
 A.nuevoADesp=async()=>{const f=await guardarArticuloDeForm();if(!f)return;
   await ins('despensa',{nombre:f.nombre,emoji:f.info.emoji,categoria:f.info.categoria,cantidad:f.cantidad,unidad:f.unidad,caduca:f.caduca,super:f.super,marca:f.marca,precio:f.precio,por:S.me.id});
   if(f.precio&&f.super)await apuntarPrecio({nombre:f.nombre,super:f.super,marca:f.marca,precio:f.unidad==='ud'?f.precio/f.cantidad:f.precio,unidad:f.unidad});closeSheet();toast(f.regalo?`🎁 ${f.nombre} en la despensa (gratis)`:`${f.nombre} en la despensa`)};
-A.nuevoALista=async()=>{const f=await guardarArticuloDeForm();if(!f)return;await addLista(f.nombre,{cantidad:f.cantidad,unidad:f.unidad,marca:f.marca,super:f.super});closeSheet();toast(`${f.nombre} añadido a la lista`)};
+A.nuevoALista=async()=>{const f=await guardarArticuloDeForm();if(!f)return;const car=enSuper();await addLista(f.nombre,{cantidad:f.cantidad,unidad:f.unidad,marca:f.marca,super:f.super,comprado:car});closeSheet();
+  toast(car?`🛒 ${f.nombre} en el carro`:`${f.nombre} añadido a la lista`,!f.imagen&&!fotoProducto({nombre:f.nombre})?`<button class="act" data-a="fotoArtN" data-n="${esc(f.nombre)}">📷 Foto</button>`:'')};
 
 /* --- escáner de códigos de barras --- */
 /* un artículo puede tener varios códigos: ean = "código|marca|súper,código|marca|súper" */
@@ -1447,6 +1467,7 @@ async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60)
   const a=artPorCodigo(code);
   if(a&&S.scanDest==='despensa'){const e=codigos(a).find(x=>x.c===code)||{};S.despFlujo=true;const pw=await precioWeb(code);S.eanPend={code,marca:e.m||'',super:e.s||'',precioWeb:pw,yaAsociado:true};toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);A.despCant({n:a.nombre});return}
   if(a&&S.scanDest==='precios'){const e=codigos(a).find(x=>x.c===code)||{};closeSheet();S.eanPend=null;S.tab='precios';lsSet('cc-tab','precios');S.precioDet=a.nombre;S.precioSup='';S.precioSeg='precio';render();window.scrollTo(0,0);toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
+  if(a&&S.scanDest==='lista'){const e=codigos(a).find(x=>x.c===code)||{};closeSheet();await añadirConAviso(a.nombre,1,'',{marca:e.m||'',super:e.s||''});return}
   if(a){const e=codigos(a).find(x=>x.c===code)||{};abrirEscaneado({nombre:a.nombre,marca:e.m||a.marca,super:e.s||'',imagen:a.imagen,ean:code,unidad:a.unidad,conocido:true});toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
   if(S.scanDest==='despensa'||S.scanDest==='precios'){const modo=S.scanDest;const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;const pw=await precioWeb(code);
@@ -1456,7 +1477,7 @@ async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60)
   if(p){const nom=cap(p.product_name_es||p.product_name||'');const guess=adivinarArticulo(nom);
     abrirEscaneado({nombre:guess||nom,marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code,offNombre:nom})}
   else{abrirEscaneado({nombre:'',ean:code});toast('No conozco ese código. Escribe el nombre y la próxima vez lo recordaré.')}}
-function abrirEscaneado(x){sheet(despForm({...x,cantidad:1}))}
+function abrirEscaneado(x){sheet(despForm({...x,cantidad:1,deLista:S.scanDest==='lista'}))}
 
 /* --- precios --- */
 A.star=async d=>{const v=S.t.valoraciones.find(x=>norm(x.nombre)===norm(d.n)&&x.super===d.s&&(x.marca||'')===(d.m||''));

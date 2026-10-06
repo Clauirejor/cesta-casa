@@ -130,6 +130,7 @@ create table if not exists public.precios (
 );
 alter table public.articulos add column if not exists descripcion text default '';
 alter table public.articulos add column if not exists para text default '';
+alter table public.articulos add column if not exists lugar text default '';
 alter table public.precios add column if not exists formato text default '';
 alter table public.precios add column if not exists hasta date;
 alter table public.precios add column if not exists antes numeric;
