@@ -775,7 +775,7 @@ function vDespensa(){const q=norm(S.despQ);
   const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);const enL=S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(d.nombre));
     return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${barraHtml(d)}${d.super&&d.super!=='Regalo'?' · '+esc(d.super):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
       ${S.lugaresOk?`<button class="link small" data-a="despSitio" data-id="${d.id}" style="display:block;margin-top:2px;padding:4px 0;${d.lugar?'color:var(--ink2)':''}">📍 ${d.lugar?esc(d.lugar)+' <span class="muted">· cambiar</span>':'Poner sitio'}</button>`:''}
-      <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:17px">${(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})()}</button><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
+      <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Menos ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:${ud?17:15}px">${ud?(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})():esc(fmtQty(d.cantidad,d.unidad))}</button><button data-a="despMas" data-id="${d.id}" aria-label="Más ${esc(d.nombre)}">+</button></span>
       ${enL?`<span class="pill ok mini">${svg('check')} En lista</span>`:`<button class="chip mini" data-a="despALista" data-n="${esc(d.nombre)}" style="color:var(--accent)">${svg('cart')} Lista</button>`}</div></div>
       <button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div>`};
   const row=fila;
@@ -1285,10 +1285,20 @@ A.qeMas=d=>{const i=$('#qe-'+d.c);i.value=(Math.floor(num(i.value))||0)+1};
 A.qeMenos=d=>{const i=$('#qe-'+d.c);i.value=Math.max(0,(Math.floor(num(i.value))||0)-1)};
 A.qrPon=d=>{const i=$('#qr-'+d.c);i.value=d.v;$('#qrt-'+d.c).textContent=+d.v?d.v+'%':(d.c==='q'?'no':'ninguno')};
 A.despQueda=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const [s1,pl]=nombresEnv(x);
+  if(!esCuenta(x.unidad)&&!d.contar){const u=x.unidad;const sumas=u==='kg'||u==='g'?[['+100 g',.1],['+250 g',.25],['+500 g',.5],['+1 kg',1]]:[['+100 ml',.1],['+250 ml',.25],['+500 ml',.5],['+1 l',1]];
+    sheet(`<div class="row">${thumb(x,'lg')}<div class="grow"><h2>¿Cuánto hay?</h2><span class="small muted">${esc(x.nombre)} · ahora: ${esc(cantTxt(x))}</span></div></div>
+     <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="pesoPaso" data-v="-1" aria-label="Menos">−</button><input class="inp" id="pz-c" type="number" step="any" inputmode="decimal" value="${+num(x.cantidad).toFixed(3)}"><button data-a="pesoPaso" data-v="1" aria-label="Más">+</button></div>
+     <select class="inp" id="pz-u" style="width:auto">${(u==='kg'||u==='g'?['kg','g']:['l','ml']).map(v=>`<option ${v===u?'selected':''}>${v}</option>`).join('')}</select></div>
+     <div class="qchips" style="justify-content:center">${sumas.map(([t,v])=>`<button class="chip" data-a="pesoSuma" data-v="${v}">${t}</button>`).join('')}</div>
+     <button class="link small" data-a="despQueda" data-id="${x.id}" data-contar="1" style="align-self:center">Prefiero contarlo por paquetes (con uno empezado)</button>
+     <div class="row"><button class="btn red sm" data-a="gastado" data-id="${x.id}">Se acabó</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="despPesoOk" data-id="${x.id}">Guardar</button></div>`);return}
   sheet(`<div class="row">${thumb(x,'lg')}<div class="grow"><h2>¿Cuánto queda?</h2><span class="small muted">${esc(x.nombre)} · ahora: ${esc(cantTxt(x))}</span></div></div>
-   ${quedaHtml(num(x.cantidad),s1,pl,'v')}
+   ${quedaHtml(esCuenta(x.unidad)?num(x.cantidad):1,esCuenta(x.unidad)?s1:'paquete',esCuenta(x.unidad)?pl:'paquetes','v')}
    <div class="row"><button class="btn red sm" data-a="gastado" data-id="${x.id}">Se acabó</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="despQuedaOk" data-id="${x.id}">Guardar</button></div>`)};
-A.despQuedaOk=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+quedaVal('v').toFixed(2);if(c<=0){await sacar(x,'consumido');return}await upd('despensa',x.id,{cantidad:c});closeSheet();toast(`${x.nombre}: ${cantTxt({...x,cantidad:c})}`)};
+A.pesoPaso=d=>{const i=$('#pz-c'),u=$('#pz-u').value;i.value=Math.max(0,+((num(i.value)||0)+(+d.v)*pasoDe(u)).toFixed(3))};
+A.pesoSuma=d=>{const i=$('#pz-c'),u=$('#pz-u').value;const add=(+d.v)*(u==='g'||u==='ml'?1000:1);i.value=+((num(i.value)||0)+add).toFixed(3)};
+A.despPesoOk=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+num($('#pz-c').value).toFixed(3),u=$('#pz-u').value;if(c<=0){await sacar(x,'consumido');return}await upd('despensa',x.id,{cantidad:c,unidad:u});closeSheet();toast(`${x.nombre}: ${fmtQty(c,u)}`)};
+A.despQuedaOk=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+quedaVal('v').toFixed(2);if(c<=0){await sacar(x,'consumido');return}const p={cantidad:c};if(!esCuenta(x.unidad))p.unidad='paquete';await upd('despensa',x.id,p);closeSheet();toast(`${x.nombre}: ${cantTxt({...x,cantidad:c})}`)};
 /* tipos de producto */
 const catVal=id=>{const v=($('#'+id)||{}).value||'Otros';return v==='__nuevo'?(cap((($('#'+id+'-i')||{}).value||'').trim())||'Otros'):v};
 function catSel(id,val){const l=S.cats.map(c=>c.nombre);if(val&&!l.includes(val))l.push(val);return `<select class="inp cat-sel" id="${id}">${l.map(n=>`<option value="${esc(n)}" ${n===val?'selected':''}>${esc((catMeta(n).emoji||'')+' '+n)}</option>`).join('')}<option value="__nuevo">＋ Crear tipo nuevo…</option></select>
@@ -1323,8 +1333,9 @@ A.tipoBorrar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent=
   if(base){if(fila)await upd('tipos',fila.id,{oculto:true});else await ins('tipos',{nombre:d.n,emoji:base.emoji,orden:base.orden,oculto:true})}else if(fila)await rem('tipos',fila.id);
   await renombrarCategoria(d.n,'Otros');mezclarTipos();toast(`Quitado: ${d.n}`);A.tipos()};
 A.despALista=async d=>{await addLista(d.n,{});toast(`${d.n} apuntado en la lista de la compra`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
-A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
-A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=(num(x.cantidad)||1)-1;if(c<=0)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
+const PASO_PESO={kg:.25,g:250,l:.25,ml:250};const pasoDe=u=>PASO_PESO[u]||1;
+A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:+((num(x.cantidad)||0)+pasoDe(x.unidad)).toFixed(3)})};
+A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+((num(x.cantidad)||1)-pasoDe(x.unidad)).toFixed(3);if(c<=1e-6)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
 function despRevisarCard(){if(!S.hogar)return '';const k='cc-desp-rev-'+S.hogar.id;const v=lsGet(k,'');if(v)return '';
   return `<div class="glass pad" style="display:grid;gap:10px;border:1.5px solid var(--accent)"><b style="font-size:17px">🥫 ¿Quieres actualizar los productos de tu despensa?</b><span class="small muted">Apunta lo que tenéis en casa (latas, botes, verduras…). Así la app no te hará comprar lo que ya tienes y te marcará en rojo lo que está a punto de caducar.</span>
    <div class="row" style="gap:8px"><button class="btn pri sm grow" data-a="despRevisar">Sí, ahora</button><button class="btn gl sm" data-a="despLuego">En otro momento</button></div></div>`}
