@@ -334,6 +334,52 @@
     }
    ],
    "pasos": "1 ración. Primer plato. Espárragos blancos medianos en conserva (1/2 bote, con su líquido), un trocito de pepino pelado, un trocito de cebolla, la miga de una rebanada de pan blanco, 1 cucharada de aceite de oliva, 1/3 de cucharada de vinagre de manzana, 1/3 de cucharadita de sal y una pizca de pimienta blanca.\nAlérgenos: gluten, frutos secos, sulfitos.\n\n1. Pon en el vaso de la batidora o robot de cocina la harina de almendra, los espárragos con todo su líquido, el pepino, la cebolla, la miga de pan, el aceite, el vinagre, la sal y la pimienta blanca.\n2. Tritura 3 minutos a velocidad máxima.\n3. Vierte en un recipiente hermético y déjalo en la nevera al menos 1 hora antes de servir."
+  },
+  {
+   "id": "pollo-mostaza",
+   "nombre": "Pollo a la mostaza",
+   "emoji": "🍗",
+   "minutos": 30,
+   "momento": "comida",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Pechuga de pollo",
+     "cant": 200,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Cebolla",
+     "cant": 62.5,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Vino blanco",
+     "cant": 12.5,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Caldo de pollo",
+     "cant": 25,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Mostaza",
+     "cant": 10,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Maicena",
+     "cant": 2.5,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 7,
+     "unidad": "ml"
+    }
+   ],
+   "pasos": "1 ración. Segundo plato de carne. Aceite de oliva: 1/2 cucharada (más otra para dorar el pollo). Maicena: 1/2 cucharadita.\nAlérgenos: gluten, mostaza, sulfitos.\n\n1. Corta la cebolla en trozos pequeños (o pícala unos segundos en la picadora).\n2. Calienta una olla baja con una cucharada de aceite y sofríe la cebolla unos 10 minutos, con cuidado de que no se pegue.\n3. Añade el vino y deja cocinar unos 5 minutos a fuego medio.\n4. Añade la maicena y el caldo y cocina 10 minutos más a fuego medio.\n5. Mientras tanto, corta la pechuga en dados y dóralos en una sartén con otra cucharada de aceite.\n6. Añade la mostaza a la olla y tritura para obtener la salsa. Incorpora el pollo dorado y, cuando empiece a hervir, retira del fuego y sirve enseguida."
   }
  ]
 }
