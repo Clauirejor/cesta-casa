@@ -1206,6 +1206,7 @@ A.addDesp=d=>{d=d||{};S.despFlujo=true;S.buscaModo=d.modo||'despensa';const q=d.
   const inp=o.querySelector('#dq');inp.addEventListener('input',e=>{const l=o.querySelector('#dlst');const nm=(o.querySelector('#ean-n')||{}).value;l.innerHTML=eanCardHtml()+despBuscarHtml(e.target.value);if(nm&&o.querySelector('#ean-n'))o.querySelector('#ean-n').value=nm;l.scrollTop=0});
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}})};
 A.despListo=()=>{S.despFlujo=false;S.eanPend=null;S.nuevoArt=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
+A.eanNoEs=d=>{const ep=S.eanPend;if(!ep)return;S.nuevoArt={nombre:ep.off||'',imagen:ep.imagen||'',marca:ep.marca||'',descripcion:[ep.marca,ep.cantidad].filter(Boolean).join(' · ')};A.despCant({n:ep.off||''});setTimeout(()=>{const i=$('#q-nombre');if(i){i.focus();i.select()}},120)};
 A.despCrear=d=>{S.nuevoArt={nombre:cap(d.n)};A.despCant({n:cap(d.n)})};
 /* sitios de la despensa */
 const lugares=()=>(S.t.lugares||[]).slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
@@ -1237,7 +1238,9 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
   const pend=S.nuevoArt;const heroPend=pend&&pend.imagen?heroFoto({nombre:n,imagen:pend.imagen}):'';
   sheet(`${heroPend||heroFoto({nombre:n})||heroEan}<div class="row">${heroEan||heroPend?'':thumbSiNo({nombre:n,emoji:info.emoji},'lg')}<div class="grow">${pend?`<label class="small muted" for="q-nombre">Nombre del producto nuevo (revísalo antes de guardar)</label><input class="inp" id="q-nombre" value="${esc(pend.nombre||n)}" autocomplete="off" style="font-size:19px;font-weight:600">`:`<h2>${esc(n)}</h2>`}<span class="small muted">${ya.length?'Ahora tenéis: '+esc(ya.map(cantTxt).join(' + ')):'No hay en la despensa'}</span></div></div>
    <button class="btn gl sm" data-a="fotoArtN" data-n="${esc(n)}">${svg('camera')}${S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&a.imagen)?'Cambiar la foto':'Hacer o subir foto'}</button>
-   ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
+   ${ep&&ep.code&&!pend?`<div class="glass pad" style="display:grid;gap:6px;padding:10px 12px"><span class="small">📷 Código escaneado${ep.off?`: <b>${esc(ep.off)}</b>`:''}${ep.marca?' · '+esc(ep.marca):''}<br>Lo he guardado como <b>${esc(n)}</b>.</span>
+     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn gl sm" data-a="eanNoEs" data-n="${esc(n)}" style="color:var(--red)">✏️ No es esto: cambiar el nombre</button><button class="link small" data-a="addDesp" data-q="${esc((ep.off||'').split(' ')[0])}">Elegir otro que ya tengáis</button></div></div>`:''}
+   ${ep&&ep.code&&pend?`<div class="small muted">📷 Este código se guardará en el producto con el nombre que pongas arriba.</div>`:''}
    <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
     <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?(esCuenta(u0)?partes(tot).e:+tot.toFixed(3)):(esCuenta(u0)||u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
     <select class="inp" id="q-u" style="width:auto" data-s1="${esc(s1)}">${[['ud',pl],...Object.entries(ENV).filter(([k,v])=>v!==pl).map(([k,v])=>[k,v]),['kg','kg'],['g','g'],['l','litros'],['ml','ml']].map(([v,t])=>`<option value="${v}" ${v===(u0b||u0)?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
@@ -1381,9 +1384,10 @@ const codigosTxt=l=>l.map(x=>[x.c,(x.m||'').replace(/[|,]/g,' '),(x.s||'').repla
 const artPorCodigo=code=>S.t.articulos.find(a=>!borrado(a)&&codigos(a).some(x=>x.c===code));
 async function asociarCodigo(art,code,marca,sup){for(const o of S.t.articulos.filter(a=>a.id!==art.id&&codigos(a).some(x=>x.c===code)))await upd('articulos',o.id,{ean:codigosTxt(codigos(o).filter(x=>x.c!==code))});
   const l=codigos(art).filter(x=>x.c!==code);l.push({c:code,m:marca||'',s:sup||''});await upd('articulos',art.id,{ean:codigosTxt(l)})}
+const GENERICAS=new Set(['filete','filetes','pack','lata','latas','bote','salsa','crema','mix','bolsa','tarrina','paquete','caja','barra','barritas','zumo','trozos','rodajas','lonchas','tiras','pechuga','tabla','surtido','bebida','preparado','pure','sopa','caldo','mezcla','hamburguesa','hamburguesas','queso','galletas']);
 const FRESCAS=new Set(['Frutas y verduras','Carnes y pescados']);/* lo que tiene código de barras suele ser envasado */
 function adivinarArticulo(nom){const k=norm(nom);if(!k)return '';const kw=k.split(' ')[0];const bs=borradosSet();let best='',bp=0;
-  const punt=n=>{if(k===n)return 1000;if(k.startsWith(n+' '))return 500+n.length;const nw=n.split(' ')[0];if(nw===kw&&nw.length>=4)return 300+(k.includes(n)?50:0)+n.split(' ').slice(1).filter(w=>w.length>2&&k.includes(w)).length*10;if(k.includes(' '+n+' ')||k.endsWith(' '+n))return 100+n.length;return 0};
+  const punt=n=>{if(k===n)return 1000;if(k.startsWith(n+' '))return 500+n.length;const nw=n.split(' ')[0];if(nw===kw&&nw.length>=4&&!GENERICAS.has(nw))return 300+(k.includes(n)?50:0)+n.split(' ').slice(1).filter(w=>w.length>2&&k.includes(w)).length*10;if(k.includes(' '+n+' ')||k.endsWith(' '+n)){const pre=k.slice(0,(' '+k+' ').indexOf(' '+n+' ')).trim();if(/(^|\s)(en|con|de|al|a|sabor|y)$/.test(pre))return 0;return 100+n.length}return 0};
   for(const a of S.t.articulos.filter(a=>!borrado(a))){const p=punt(norm(a.nombre))+(num(a.veces)>0?5:0)-(FRESCAS.has(a.categoria)?40:0);if(p>bp){bp=p;best=a.nombre}}
   for(const c of S.catalogo){const n=norm(c.nombre);if(bs.has(n))continue;const p=punt(n)-(FRESCAS.has(c.categoria)?40:0);if(p>bp){bp=p;best=c.nombre}}
   return bp>=100?best:''}
