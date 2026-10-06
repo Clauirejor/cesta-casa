@@ -574,6 +574,47 @@
     }
    ],
    "pasos": "1 ración. 2 vasos de lechuga de hoja verde, salmón ahumado, 1 naranja grande, un puñadito de cacahuetes, 1/2 limón, 1 cucharadita de aceite de oliva, una pizca de sal y otra de pimienta negra molida.\nAlérgenos: cacahuetes, frutos secos, pescado.\n\n1. Lava y escurre la lechuga.\n2. Pela la naranja y sepárala en gajos.\n3. En una ensaladera pon la lechuga, los gajos de naranja, los cacahuetes y el salmón ahumado.\n4. Prepara la vinagreta en un cuenco con el zumo del limón, la sal, la pimienta y el aceite, y mézclalo bien.\n5. Aliña la ensalada justo antes de servir."
+  },
+  {
+   "id": "ensalada-aguacate-langostinos",
+   "nombre": "Ensalada templada con aguacate y langostinos",
+   "emoji": "🦐",
+   "minutos": 10,
+   "momento": "cena",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Langostinos cocidos",
+     "cant": 150,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Aguacate",
+     "cant": 0.5,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Tomate",
+     "cant": 1,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Atún en lata",
+     "cant": 1,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 15,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Sal",
+     "cant": 0.2,
+     "unidad": "g"
+    }
+   ],
+   "pasos": "1 ración. Segundo plato. 1/2 aguacate, 1 tomate, langostinos cocidos pelados (o gambas), 1 lata pequeña de atún al natural, 1 cucharada de aceite de oliva y media pizca de sal.\nAlérgenos: crustáceos, pescado, sulfitos.\n\n1. Corta el tomate y el aguacate en daditos.\n2. Pela los langostinos cocidos y córtalos.\n3. Pon todo en un bol junto con el atún escurrido.\n4. Añade el aceite y la sal.\n5. Remueve y sirve."
   }
  ]
 }
