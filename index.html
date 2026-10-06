@@ -905,6 +905,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.f;if(f==='add')A.addTyped();if(f&&A[f]&&f!=='add')A[f]()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=t.value;updSugg()}if(t.dataset.in){S[t.dataset.in]=t.value;paint()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='despCat'){S.despCat=t.value;paint()}
+  if(t.id==='q-reg'){const f=$('#q-precf');if(f)f.style.display=t.checked?'none':''}
   if(t.id==='q-u'){const f=$('#q-packf');if(f){f.style.display=esCuenta(t.value)?'':'none';$('#q-packl').textContent=packLabel(t.value,t.dataset.s1||'unidad')}}
   if(t.id==='n-reg'){['n-p','n-s'].forEach(id=>{const el=$('#'+id);if(el){el.disabled=t.checked;if(t.checked&&id==='n-p')el.value=''}})}
   if(t.classList&&t.classList.contains('ver-pass'))document.querySelectorAll('#lg-p,#lg-p2').forEach(i=>i.type=t.checked?'text':'password');
@@ -1173,7 +1174,11 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
    <div class="fld"><label for="q-f">Caducidad (opcional)</label><div class="qchips">${CAD_CHIPS.map(([t,dd])=>`<button class="chip" data-a="qCad" data-d="${dd}">${t}</button>`).join('')}</div><input class="inp" id="q-f" type="date" value="${esc(cad)}" style="margin-top:6px">
     ${lim?`<span class="tiny muted">Si no pones fecha, en la despensa se pondrá en rojo cuando lleve más de ${lim} días.</span>`:''}</div>
    ${ya.length?'':`<label class="row small" style="gap:10px"><input type="checkbox" id="q-reg" style="width:22px;height:22px"> 🎁 Me lo han dado (gratis)</label>`}
+   <div class="fld" id="q-precf"><label for="q-p">Precio de cada ${esc(s1)} (opcional)</label>
+    <div class="row" style="gap:8px"><input class="inp" id="q-p" type="number" step="0.01" inputmode="decimal" placeholder="€" style="width:110px"><select class="inp grow" id="q-s">${selOpts(SUP(),ep&&ep.precioWeb&&ep.precioWeb.cadena||'','Súper…')}</select></div>
+    ${ep&&ep.precioWeb?`<div class="small" style="margin-top:4px">💡 Otro usuario lo vio a <b>${eur(ep.precioWeb.precio)}</b> en ${esc([ep.precioWeb.tienda,ep.precioWeb.ciudad].filter(Boolean).join(', ')||'una tienda')}${ep.precioWeb.pais&&ep.precioWeb.pais!=='ES'?' ('+esc(ep.precioWeb.pais)+')':''}${ep.precioWeb.fecha?' el '+fmtFecha(ep.precioWeb.fecha):''}. <button class="link small" data-a="qPrecioWeb">Usar este precio</button></div>`:`<span class="tiny muted">Si no lo sabes, déjalo vacío: saldrá en «productos sin precio».</span>`}</div>
    <div class="row">${ya.length?`<button class="btn red sm" data-a="qCero" data-n="${esc(n)}">Ya no queda</button>`:''}<span class="grow"></span><button class="btn gl sm" data-a="qVolver">Volver</button><button class="btn pri sm" data-a="qGuardar" data-n="${esc(n)}">Guardar</button></div>`)};
+A.qPrecioWeb=()=>{const pw=S.eanPend&&S.eanPend.precioWeb;if(!pw)return;$('#q-p').value=pw.precio;if(pw.cadena)$('#q-s').value=pw.cadena};
 const qPaso=()=>({kg:.25,g:100,l:.5,ml:100})[$('#q-u').value]||1;
 A.qMas=()=>{const i=$('#q-c');i.value=+((num(i.value)||0)+qPaso()).toFixed(3)};
 A.qMenos=()=>{const i=$('#q-c');i.value=Math.max(0,+((num(i.value)||0)-qPaso()).toFixed(3))};
@@ -1181,7 +1186,7 @@ A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[d
 function packLabel(u,s1){const e=u==='ud'?s1:u;return `¿Cuánto trae cada ${e}?`}
 A.qVolver=()=>{if(S.despFlujo)A.addDesp();else closeSheet()};
 A.qCero=async d=>{for(const x of enCasa(d.n))await rem('despensa',x.id);toast(`${d.n}: ya no queda`);A.qVolver()};
-A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const c0=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const c0=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
   const pc=esCuenta(u)?num(($('#q-pc')||{}).value):0,pu=($('#q-pu')||{}).value||'ud';let c=c0,uf=u,packTxt='';
   const packs=lsGet('cc-pack',{});if(pc>0){c=+(c0*pc).toFixed(3);uf=pu;packTxt=` (${fmtQty(c0,u==='ud'?'ud':u)} de ${fmtQty(pc,pu)})`;packs[norm(n)]={env:u,n:pc,u:pu};lsSet('cc-pack',packs)}
   const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
@@ -1193,6 +1198,8 @@ A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const c0=num($('#q-c').val
   if(ya.length){const prev=ya.filter(x=>(x.unidad||'ud')===uf).reduce((a,x)=>a+(num(x.cantidad)||0),0);const p={cantidad:c,unidad:uf,caduca:cad};if(c>prev+1e-9)p.created_at=nowIso();
     await upd('despensa',ya[0].id,p);if(ya.length>1)await rem('despensa',ya.slice(1).map(x=>x.id))}
   else await ins('despensa',{nombre:art?art.nombre:cap(n),emoji:info.emoji||'📦',categoria:info.categoria||'Otros',cantidad:c,unidad:uf,caduca:cad,super:reg?'Regalo':'',marca:'',precio:0,por:S.me.id});
+  if(qp>0&&!reg){if(!qs){toast('Elige en qué súper lo compraste para guardar el precio.');}
+    else await apuntarPrecio({nombre:art?art.nombre:cap(n),super:qs,marca:(epf&&epf.marca)||'',precio:qp,unidad:'ud',formato:(epf&&epf.cantidad)||(pc>0?`${pc} ${pu}`:'')})}
   const sinP=!ofertas(n).length;
   toast(`${reg?'🎁 ':''}${n}: ${cantTxt({nombre:n,categoria:info.categoria,cantidad:c,unidad:uf})}${packTxt}${cad?' · caduca '+fmtFecha(cad):''}${sinP&&!reg?' · sin precio':''}`);A.qVolver()};
 A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
@@ -1257,13 +1264,19 @@ A.scan=async d=>{const destino=d.p||'despensa';
   catch(e){const m=$('#scanmsg');if(m)m.textContent='No se pudo abrir la cámara. Da permiso a la cámara o escribe el número del código.'}};
 A.eanManual=()=>{const v=$('#eanin').value.replace(/\D/g,'');if(v.length>=8)onEAN(v);else toast('El código tiene 8 o 13 números.')};
 function loadScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+/* precios que publican otros usuarios en Open Prices (Open Food Facts) */
+const CADENAS=['Mercadona','Lidl','Aldi','Carrefour','Consum','Dia','Alcampo','Eroski','Family Cash','Más y Más','Hipercor','El Corte Inglés','Supercor','Ahorramas','BonÀrea','Masymas'];
+async function precioWeb(code){try{const r=await fetch(`https://prices.openfoodfacts.org/api/v1/prices?product_code=${code}&order_by=-date&size=20`);if(!r.ok)return null;const j=await r.json();
+  const l=(j.items||[]).filter(x=>num(x.price)>0&&(x.currency||'EUR')==='EUR');if(!l.length)return null;const loc=x=>x.location||{};
+  const x=l.find(x=>loc(x).osm_address_country_code==='ES')||l[0];const nom=String(loc(x).osm_name||'');const cad=CADENAS.find(c=>norm(nom).includes(norm(c)))||'';
+  return {precio:+num(x.price).toFixed(2),tienda:nom,cadena:cad,ciudad:loc(x).osm_address_city||'',pais:loc(x).osm_address_country_code||'',fecha:x.date||''}}catch(e){return null}}
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
   const a=artPorCodigo(code);
-  if(a&&S.scanDest==='despensa'){const e=codigos(a).find(x=>x.c===code)||{};S.despFlujo=true;S.eanPend=null;toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);A.despCant({n:a.nombre});return}
+  if(a&&S.scanDest==='despensa'){const e=codigos(a).find(x=>x.c===code)||{};S.despFlujo=true;const pw=await precioWeb(code);S.eanPend=pw?{code,marca:e.m||'',precioWeb:pw,yaAsociado:true}:null;toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);A.despCant({n:a.nombre});return}
   if(a){const e=codigos(a).find(x=>x.c===code)||{};abrirEscaneado({nombre:a.nombre,marca:e.m||a.marca,super:e.s||'',imagen:a.imagen,ean:code,unidad:a.unidad,conocido:true});toast(`Es ${a.nombre}${e.m?' ('+e.m+')':''}`);return}
   let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
-  if(S.scanDest==='despensa'){const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;
-    S.eanPend={code,marca:p?(p.brands||'').split(',')[0].trim():'',imagen:p&&(p.image_front_url||p.image_front_small_url)||'',off:nom,cantidad:p&&p.quantity||'',generico:p&&p.generic_name_es||''};
+  if(S.scanDest==='despensa'){const nom=p?cap(p.product_name_es||p.product_name||''):'';const guess=adivinarArticulo(nom);S.despFlujo=true;const pw=await precioWeb(code);
+    S.eanPend={code,marca:p?(p.brands||'').split(',')[0].trim():'',imagen:p&&(p.image_front_url||p.image_front_small_url)||'',off:nom,cantidad:p&&p.quantity||'',generico:p&&p.generic_name_es||'',precioWeb:pw};
     if(guess){A.despCant({n:guess});return}A.addDesp({q:nom.split(' ')[0]||'',aviso:nom?`Código nuevo. Créalo con los datos escaneados o elige abajo el producto que ya tengáis.`:'No conozco este código. Busca el producto y lo recordaré para la próxima vez.'});return}
   if(p){const nom=cap(p.product_name_es||p.product_name||'');const guess=adivinarArticulo(nom);
     abrirEscaneado({nombre:guess||nom,marca:(p.brands||'').split(',')[0].trim(),imagen:p.image_front_small_url||'',ean:code,offNombre:nom})}
