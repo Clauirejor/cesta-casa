@@ -1,5 +1,5 @@
 {
- "actualizado": "2026-10-05",
+ "actualizado": "2026-10-06",
  "recetas": [
   {
    "id": "gazpacho-manzana-verde",
@@ -100,6 +100,128 @@
     }
    ],
    "pasos": "Queso emmental en trozos (80-100 g; vale también ya rallado), 300-350 g de tomate frito de Mercadona o Aldi, 2 latas de atún, 400 g de agua, 1 cucharadita de orégano seco y un pellizco de sal.\n\n1. Ralla el queso: 5 s, velocidad 10. Sácalo y resérvalo.\n2. Pica la cebolla en cuartos: 5 s, velocidad 5. Baja con la espátula lo que quede en las paredes.\n3. Añade el aceite y sofríe 7 min, 120 °C, velocidad 1.\n4. Añade el tomate frito, el orégano, la sal y el agua. Calienta 5 min, 100 °C, giro a la izquierda, velocidad cuchara.\n5. Añade los macarrones y cuécelos el tiempo que indique el paquete más 1-2 min, 100 °C, giro a la izquierda, velocidad cuchara. Si se quedan secos, añade un poco de agua.\n6. Añade el atún escurrido y mezcla 20 s, giro a la izquierda, velocidad cuchara.\n7. Sirve con el queso por encima (o ponlo en una fuente, cubre con el queso y gratina unos minutos en el horno)."
+  },
+  {
+   "id": "berenjena-rellena-atun",
+   "nombre": "Berenjena rellena de atún, champiñones y queso",
+   "emoji": "🍆",
+   "minutos": 25,
+   "momento": "cena",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Berenjena",
+     "cant": 200,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Atún en lata",
+     "cant": 1,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Champiñones",
+     "cant": 70,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Cebolla",
+     "cant": 20,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Mozzarella",
+     "cant": 30,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Tomate triturado",
+     "cant": 30,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 15,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Sal",
+     "cant": 1,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Orégano",
+     "cant": 1,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimienta",
+     "cant": 0.1,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimentón",
+     "cant": 1,
+     "unidad": "g"
+    }
+   ],
+   "pasos": "1 ración. Atún al natural (1 lata pequeña de 50 g), champiñones blancos laminados (1 vaso), 2 cucharadas de cebolla picada, mozzarella light, 2 cucharadas de tomate en conserva o triturado, 1 cucharada de aceite de oliva, 2 pizcas de sal, 1 cucharadita de orégano seco, 1 pizca de pimienta negra molida y 1/2 cucharadita de pimentón dulce.\nAlérgenos: lácteos, pescado, sulfitos.\n\n1. Abre la berenjena por la mitad a lo largo y métela en el microondas unos 8 minutos.\n2. Mientras, sofríe la cebolla en daditos, añade el champiñón y deja todo unos 5 minutos.\n3. Cuando las berenjenas estén listas y templadas (si siguen duras, unos minutos más de microondas), vacíalas con una cuchara sin romper la piel. Añade su carne al sofrito, da unas vueltas y rectifica de sal. Añade el tomate, el atún y las especias, y mezcla.\n4. Rellena las berenjenas, cúbrelas con el queso y gratina unos minutos hasta que esté dorado. Si quieres, un poco de perejil picado por encima. Sirve enseguida."
+  },
+  {
+   "id": "sepia-salsa-verduras",
+   "nombre": "Sepia en salsa de verduras",
+   "emoji": "🦑",
+   "minutos": 40,
+   "momento": "comida",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Sepia",
+     "cant": 200,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Cebolla",
+     "cant": 75,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimiento verde",
+     "cant": 25,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Zanahoria",
+     "cant": 50,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Tomate",
+     "cant": 12,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Vino blanco",
+     "cant": 15,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Ajo",
+     "cant": 1,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 15,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Sal",
+     "cant": 2,
+     "unidad": "g"
+    }
+   ],
+   "pasos": "1 ración. Segundo plato de pescado. Tomate: un trocito (unos 12 g). Aceite: 1 cucharada y algo. Vino blanco: un chorrito (0,1 copa). Ajo: 1 diente. Sal: 1/3 de cucharadita. La elaboración usa también una pastilla de caldo y pimienta si la tenéis.\nAlérgenos: pescado, moluscos, sulfitos.\n\n1. Pon en la picadora el ajo, la cebolla en cuartos, el pimiento, la zanahoria y el tomate en trozos, y trocea unos segundos a velocidad media.\n2. Sofríe la picada en una olla con el aceite a fuego medio unos 10 minutos, removiendo de vez en cuando.\n3. Tritura el sofrito y añade la sepia troceada, la pastilla de caldo, la pimienta y el vino. Cocina con la olla tapada a fuego medio unos 30 minutos, removiendo de vez en cuando.\n4. Comprueba que la sepia está tierna. Sirve con arroz integral y una ensalada verde."
   }
  ]
 }
