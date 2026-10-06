@@ -296,7 +296,7 @@ const SUPER_COLORS=['#1E8E3E','#0B57D0','#1A4FA3','#14407A','#E8590C','#7A9A2E',
 const MOMENTOS=[['desayuno','Desayuno'],['comida','Comida'],['cena','Cena']];
 const DSEM=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const COLORES=['#3478F6','#FF2D55','#34C759','#FF9500','#AF52DE','#00A39A'];
-const TABLAS=['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','miembros','tiendas','lugares'];
+const TABLAS=['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','miembros','tiendas','lugares','tipos'];
 const SUPER_EMOJI={Mercadillo:'🧺'};
 const IC={
  edit:'<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-4-4L4 16z M14 6l4 4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>',
@@ -400,11 +400,12 @@ const Supa={
     const names=['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','miembros','tiendas'];
     res.slice(0,10).forEach((r,i)=>{if(r.error){if(names[i]==='tiendas'){S.t.tiendas=[];return}throw r.error}S.t[names[i]]=r.data});
     {const r=await q('lugares');S.lugaresOk=!r.error;S.t.lugares=r.error?[]:r.data}
-    if(!res[10].error&&res[10].data.length)S.cats=res[10].data;
+    {const r=await q('tipos');S.tiposOk=!r.error;S.t.tipos=r.error?[]:r.data}
+    if(!res[10].error&&res[10].data.length)S.catsBase=res[10].data;mezclarTipos();
     if(!res[11].error&&res[11].data.length)S.catalogo=res[11].data;
     const mine=S.t.miembros.find(m=>m.user_id===S.user.id);if(mine)S.me=mine;},
   realtime(){if(this.ch)S.sb.removeChannel(this.ch);const h=S.hogar.id;const ch=S.sb.channel('hogar-'+h);
-    for(const t of TABLAS){if(t==='lugares'&&!S.lugaresOk)continue;ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
+    for(const t of TABLAS){if((t==='lugares'&&!S.lugaresOk)||(t==='tipos'&&!S.tiposOk))continue;ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:t},p=>onRemote(t,'DELETE',null,p.old))}
     ch.subscribe(st=>{S.rt=st==='SUBSCRIBED';paint()});this.ch=ch},
   async insert(t,rows){let {error}=await S.sb.from(t).insert(rows);if(error&&t==='precios'&&/formato|hasta|antes/.test(error.message||'')){({error}=await S.sb.from(t).insert(rows.map(({formato,hasta,antes,...r})=>r)))}if(error&&t==='despensa'&&/lugar/.test(error.message||'')){({error}=await S.sb.from(t).insert(rows.map(({lugar,...r})=>r)))}if(error)throw error},
@@ -417,7 +418,7 @@ function getConfig(){const c=lsGet('cc-config',null);if(CONFIG.supabaseUrl&&CONF
 
 /* cambios que llegan de la otra persona */
 const pendNoti=[];let notiT;
-function onRemote(t,type,nw,old){const arr=S.t[t];if(!arr)return;
+function onRemote(t,type,nw,old){const arr=S.t[t];if(!arr)return;if(t==='tipos')setTimeout(()=>{mezclarTipos();paint()},0);
   if(type==='DELETE'){const i=arr.findIndex(x=>x.id===old.id);if(i>=0){arr.splice(i,1);paint()}return}
   if(!nw)return;const i=arr.findIndex(x=>x.id===nw.id);const prev=i>=0?arr[i]:null;if(i>=0)arr[i]=nw;else arr.push(nw);
   if(t==='miembros'&&nw.user_id===S.user?.id)S.me=nw;
@@ -436,16 +437,16 @@ function notify(por,title,body,sys){toastHtml(`${avatar(por)}<div class="grow"><
 function asegurarTiendas(rows){if(!S.t.tiendas)return;const ya=new Set(SUP().map(norm));const nuevas=[];
   rows.forEach(r=>{const n=String(r&&r.super||'').trim();if(n&&n!=='Otro'&&n!=='Regalo'&&!ya.has(norm(n))){ya.add(norm(n));nuevas.push({nombre:n,emoji:'🏪'})}});
   if(nuevas.length)ins('tiendas',nuevas)}
-async function ins(t,rows){rows=[].concat(rows).map(r=>({id:uuid(),hogar_id:S.hogar.id,created_at:nowIso(),...r}));if(t!=='tiendas'&&rows.some(r=>r.super))asegurarTiendas(rows);S.t[t].push(...rows);paint();
+async function ins(t,rows){if(t==='tipos')setTimeout(mezclarTipos,0);rows=[].concat(rows).map(r=>({id:uuid(),hogar_id:S.hogar.id,created_at:nowIso(),...r}));if(t!=='tiendas'&&rows.some(r=>r.super))asegurarTiendas(rows);S.t[t].push(...rows);paint();
   try{await B.insert(t,rows)}catch(e){fallo(e,t)}return rows}
-async function upd(t,id,p){if(t!=='tiendas'&&p&&p.super)asegurarTiendas([p]);const r=S.t[t].find(x=>x.id===id);if(r)Object.assign(r,p);paint();try{await B.update(t,id,p)}catch(e){fallo(e,t)}}
-async function rem(t,ids){ids=[].concat(ids);S.t[t]=S.t[t].filter(x=>!ids.includes(x.id));paint();try{for(const id of ids)await B.remove(t,id)}catch(e){fallo(e,t)}}
+async function upd(t,id,p){if(t==='tipos')setTimeout(()=>{mezclarTipos();paint()},0);if(t!=='tiendas'&&p&&p.super)asegurarTiendas([p]);const r=S.t[t].find(x=>x.id===id);if(r)Object.assign(r,p);paint();try{await B.update(t,id,p)}catch(e){fallo(e,t)}}
+async function rem(t,ids){if(t==='tipos')setTimeout(()=>{mezclarTipos();paint()},0);ids=[].concat(ids);S.t[t]=S.t[t].filter(x=>!ids.includes(x.id));paint();try{for(const id of ids)await B.remove(t,id)}catch(e){fallo(e,t)}}
 async function fallo(e,t){console.error(t,e);toast('No se pudo guardar: '+(e.message||'revisa la conexión'));try{await B.reload();paint()}catch(_){}}
 
 /* ============ DATOS DE DEMOSTRACIÓN ============ */
 function demoSeed(){const h={id:'demo',nombre:'Casa (demo)',codigo:'DEMO42'};
   const J={id:uuid(),hogar_id:'demo',nombre:'Jorge',color:'#3478F6'},I={id:uuid(),hogar_id:'demo',nombre:'Irene',color:'#FF2D55'};
-  const t=Object.fromEntries(TABLAS.map(x=>[x,[]]));t.miembros=[J,I];S.lugaresOk=true;
+  const t=Object.fromEntries(TABLAS.map(x=>[x,[]]));t.miembros=[J,I];S.lugaresOk=true;S.tiposOk=true;
   const base=r=>({id:uuid(),hogar_id:'demo',created_at:nowIso(),...r});
   t.recetas=RECETAS_BASE.map(r=>base({...r,pasos:''}));
   const rid=n=>(t.recetas.find(r=>r.nombre===n)||{}).id;const L=lunes(hoy());
@@ -468,6 +469,10 @@ function demoSeed(){const h={id:'demo',nombre:'Casa (demo)',codigo:'DEMO42'};
   return {hogar:h,t}}
 
 /* ============ CATÁLOGO ============ */
+function mezclarTipos(){const base=S.catsBase||S.cats||[];if(!S.catsBase)S.catsBase=base;const tt=S.t&&S.t.tipos||[];const by=Object.fromEntries(tt.map(t=>[t.nombre,t]));
+  const out=base.filter(c=>!(by[c.nombre]&&by[c.nombre].oculto)).map(c=>by[c.nombre]?{...c,emoji:by[c.nombre].emoji||c.emoji}:c);
+  tt.filter(t=>!t.oculto&&!base.some(c=>c.nombre===t.nombre)).forEach(t=>out.push({nombre:t.nombre,emoji:t.emoji||'📦',color:'#8E8E93',va_a_despensa:true,orden:t.orden??50}));
+  out.sort((a,b)=>(a.nombre==='Otros')-(b.nombre==='Otros')||(a.orden??50)-(b.orden??50));S.cats=out}
 const catMeta=n=>S.cats.find(c=>c.nombre===n)||S.cats.find(c=>c.nombre==='Otros')||{nombre:'Otros',emoji:'📦',color:'#8E8E93',va_a_despensa:false,orden:99};
 const catOrden=n=>{const c=S.cats.find(x=>x.nombre===n);return c?c.orden:999};
 function infoArticulo(nombre){const k=norm(nombre);
@@ -891,7 +896,7 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')re
     <div class="small muted" style="margin-top:8px">Eres <b style="color:var(--ink)">${esc(S.me.nombre)}</b>. ${S.mode==='demo'?'Modo demo: los datos están solo en este dispositivo.':'Todo lo que apunta uno lo ve el otro al momento.'}</div></section>
    <div class="g3"><div class="glass stat"><span class="tiny">Gastado</span><b>${eur(gast)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">este mes</span></div><div class="glass stat"><span class="tiny">Tirado</span><b style="color:var(--red)">${eur(tirE)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">${tir.length} ${tir.length===1?'producto':'productos'}</span></div><div class="glass stat"><span class="tiny">Despensa</span><b>${S.t.despensa.length}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">productos</span></div></div>
    ${Object.keys(ps).length?`<section class="glass pad" style="display:grid;gap:10px"><b>Este mes por súper</b>${Object.entries(ps).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div><div class="row small"><span class="grow">${esc(s)}</span><span class="pr">${eur(v)}</span></div><div class="bar"><i style="width:${v/mx*100}%;background:${superColor(s)}"></i></div></div>`).join('')}</section>`:''}
-   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando la otra persona compra algo')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
+   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando la otra persona compra algo')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
 function vRecetas(){const r=[...S.t.recetas].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
@@ -920,6 +925,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b
 document.addEventListener('submit',e=>{e.preventDefault();const f=e.target.dataset.f;if(f==='add')A.addTyped();if(f&&A[f]&&f!=='add')A[f]()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=t.value;updSugg()}if(t.dataset.in){S[t.dataset.in]=t.value;paint()}});
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='despCat'){S.despCat=t.value;paint()}if(t.dataset.ch==='despLug'){S.despLug=t.value;paint()}if(t.dataset.ch==='despOrden'){S.despOrden=t.value;lsSet('cc-desp-orden',t.value);paint()}
+  if(t.classList&&t.classList.contains('cat-sel')){const r=$('#'+t.id+'-n');if(r){if(t.value==='__nuevo'){if(!S.tiposOk){toast('Para crear tipos falta la actualización 8 en Supabase.');t.selectedIndex=0;return}r.style.display='flex';$('#'+t.id+'-i').focus()}else r.style.display='none'}}
   if(t.classList&&t.classList.contains('lug-sel')){const c=t.dataset.c;const r=$('#lugn-'+c);if(t.value==='__nuevo'){r.style.display='flex';$('#lugi-'+c).focus()}else{r.style.display='none';if(c==='v')A.lugarDespGuardar()}}
   if(t.id==='q-reg'){const f=$('#q-precf');if(f)f.style.display=t.checked?'none':''}
   if(t.id==='q-u'){const fe=$('#q-empf');if(fe)fe.style.display=esCuenta(t.value)?'':'none';const f=$('#q-packf');if(f){f.style.display=esCuenta(t.value)?'':'none';$('#q-packl').textContent=packLabel(t.value,t.dataset.s1||'unidad')}}
@@ -980,11 +986,11 @@ A.editItem=d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;const o=ofert
   ${o.length?`<div class="glass list-plain">${[...o].sort((a,b)=>b.valor-a.valor).map(x=>`<button class="opt" data-a="pickOffer" data-s="${esc(x.super)}" data-m="${esc(x.marca)}" data-p="${x.precio}">${logo(x.super)}<span class="grow">${esc(x.super)}${x.marca?' · '+esc(x.marca):''}<span class="tiny muted" style="display:block">${'★'.repeat(x.calidad)}${x.compensa?' · compensa':''}${x.barato?' · más barato':''}</span></span><span class="pr">${eur(x.precio)}</span></button>`).join('')}</div>`:''}
   <div class="g2"><div class="fld"><label for="e-c">Cantidad</label><input class="inp" id="e-c" type="number" inputmode="decimal" step="any" value="${esc(i.cantidad)}"></div><div class="fld"><label for="e-u">Unidad</label><select class="inp" id="e-u">${selOpts(UNIDADES,i.unidad)}</select></div></div>
   <div class="g2"><div class="fld"><label for="e-s">Súper</label><select class="inp" id="e-s">${selOpts(SUP(),i.super,'Cualquiera')}</select></div><div class="fld"><label for="e-m">Marca</label><input class="inp" id="e-m" value="${esc(i.marca)}" placeholder="Hacendado…"></div></div>
-  <div class="g2"><div class="fld"><label for="e-p">Precio (€)</label><input class="inp" id="e-p" type="number" inputmode="decimal" step="0.01" value="${num(i.precio)||''}" placeholder="${precioDe(i)?String(precioDe(i)).replace('.',','):'0,00'}"></div><div class="fld"><label for="e-cat">Pasillo</label><select class="inp" id="e-cat">${selOpts(S.cats.map(c=>c.nombre),i.categoria)}</select></div></div>
+  <div class="g2"><div class="fld"><label for="e-p">Precio (€)</label><input class="inp" id="e-p" type="number" inputmode="decimal" step="0.01" value="${num(i.precio)||''}" placeholder="${precioDe(i)?String(precioDe(i)).replace('.',','):'0,00'}"></div><div class="fld"><label for="e-cat">Pasillo</label>${catSel('e-cat',i.categoria)}</div></div>
   <div class="fld"><label for="e-n">Nota</label><input class="inp" id="e-n" value="${esc(i.nota)}" placeholder="Talla, tamaño, para quién…"></div>
   <div class="row"><button class="btn red sm" data-a="delItem" data-id="${i.id}">Quitar</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="saveItem" data-id="${i.id}">Guardar</button></div>`)};
 A.pickOffer=d=>{$('#e-s').value=d.s;$('#e-m').value=d.m;$('#e-p').value=d.p};
-A.saveItem=async d=>{const v=id=>$('#'+id).value;const cat=v('e-cat');const i=S.t.lista.find(x=>x.id===d.id);
+A.saveItem=async d=>{const v=id=>$('#'+id).value;const cat=catVal('e-cat');const i=S.t.lista.find(x=>x.id===d.id);
   await upd('lista',d.id,{cantidad:num(v('e-c'))||1,unidad:v('e-u'),super:v('e-s'),marca:v('e-m').trim(),precio:num(v('e-p')),categoria:cat,nota:v('e-n').trim()});
   const a=i&&S.t.articulos.find(x=>norm(x.nombre)===norm(i.nombre));if(a&&a.categoria!==cat)upd('articulos',a.id,{categoria:cat});closeSheet()};
 A.delItem=async d=>{closeSheet();await quitarDeLista([d.id])};
@@ -1043,7 +1049,7 @@ function preciosArtHtml(n){const o=ofertas(n);return `<div class="fld"><label>Pr
   <button class="btn gl sm" data-a="celdaNueva" data-n="${esc(n)}" data-back="art" style="margin-top:8px">${svg('plus')}Precio en otro súper o tienda</button></div>`}
 A.editArt=d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;S.editArtId=a.id;
   sheet(`${heroFoto(a)}<div class="row">${thumbSiNo(a,'lg')}<h2 class="grow">Editar artículo</h2><button class="btn gl sm" data-a="fotoArt" data-id="${a.id}">${svg('camera')}Foto</button></div><div class="g2"><div class="fld"><label for="a-n">Nombre</label><input class="inp" id="a-n" value="${esc(a.nombre)}"></div><div class="fld"><label for="a-e">Emoji</label><input class="inp" id="a-e" value="${esc(a.emoji)}" maxlength="4"></div></div>
-  <div class="fld"><label for="a-c">Pasillo o tipo</label><select class="inp" id="a-c">${selOpts(S.cats.map(c=>c.nombre),a.categoria)}</select></div>
+  <div class="fld"><label for="a-c">Pasillo o tipo</label>${catSel('a-c',a.categoria)}</div>
   <div class="g2"><div class="fld"><label for="a-m">Marca preferida</label><input class="inp" id="a-m" value="${esc(a.marca)}"></div><div class="fld"><label for="a-u">Unidad</label><select class="inp" id="a-u">${selOpts(UNIDADES,a.unidad)}</select></div></div>
   <div class="fld"><label for="a-d">Descripción</label><textarea class="inp" id="a-d" rows="3" placeholder="Ej. El de tapón azul, sin lactosa…">${esc(a.descripcion||'')}</textarea></div>
   ${preciosArtHtml(a.nombre)}
@@ -1056,25 +1062,26 @@ let NA_FOTO='';
 function fotoPrev(v){return v?`<img src="${esc(v)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:'<span style="width:64px;height:64px;border-radius:14px;background:var(--fill);display:grid;place-items:center;font-size:26px">📷</span>'}
 A.nuevoArt=()=>{NA_FOTO='';sheet(`<h2>Nuevo artículo</h2>
   <div class="row"><span id="na-fp">${fotoPrev('')}</span><button class="btn gl sm grow" data-a="naFoto">${svg('camera')}Hacer o subir foto</button></div><div class="g2"><div class="fld"><label for="na-n">Nombre</label><input class="inp" id="na-n" autofocus placeholder="Ej. Cápsulas de lavadora"></div><div class="fld"><label for="na-e">Emoji</label><input class="inp" id="na-e" value="📦" maxlength="4"></div></div>
-  <div class="fld"><label for="na-c">Pasillo o tipo</label><select class="inp" id="na-c">${selOpts(S.cats.map(c=>c.nombre),'Otros')}</select></div>
+  <div class="fld"><label for="na-c">Pasillo o tipo</label>${catSel('na-c','Otros')}</div>
   <div class="g2"><div class="fld"><label for="na-m">Marca preferida</label><input class="inp" id="na-m"></div><div class="fld"><label for="na-u">Unidad</label><select class="inp" id="na-u">${selOpts(UNIDADES,'ud')}</select></div></div>
   <div class="fld"><label for="na-d">Descripción</label><textarea class="inp" id="na-d" rows="3" placeholder="Ej. El de tapón azul, sin lactosa, talla 42, el que le gusta a Irene…"></textarea></div>
   <label class="row small"><input type="checkbox" id="na-l" checked> Añadirlo también a la lista</label>
   <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="habituales">Cancelar</button><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>`)};
 A.naFoto=async()=>{const f=await elegirFoto();if(!f)return;toast('Subiendo foto…');try{const e=$('#na-fp');if(e)e.innerHTML=fotoPrev(URL.createObjectURL(f));NA_FOTO=await subirFoto(f);toast('Foto lista')}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
 A.saveNuevoArt=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('na-n'));if(!n){toast('Escribe el nombre.');return}
-  const ex=S.t.articulos.find(a=>norm(a.nombre)===norm(n));const data={nombre:n,emoji:v('na-e')||'📦',categoria:v('na-c'),marca:v('na-m'),unidad:v('na-u'),oculto:false};
+  const ex=S.t.articulos.find(a=>norm(a.nombre)===norm(n));const data={nombre:n,emoji:v('na-e')||'📦',categoria:catVal('na-c'),marca:v('na-m'),unidad:v('na-u'),oculto:false};
   const desc=v('na-d');if(desc)data.descripcion=desc;if(NA_FOTO){data.imagen=NA_FOTO;if(ex&&ex.imagen)borrarFoto(ex.imagen)}
   if(ex)await upd('articulos',ex.id,{...data,veces:Math.max(0,num(ex.veces))});else await ins('articulos',{ean:'',imagen:'',...data,veces:0,ultima:nowIso(),favorito:false});NA_FOTO='';
   if($('#na-l').checked)await addLista(n,{cantidad:1,unidad:data.unidad,marca:data.marca});toast(`«${n}» guardado${$('#na-l').checked?' y añadido a la lista':''}`);habSheet('')};
 A.quitarEan=async d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;await upd('articulos',a.id,{ean:codigosTxt(codigos(a).filter(x=>x.c!==d.c))});toast('Código quitado');A.editArt({id:a.id})};
 A.fotoArt=async d=>{if(await cambiarFoto('articulos',d.id,'imagen'))A.editArt(d)};
-A.saveArt=async d=>{const v=id=>$('#'+id).value.trim();const a=S.t.articulos.find(x=>x.id===d.id)||{};const p={nombre:cap(v('a-n')),emoji:v('a-e')||'📦',categoria:v('a-c'),marca:v('a-m'),unidad:v('a-u'),oculto:$('#a-o').checked};
+A.saveArt=async d=>{const v=id=>$('#'+id).value.trim();const a=S.t.articulos.find(x=>x.id===d.id)||{};const p={nombre:cap(v('a-n')),emoji:v('a-e')||'📦',categoria:catVal('a-c'),marca:v('a-m'),unidad:v('a-u'),oculto:$('#a-o').checked};
   if(v('a-d')!==(a.descripcion||''))p.descripcion=v('a-d');if(!p.nombre){toast('Escribe el nombre.');return}
-  const viejo=a.nombre,cambia=norm(viejo)!==norm(p.nombre);
+  const catVieja=a.categoria;const viejo=a.nombre,cambia=norm(viejo)!==norm(p.nombre);
   if(cambia&&S.t.articulos.some(x=>x.id!==d.id&&norm(x.nombre)===norm(p.nombre)&&!borrado(x))){toast('Ya hay otro artículo con ese nombre.');return}
   if(cambia){const otro=S.t.articulos.find(x=>x.id!==d.id&&norm(x.nombre)===norm(p.nombre));if(otro)await rem('articulos',otro.id)}
   await upd('articulos',d.id,p);
+  if(p.categoria&&p.categoria!==catVieja)for(const t of ['lista','despensa'])for(const r of (S.t[t]||[]).filter(r=>norm(r.nombre)===norm(viejo)))await upd(t,r.id,{categoria:p.categoria,emoji:p.emoji||r.emoji});
   if(cambia){for(const t of ['precios','lista','despensa','valoraciones'])for(const r of (S.t[t]||[]).filter(r=>norm(r.nombre)===norm(viejo)))await upd(t,r.id,{nombre:p.nombre});
     const refs=REF.get(norm(viejo))||[];const ya=new Set(S.t.precios.filter(r=>norm(r.nombre)===norm(p.nombre)).map(r=>r.super));
     const copia=refs.filter(r=>!ya.has(r.super)).map(r=>({nombre:p.nombre,super:r.super,marca:'',precio:r.precio,unidad:r.unidad||'ud',fecha:r.fecha||hoy(),por:S.me.id,...(r.formato?{formato:r.formato}:{})}));
@@ -1280,6 +1287,39 @@ A.despQueda=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const [s1
    ${quedaHtml(num(x.cantidad),s1,pl,'v')}
    <div class="row"><button class="btn red sm" data-a="gastado" data-id="${x.id}">Se acabó</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="despQuedaOk" data-id="${x.id}">Guardar</button></div>`)};
 A.despQuedaOk=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+quedaVal('v').toFixed(2);if(c<=0){await sacar(x,'consumido');return}await upd('despensa',x.id,{cantidad:c});closeSheet();toast(`${x.nombre}: ${cantTxt({...x,cantidad:c})}`)};
+/* tipos de producto */
+const catVal=id=>{const v=($('#'+id)||{}).value||'Otros';return v==='__nuevo'?(cap((($('#'+id+'-i')||{}).value||'').trim())||'Otros'):v};
+function catSel(id,val){const l=S.cats.map(c=>c.nombre);if(val&&!l.includes(val))l.push(val);return `<select class="inp cat-sel" id="${id}">${l.map(n=>`<option value="${esc(n)}" ${n===val?'selected':''}>${esc((catMeta(n).emoji||'')+' '+n)}</option>`).join('')}<option value="__nuevo">＋ Crear tipo nuevo…</option></select>
+  <div class="row" id="${id}-n" style="gap:8px;display:none;margin-top:6px"><input class="inp" id="${id}-e" value="📦" maxlength="4" style="width:56px;text-align:center" aria-label="Icono"><input class="inp grow" id="${id}-i" placeholder="Ej. Snacks, Aperitivos…" autocomplete="off"><button class="btn pri sm" data-a="tipoCrear" data-id="${id}">Crear</button></div>`}
+const tiposAviso=()=>`<div class="small" style="color:var(--orange)">Para crear o cambiar tipos falta un paso en Supabase (actualización 8).</div>`;
+async function crearTipo(n,e){n=cap(n.trim());if(!n)return '';if(S.cats.some(c=>norm(c.nombre)===norm(n)))return S.cats.find(c=>norm(c.nombre)===norm(n)).nombre;
+  const ex=(S.t.tipos||[]).find(t=>norm(t.nombre)===norm(n));if(ex)await upd('tipos',ex.id,{oculto:false,emoji:e||ex.emoji});else await ins('tipos',{nombre:n,emoji:e||'📦',orden:50,oculto:false});mezclarTipos();return n}
+A.tipoCrear=async d=>{if(!S.tiposOk){toast('Falta la actualización 8 en Supabase.');return}const n=await crearTipo($('#'+d.id+'-i').value,$('#'+d.id+'-e').value.trim());if(!n){toast('Escribe el nombre del tipo.');return}
+  const sel=$('#'+d.id);const o=document.createElement('option');o.value=n;o.textContent=(catMeta(n).emoji||'')+' '+n;sel.insertBefore(o,sel.querySelector('option[value="__nuevo"]'));sel.value=n;$('#'+d.id+'-n').style.display='none';toast(`Tipo creado: ${n}`)};
+async function renombrarCategoria(viejo,nuevo){for(const t of ['articulos','lista','despensa'])for(const r of (S.t[t]||[]).filter(r=>r.categoria===viejo))await upd(t,r.id,{categoria:nuevo})}
+A.tipos=()=>{const cuenta=n=>S.t.articulos.filter(a=>a.categoria===n&&!borrado(a)).length+S.t.despensa.filter(d=>d.categoria===n).length;
+  sheet(`<h2>Tipos de producto</h2><p class="small muted" style="margin:0">Los tipos ordenan la lista de la compra y la despensa. Puedes crear los tuyos y cambiar el nombre o el icono de cualquiera. Solo afecta a vuestra casa.</p>
+   ${S.tiposOk?'':tiposAviso()}
+   <div class="glass list-plain">${S.cats.map(c=>`<div class="opt" style="padding:8px 12px"><span style="font-size:22px;width:30px;text-align:center">${esc(c.emoji||'📦')}</span><span class="grow">${esc(c.nombre)}<span class="tiny muted" style="display:block">${cuenta(c.nombre)} productos</span></span>${S.tiposOk&&c.nombre!=='Otros'?`<button class="dots3" data-a="tipoEditar" data-n="${esc(c.nombre)}" aria-label="Editar ${esc(c.nombre)}">${svg('edit')}</button>`:''}</div>`).join('')}</div>
+   ${S.tiposOk?`<div class="row" style="gap:8px"><input class="inp" id="tn-e" value="📦" maxlength="4" style="width:56px;text-align:center" aria-label="Icono"><input class="inp grow" id="tn-i" placeholder="Nuevo tipo: Snacks, Aperitivos…"><button class="btn pri sm" data-a="tipoNuevoOk">Crear</button></div>`:''}
+   <button class="btn gl" data-a="close">Cerrar</button>`)};
+A.tipoNuevoOk=async()=>{const n=await crearTipo($('#tn-i').value,$('#tn-e').value.trim());if(!n){toast('Escribe el nombre del tipo.');return}toast(`Tipo creado: ${n}`);A.tipos()};
+A.tipoEditar=d=>{const c=catMeta(d.n);const base=(S.catsBase||[]).some(b=>b.nombre===d.n);
+  sheet(`<h2>Editar tipo</h2><div class="row" style="gap:8px"><div class="fld" style="width:70px"><label for="te-e">Icono</label><input class="inp" id="te-e" value="${esc(c.emoji||'📦')}" maxlength="4" style="text-align:center"></div><div class="fld grow"><label for="te-n">Nombre</label><input class="inp" id="te-n" value="${esc(d.n)}"></div></div>
+   <p class="tiny muted" style="margin:0">Si cambias el nombre, todos los productos de este tipo pasan al nombre nuevo.</p>
+   <div class="row"><button class="btn red sm" data-a="tipoBorrar" data-n="${esc(d.n)}">${base?'Quitar':'Borrar'}</button><span class="grow"></span><button class="btn gl sm" data-a="tipos">Cancelar</button><button class="btn pri sm" data-a="tipoGuardar" data-n="${esc(d.n)}">Guardar</button></div>`)};
+A.tipoGuardar=async d=>{const viejo=d.n,nuevo=cap($('#te-n').value.trim()),e=$('#te-e').value.trim()||'📦';if(!nuevo){toast('Escribe el nombre.');return}
+  const base=(S.catsBase||[]).find(b=>b.nombre===viejo);const tt=S.t.tipos||[];const fila=tt.find(t=>t.nombre===viejo);
+  if(norm(nuevo)===norm(viejo)){if(fila)await upd('tipos',fila.id,{emoji:e});else await ins('tipos',{nombre:viejo,emoji:e,orden:base?base.orden:50,oculto:false})}
+  else{if(S.cats.some(c=>norm(c.nombre)===norm(nuevo))){toast('Ya existe un tipo con ese nombre.');return}
+    if(base){if(fila)await upd('tipos',fila.id,{oculto:true});else await ins('tipos',{nombre:viejo,emoji:e,orden:base.orden,oculto:true});await ins('tipos',{nombre:nuevo,emoji:e,orden:base.orden??50,oculto:false})}
+    else if(fila)await upd('tipos',fila.id,{nombre:nuevo,emoji:e});
+    await renombrarCategoria(viejo,nuevo)}
+  mezclarTipos();toast('Tipo guardado');A.tipos()};
+A.tipoBorrar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? Sus productos pasan a «Otros»';return}
+  const base=(S.catsBase||[]).find(x=>x.nombre===d.n);const fila=(S.t.tipos||[]).find(t=>t.nombre===d.n);
+  if(base){if(fila)await upd('tipos',fila.id,{oculto:true});else await ins('tipos',{nombre:d.n,emoji:base.emoji,orden:base.orden,oculto:true})}else if(fila)await rem('tipos',fila.id);
+  await renombrarCategoria(d.n,'Otros');mezclarTipos();toast(`Quitado: ${d.n}`);A.tipos()};
 A.despALista=async d=>{await addLista(d.n,{});toast(`${d.n} apuntado en la lista de la compra`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
 A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
 A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=(num(x.cantidad)||1)-1;if(c<=0)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
