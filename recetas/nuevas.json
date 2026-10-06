@@ -457,6 +457,72 @@
     }
    ],
    "pasos": "1 ración. Plato único. 6 champiñones blancos grandes, 1 lata de caballa en aceite de oliva (escurrida), 1 cucharada de tomate triturado o tomate frito casero (por ejemplo Hida) y mozzarella light.\nAlérgenos: pescado, lácteos.\n\n1. Corta los pies de los champiñones y pícalos.\n2. Mezcla los pies picados con la caballa escurrida y el tomate.\n3. Rellena los sombreros de los champiñones con la mezcla.\n4. Colócalos con el relleno hacia arriba en una fuente de cristal y pon la mozzarella por encima.\n5. Gratina en el horno a 180 °C, calor arriba y abajo, unos 20-25 minutos. O en la airfryer, 10 minutos a 180 °C sobre papel vegetal."
+  },
+  {
+   "id": "ensalada-griega",
+   "nombre": "Ensalada griega",
+   "emoji": "🥗",
+   "minutos": 10,
+   "momento": "cena",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Pepino",
+     "cant": 200,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Tomate cherry",
+     "cant": 170,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Queso feta",
+     "cant": 40,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Cebolla",
+     "cant": 40,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimiento verde",
+     "cant": 19,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Aceitunas",
+     "cant": 17,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Limón",
+     "cant": 7,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 10,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Orégano",
+     "cant": 2,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Sal",
+     "cant": 0.4,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimienta",
+     "cant": 0.1,
+     "unidad": "g"
+    }
+   ],
+   "pasos": "1 ración. 1 pepino pelado, 10 tomates cherry, queso feta, cebolla dulce, 2 cucharadas de pimiento verde, 2 cucharadas de aceitunas, 1 rodaja de limón, 1 cucharada de aceite de oliva, orégano (mejor fresco), una pizca de sal y otra de pimienta negra molida.\nAlérgenos: lácteos, sulfitos.\n\n1. Limpia las verduras.\n2. Corta la cebolla en juliana (tiras finas).\n3. Corta el pimiento y el pepino en dados y los tomates cherry por la mitad.\n4. Prepara un aliño con el aceite, el zumo del limón, la sal, la pimienta y el orégano.\n5. Mezcla todo en un plato o bol con el feta y las aceitunas, aliña y sirve."
   }
  ]
 }
