@@ -339,7 +339,9 @@ const addDays=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()+n);retu
 const lunes=s=>{const d=new Date(s+'T12:00');const w=(d.getDay()+6)%7;return addDays(s,-w)};
 const diasHasta=f=>f?Math.round((new Date(f+'T12:00')-new Date(hoy()+'T12:00'))/864e5):null;
 const fmtFecha=(s,o)=>new Date(s+'T12:00').toLocaleDateString('es-ES',o||{day:'numeric',month:'short'});
-function fmtQty(c,u){c=num(c)||1;u=u||'ud';const f=n=>String(+n.toFixed(2)).replace('.',',');
+const ENV={lata:'latas',bote:'botes',tarro:'tarros',paquete:'paquetes',brick:'bricks',botella:'botellas',bolsa:'bolsas',bandeja:'bandejas',caja:'cajas',pieza:'piezas',barra:'barras'};
+const esCuenta=u=>!u||u==='ud'||!!ENV[u];
+function fmtQty(c,u){c=num(c)||1;u=u||'ud';const f=n=>String(+n.toFixed(2)).replace('.',',');if(ENV[u])return f(c)+' '+(c===1?u:ENV[u]);
   if(u==='ud')return c===1?'1 ud':f(c)+' uds';if(u==='kg'&&c<1)return f(c*1000)+' g';if(u==='g'&&c>=1000)return f(c/1000)+' kg';
   if(u==='l'&&c<1)return f(c*1000)+' ml';if(u==='ml'&&c>=1000)return f(c/1000)+' l';return f(c)+' '+u}
 function caducaTxt(f){const n=diasHasta(f);if(n==null)return '';if(n<0)return `Caducó hace ${-n} ${-n===1?'día':'días'}`;if(n===0)return 'Caduca hoy';if(n===1)return 'Caduca mañana';if(n>45)return 'Caduca el '+fmtFecha(f,{day:'numeric',month:'short',year:'numeric'});return `Caduca en ${n} días`}
@@ -533,7 +535,7 @@ async function cambiarFoto(tabla,id,campo){const f=await elegirFoto();if(!f)retu
 const enCasa=n=>S.t.despensa.filter(d=>norm(d.nombre)===norm(n));
 /* inventario: cantidades en unidad base (g, ml o ud) para comparar recetas y despensa */
 const BASEU={kg:['g',1000],g:['g',1],l:['ml',1000],ml:['ml',1],ud:['ud',1]};
-const aBase=(c,u)=>{const b=BASEU[u||'ud']||['ud',1];return {q:(num(c)||0)*b[1],b:b[0],f:b[1]}};
+const aBase=(c,u)=>{const b=BASEU[u||'ud']||(ENV[u]?['ud',1]:['ud',1]);return {q:(num(c)||0)*b[1],b:b[0],f:b[1]}};
 const deBase=(q,b)=>b==='g'?(q>=1000?[q/1000,'kg']:[q,'g']):b==='ml'?(q>=1000?[q/1000,'l']:[q,'ml']):[q,'ud'];
 const qtyBase=(q,b)=>fmtQty(...deBase(+q.toFixed(3),b));
 function stockDe(nombre){const items=enCasa(nombre);const por={};items.forEach(d=>{const x=aBase(num(d.cantidad)||1,d.unidad);por[x.b]=(por[x.b]||0)+x.q});return {items,por}}
@@ -610,7 +612,7 @@ function importe(it){const p=precioDe(it);if(!p)return 0;const o=ofertas(it.nomb
 /* ¿Dónde compro? */
 const PLAN_DEF={sups:['Mercadona','Lidl','Aldi','Carrefour','Consum'],calidad:false,umbral:5};
 function planCfg(){return {...PLAN_DEF,...lsGet('cc-plan',{})}}
-function cantFactor(it,u){const c=num(it.cantidad)||1;if((it.unidad||'ud')==='ud'||it.unidad===u)return c;if(it.unidad==='g'&&u==='kg')return c/1000;if(it.unidad==='ml'&&u==='l')return c/1000;return 1}
+function cantFactor(it,u){const c=num(it.cantidad)||1;if(esCuenta(it.unidad)||it.unidad===u)return c;if(it.unidad==='g'&&u==='kg')return c/1000;if(it.unidad==='ml'&&u==='l')return c/1000;return 1}
 function median(a){a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
 function planCompra(cfg){cfg=cfg||planCfg();const sups=cfg.sups;const items=S.t.lista.filter(i=>!i.comprado);
   const rows=[],sinPrecio=[];
@@ -751,7 +753,7 @@ function vDespensa(){const q=norm(S.despQ);
   const chips=`<div class="chips"><button class="chip ${S.despF==='todos'?'on':''}" data-a="despF" data-k="todos">Todos</button><button class="chip ${S.despF==='pronto'?'on':''}" data-a="despF" data-k="pronto">Próximos a caducar ${nPronto?`<span class="cnt">${nPronto}</span>`:''}</button>
     <span class="chip ${S.despCat?'on':''}"><select data-ch="despCat" aria-label="Categoría"><option value="">Categorías ▾</option>${catsUsadas.map(c=>`<option ${c===S.despCat?'selected':''}>${esc(c)}</option>`).join('')}</select></span></div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
-  const fila=d=>{const f=frescura(d);const ud=(d.unidad||'ud')==='ud';
+  const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);
     return `<div class="it" style="border-top-color:var(--sep)">${thumb(d)}<button class="body" data-a="verDesp" data-id="${d.id}"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:svg('chevR','chev-r')}</div>`};
   const row=fila;
   let html=chips;
@@ -885,7 +887,7 @@ function toastHtml(html,ms){const t=document.createElement('div');t.className='t
   t.addEventListener('click',e=>{if(e.target.closest('[data-a]'))setTimeout(()=>t.remove(),50)});setTimeout(()=>t.remove(),ms||3800);while($('#toasts').children.length>3)$('#toasts').firstChild.remove()}
 const toast=(m,act)=>toastHtml(`<span class="grow">${esc(m)}</span>${act||''}`,act?7000:3500);
 const selOpts=(arr,v,blank)=>(blank!=null?`<option value="">${blank}</option>`:'')+arr.map(s=>`<option ${s===v?'selected':''}>${esc(s)}</option>`).join('');
-const UNIDADES=['ud','kg','g','l','ml'];
+const UNIDADES=['ud','kg','g','l','ml','lata','bote','tarro','paquete','brick','botella','bolsa','bandeja','caja','pieza'];
 
 /* ============ ACCIONES ============ */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;e.preventDefault();const f=A[b.dataset.a];if(f)f(b.dataset,b,e)});
@@ -1069,7 +1071,7 @@ A.whatsHoy=()=>{const ev=S.t.eventos.filter(e=>e.tipo==='comprado'&&ds(e.created
 /* --- despensa --- */
 A.verDesp=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const r=recetasCon([x.nombre]).slice(0,3);
   sheet(`${heroFoto(x)}<div class="row">${thumbSiNo(x,'lg')}<div class="grow"><h2>${esc(x.nombre)}</h2><span class="small muted">${fmtQty(x.cantidad,x.unidad)}${x.caduca?' · '+caducaTxt(x.caduca):''}${x.marca||x.super?' · '+esc([x.marca,x.super].filter(Boolean).join(' · ')):''}</span></div></div>
-  <div class="g3">${num(x.cantidad)>1&&x.unidad==='ud'?`<button class="btn gl sm" style="width:100%" data-a="usar1" data-id="${x.id}">Usar 1</button>`:'<span></span>'}<button class="btn gl sm" style="width:100%" data-a="gastado" data-id="${x.id}">Gastado</button><button class="btn red sm" style="width:100%" data-a="tirado" data-id="${x.id}">Tirado</button></div>
+  <div class="g3">${num(x.cantidad)>1&&esCuenta(x.unidad)?`<button class="btn gl sm" style="width:100%" data-a="usar1" data-id="${x.id}">Usar 1</button>`:'<span></span>'}<button class="btn gl sm" style="width:100%" data-a="gastado" data-id="${x.id}">Gastado</button><button class="btn red sm" style="width:100%" data-a="tirado" data-id="${x.id}">Tirado</button></div>
   ${r.length?`<div class="small muted">Recetas que lo usan: ${r.map(y=>`<button class="link small" data-a="verReceta" data-id="${y.id}">${esc(y.nombre)}</button>`).join(', ')}</div>`:''}
   <div class="g2"><div class="fld"><label for="d-c">Cantidad</label><input class="inp" id="d-c" type="number" step="any" inputmode="decimal" value="${esc(x.cantidad)}"></div><div class="fld"><label for="d-f">Caduca</label><input class="inp" id="d-f" type="date" value="${esc(x.caduca||'')}"></div></div>
   <div class="row"><button class="btn gl sm" data-a="addLista1" data-n="${esc(x.nombre)}">＋ A la lista</button><span class="grow"></span><button class="btn pri sm" data-a="saveDesp" data-id="${x.id}">Guardar</button></div>`)};
@@ -1108,7 +1110,7 @@ function envase(nombre,cat){const n=norm(nombre);cat=cat||infoArticulo(nombre).c
   if(cat==='Congelados')return ['bolsa','bolsas'];
   if(['Pasta, arroz y legumbres','Desayuno y dulces','Panadería','Charcutería y quesos','Bebé','Mascotas'].includes(cat))return ['paquete','paquetes'];
   return ['unidad','unidades']}
-const cantTxt=d=>{if((d.unidad||'ud')!=='ud')return fmtQty(d.cantidad,d.unidad);const c=num(d.cantidad)||1;const [s1,pl]=envase(d.nombre,d.categoria);return `${String(+c.toFixed(2)).replace('.',',')} ${c===1?s1:pl}`};
+const cantTxt=d=>{if((d.unidad||'ud')!=='ud')return fmtQty(d.cantidad,d.unidad);/* lata, bote… o kg/l */const c=num(d.cantidad)||1;const [s1,pl]=envase(d.nombre,d.categoria);return `${String(+c.toFixed(2)).replace('.',',')} ${c===1?s1:pl}`};
 function despBuscarHtml(q){const k=norm(q);const bs=borradosSet();let l;
   if(!k){l=S.t.articulos.filter(a=>!borrado(a)&&num(a.veces)>0).sort((a,b)=>b.veces-a.veces).slice(0,40);
     if(l.length<20){const ya=new Set(l.map(a=>norm(a.nombre)));l=l.concat(S.catalogo.filter(c=>!ya.has(norm(c.nombre))&&!bs.has(norm(c.nombre))&&c.categoria!=='Ropa y calzado'&&c.categoria!=='Electrónica').slice(0,40-l.length))}}
@@ -1125,7 +1127,7 @@ A.addDesp=d=>{d=d||{};S.despFlujo=true;const q=d.q||'';
 A.despListo=()=>{S.despFlujo=false;S.eanPend=null;closeSheet();if(S.tab!=='despensa'){S.tab='despensa';lsSet('cc-tab','despensa');render()}else paint()};
 A.despCrear=async d=>{const i=infoArticulo(d.n);if(!S.t.articulos.some(a=>norm(a.nombre)===norm(d.n)))await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});A.despCant({n:cap(d.n)})};
 const CAD_CHIPS=[['3 días',3],['1 semana',7],['2 semanas',14],['1 mes',30],['3 meses',90],['1 año',365]];
-A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(info.unidad==='kg'?'kg':info.unidad==='l'?'l':'ud');
+A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u0=ya.length?(ya[0].unidad||'ud'):(['kg','l','g','ml'].includes(info.unidad)||ENV[info.unidad]?info.unidad:'ud');
   const tot=ya.filter(x=>(x.unidad||'ud')===u0).reduce((a,x)=>a+(num(x.cantidad)||0),0);const cad=ya.map(x=>x.caduca).filter(Boolean).sort()[0]||'';
   const [s1,pl]=envase(n,info.categoria);const lim=DURA_PROD[norm(n)]!=null?DURA_PROD[norm(n)]:DURA_CAT[info.categoria];
   const ep=S.eanPend;
@@ -1133,13 +1135,13 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
    <button class="btn gl sm" data-a="fotoArtN" data-n="${esc(n)}">${svg('camera')}${S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&a.imagen)?'Cambiar la foto':'Hacer o subir foto'}</button>
    ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
    <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
-    <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?+tot.toFixed(3):(u0==='ud'?1:u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
-    <select class="inp" id="q-u" style="width:auto">${[['ud',pl],['kg','kg'],['g','g'],['l','litros'],['ml','ml']].map(([v,t])=>`<option value="${v}" ${v===u0?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+    <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?+tot.toFixed(3):(esCuenta(u0)||u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
+    <select class="inp" id="q-u" style="width:auto">${[['ud',pl],...Object.entries(ENV).filter(([k,v])=>v!==pl).map(([k,v])=>[k,v]),['kg','kg'],['g','g'],['l','litros'],['ml','ml']].map(([v,t])=>`<option value="${v}" ${v===u0?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
    <div class="fld"><label for="q-f">Caducidad (opcional)</label><div class="qchips">${CAD_CHIPS.map(([t,dd])=>`<button class="chip" data-a="qCad" data-d="${dd}">${t}</button>`).join('')}</div><input class="inp" id="q-f" type="date" value="${esc(cad)}" style="margin-top:6px">
     ${lim?`<span class="tiny muted">Si no pones fecha, en la despensa se pondrá en rojo cuando lleve más de ${lim} días.</span>`:''}</div>
    ${ya.length?'':`<label class="row small" style="gap:10px"><input type="checkbox" id="q-reg" style="width:22px;height:22px"> 🎁 Me lo han dado (gratis)</label>`}
    <div class="row">${ya.length?`<button class="btn red sm" data-a="qCero" data-n="${esc(n)}">Ya no queda</button>`:''}<span class="grow"></span><button class="btn gl sm" data-a="qVolver">Volver</button><button class="btn pri sm" data-a="qGuardar" data-n="${esc(n)}">Guardar</button></div>`)};
-const qPaso=()=>({ud:1,kg:.25,g:100,l:.5,ml:100})[$('#q-u').value]||1;
+const qPaso=()=>({kg:.25,g:100,l:.5,ml:100})[$('#q-u').value]||1;
 A.qMas=()=>{const i=$('#q-c');i.value=+((num(i.value)||0)+qPaso()).toFixed(3)};
 A.qMenos=()=>{const i=$('#q-c');i.value=Math.max(0,+((num(i.value)||0)-qPaso()).toFixed(3))};
 A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[data-a=qCad]').forEach(x=>x.classList.remove('on'));b.classList.add('on')};
@@ -1150,6 +1152,7 @@ A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const c=num($('#q-c').valu
   let art=S.t.articulos.find(a=>norm(a.nombre)===norm(n));
   if(!art)[art]=await ins('articulos',{nombre:cap(n),categoria:info.categoria||'Otros',emoji:info.emoji||'📦',unidad:info.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false});
   else if(borrado(art))await upd('articulos',art.id,{oculto:false,veces:0});
+  if(art&&u!==(art.unidad||'ud')&&(ENV[u]||(u==='ud'&&ENV[art.unidad])))await upd('articulos',art.id,{unidad:u});
   const ep=S.eanPend;if(ep&&art){await asociarCodigo(art,ep.code,ep.marca,'');if(ep.imagen&&!art.imagen)await upd('articulos',art.id,{imagen:ep.imagen});S.eanPend=null}
   if(ya.length){const prev=ya.filter(x=>(x.unidad||'ud')===u).reduce((a,x)=>a+(num(x.cantidad)||0),0);const p={cantidad:c,unidad:u,caduca:cad};if(c>prev+1e-9)p.created_at=nowIso();
     await upd('despensa',ya[0].id,p);if(ya.length>1)await rem('despensa',ya.slice(1).map(x=>x.id))}
