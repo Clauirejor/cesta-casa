@@ -380,6 +380,52 @@
     }
    ],
    "pasos": "1 ración. Segundo plato de carne. Aceite de oliva: 1/2 cucharada (más otra para dorar el pollo). Maicena: 1/2 cucharadita.\nAlérgenos: gluten, mostaza, sulfitos.\n\n1. Corta la cebolla en trozos pequeños (o pícala unos segundos en la picadora).\n2. Calienta una olla baja con una cucharada de aceite y sofríe la cebolla unos 10 minutos, con cuidado de que no se pegue.\n3. Añade el vino y deja cocinar unos 5 minutos a fuego medio.\n4. Añade la maicena y el caldo y cocina 10 minutos más a fuego medio.\n5. Mientras tanto, corta la pechuga en dados y dóralos en una sartén con otra cucharada de aceite.\n6. Añade la mostaza a la olla y tritura para obtener la salsa. Incorpora el pollo dorado y, cuando empiece a hervir, retira del fuego y sirve enseguida."
+  },
+  {
+   "id": "gazpacho-andaluz",
+   "nombre": "Gazpacho andaluz (sin pan)",
+   "emoji": "🍅",
+   "minutos": 15,
+   "momento": "comida",
+   "raciones": 1,
+   "ingredientes": [
+    {
+     "nombre": "Tomate",
+     "cant": 246,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pimiento verde",
+     "cant": 36,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Pepino",
+     "cant": 60,
+     "unidad": "g"
+    },
+    {
+     "nombre": "Ajo",
+     "cant": 0.5,
+     "unidad": "ud"
+    },
+    {
+     "nombre": "Aceite de oliva",
+     "cant": 15,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Vinagre de vino",
+     "cant": 7.5,
+     "unidad": "ml"
+    },
+    {
+     "nombre": "Sal",
+     "cant": 0.4,
+     "unidad": "g"
+    }
+   ],
+   "pasos": "1 ración. Primer plato. 2 tomates bien maduros, 1/3 de pimiento verde, 1/3 de pepino pelado, 1/2 diente de ajo, 1 cucharada de aceite de oliva, 1/2 cucharada de vinagre de vino y una pizca de sal.\nAlérgenos: sulfitos.\n\n1. Pela los tomates. Si los escaldas unos segundos en agua hirviendo, se pelan mucho mejor.\n2. Tritura los tomates con el resto de ingredientes hasta que quede fino.\n3. Sirve bien frío.\n\nObservaciones: es importante que los tomates estén maduros para que tenga sabor. La receta original lleva pan del día anterior. Se puede servir con picadillo de cebolla, tomate, pimiento y pepino, y se le puede añadir pimienta o zanahoria."
   }
  ]
 }
