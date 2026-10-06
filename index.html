@@ -162,6 +162,9 @@ img.zoom{cursor:zoom-in}
 .qchips{display:flex;flex-wrap:wrap;gap:8px}
 .nivel{display:inline-block;width:60px;height:8px;border-radius:4px;background:var(--fill);overflow:hidden;vertical-align:middle;margin-left:6px}.nivel i{display:block;height:100%;border-radius:4px}
 .rango{width:100%;accent-color:var(--accent);height:32px}
+.it.dsp{padding-top:9px;padding-bottom:9px;align-items:center}
+.stp.sm{gap:2px}.stp.sm button{width:28px;height:28px;font-size:19px}.stp.sm .stp-n{width:auto;min-width:28px;padding:0 4px;background:none;color:var(--ink);font-size:15px;font-weight:600}
+.mini-ic{width:30px;height:30px;border-radius:50%;border:0;background:var(--fill);display:grid;place-items:center;color:var(--accent);flex:none}.mini-ic svg{width:17px;height:17px}.mini-ic.ok{background:var(--green-soft);color:var(--green)}
 .chip.mini,.pill.mini{font-size:13.5px;padding:5px 10px;min-height:0}
 .chip svg,.pill svg{width:16px;height:16px;vertical-align:-3px;margin-right:2px}
 .exp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--red-card);border:1px solid var(--glass-line);width:100%;text-align:left}
@@ -773,11 +776,14 @@ function vDespensa(){const q=norm(S.despQ);
     ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:`<span class="chip" style="color:var(--orange)">📍 Sitios: falta la actualización 7 en Supabase</span>`}</div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
   const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);const enL=S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(d.nombre));
-    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${barraHtml(d)}${d.super&&d.super!=='Regalo'?' · '+esc(d.super):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
-      ${S.lugaresOk?`<button class="link small" data-a="despSitio" data-id="${d.id}" style="display:block;margin-top:2px;padding:4px 0;${d.lugar?'color:var(--ink2)':''}">📍 ${d.lugar?esc(d.lugar)+' <span class="muted">· cambiar</span>':'Poner sitio'}</button>`:''}
-      <div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Menos ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:${ud?17:15}px">${ud?(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})():esc(fmtQty(d.cantidad,d.unidad))}</button><button data-a="despMas" data-id="${d.id}" aria-label="Más ${esc(d.nombre)}">+</button></span>
-      ${enL?`<span class="pill ok mini">${svg('check')} En lista</span>`:`<button class="chip mini" data-a="despALista" data-n="${esc(d.nombre)}" style="color:var(--accent)">${svg('cart')} Lista</button>`}</div></div>
-      <button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div>`};
+    const num1=ud?(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+'+':'')+r+'%'):e})():esc(fmtQty(d.cantidad,d.unidad));
+    const meta=[(ud?esc(cantTxt(d)):'')+barraHtml(d),f.txt?frescHtml(f):'',d.super&&d.super!=='Regalo'?esc(d.super):'',d.super==='Regalo'?'🎁':''].filter(Boolean).join(' · ');
+    return `<div class="it dsp" style="border-top-color:var(--sep)">${thumb(d)}<div class="grow" style="min-width:0">
+      <div class="row" style="gap:6px;align-items:center"><button class="body grow" data-a="verDesp" data-id="${d.id}" style="min-width:0;padding:0"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div></button>
+       <span class="stp sm"><button data-a="despMenos" data-id="${d.id}" aria-label="Menos ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" class="stp-n">${num1}</button><button data-a="despMas" data-id="${d.id}" aria-label="Más ${esc(d.nombre)}">+</button></span></div>
+      <div class="row" style="gap:6px;align-items:center;margin-top:2px"><div class="mt grow" style="min-width:0">${meta}${S.lugaresOk?` · <button class="link" data-a="despSitio" data-id="${d.id}" style="font-size:inherit;padding:0;${d.lugar?'color:var(--ink2)':''}">📍 ${d.lugar?esc(d.lugar):'Poner sitio'}</button>`:''}</div>
+       ${enL?`<span class="mini-ic ok" title="Ya está en la lista" aria-label="${esc(d.nombre)} ya está en la lista">${svg('check')}</span>`:`<button class="mini-ic" data-a="despALista" data-n="${esc(d.nombre)}" aria-label="Añadir ${esc(d.nombre)} a la lista de la compra">${svg('cart')}</button>`}
+       <button class="mini-ic" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div></div></div>`};
   const row=fila;
   let html=chips;
   if(pronto.length)html+=`<div class="sec">Próximos a caducar ${S.despF!=='pronto'&&pronto.length>3?`<button class="link" data-a="despF" data-k="pronto">Ver todos</button>`:''}</div><div class="glass grp" style="border:1px solid var(--red-soft)"><div class="rows">${(S.despF==='pronto'?pronto:pronto.slice(0,5)).map(row).join('').replace('<div class="it" style="border-top-color:var(--sep)">','<div class="it" style="border-top:0">')}</div></div>`;
@@ -1332,7 +1338,9 @@ A.tipoBorrar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent=
   const base=(S.catsBase||[]).find(x=>x.nombre===d.n);const fila=(S.t.tipos||[]).find(t=>t.nombre===d.n);
   if(base){if(fila)await upd('tipos',fila.id,{oculto:true});else await ins('tipos',{nombre:d.n,emoji:base.emoji,orden:base.orden,oculto:true})}else if(fila)await rem('tipos',fila.id);
   await renombrarCategoria(d.n,'Otros');mezclarTipos();toast(`Quitado: ${d.n}`);A.tipos()};
-A.despALista=async d=>{await addLista(d.n,{});toast(`${d.n} apuntado en la lista de la compra`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
+A.despALista=async d=>{const r=await addLista(d.n,{});const it=S.t.lista.filter(i=>!i.comprado&&norm(i.nombre)===norm(d.n)).pop();
+  toast(`${d.n} apuntado en la lista`,r==='sumado'?'':`<button class="act" data-a="deshacerLista" data-id="${it?it.id:''}">Deshacer</button>`)};
+A.deshacerLista=async d=>{if(d.id&&S.t.lista.some(i=>i.id===d.id)){await rem('lista',d.id);toast('Quitado de la lista')}};
 const PASO_PESO={kg:.25,g:250,l:.25,ml:250};const pasoDe=u=>PASO_PESO[u]||1;
 A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:+((num(x.cantidad)||0)+pasoDe(x.unidad)).toFixed(3)})};
 A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+((num(x.cantidad)||1)-pasoDe(x.unidad)).toFixed(3);if(c<=1e-6)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
