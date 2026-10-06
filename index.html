@@ -564,9 +564,10 @@ function estadoNecesidad(nombre,q,b){const st=stockDe(nombre);const enL=S.t.list
   if(!st.items.length)return {tipo:'falta',falta:q,b,enL,st};
   if(st.por[b]!=null){const f=q-st.por[b];return f>1e-6?{tipo:'poco',falta:f,hay:st.por[b],b,enL,st}:{tipo:'ok',hay:st.por[b],b,enL,st}}
   return {tipo:'hay',b,enL,st}}
-/* básicos de cocina: no se apuntan en la compra al sacar ingredientes de una receta */
-const BASICOS_RE=/^(sal|sal (fina|gruesa|marina|yodada|en escamas)|aceite\b.*|agua|pimienta\b.*|oregano|pimenton\b.*|comino\b.*|canela\b.*|laurel|tomillo|romero|curry|curcuma|nuez moscada|colorante\b.*|azafran|perejil seco|albahaca seca|especias\b.*|cayena|guindilla (molida|seca)|jengibre molido|ajo en polvo|cebolla en polvo|hierbas\b.*|eneldo|clavo\b.*|anis\b.*|sazonador\b.*|eneldo seco)$/;
+/* básicos de cocina (sal, aceite, vinagre, ajo, especias): no se apuntan en la compra al sacar ingredientes de una receta */
+const BASICOS_RE=/^(vinagre\b.*|ajo|ajos|ajo (morado|blanco)|diente(s)? de ajo|cabeza de ajo|sal|sal (fina|gruesa|marina|yodada|en escamas)|aceite\b.*|agua|pimienta\b.*|oregano|pimenton\b.*|comino\b.*|canela\b.*|laurel|tomillo|romero|curry|curcuma|nuez moscada|colorante\b.*|azafran|perejil seco|albahaca seca|especias\b.*|cayena|guindilla (molida|seca)|jengibre molido|ajo en polvo|cebolla en polvo|hierbas\b.*|eneldo|clavo\b.*|anis\b.*|sazonador\b.*|eneldo seco)$/;
 const esBasico=n=>BASICOS_RE.test(norm(n).trim());
+/* tampoco se dan de alta como artículo */
 function marcarReceta(nombre,receta){const ya=S.t.lista.find(x=>!x.comprado&&norm(x.nombre)===norm(nombre));if(ya&&receta&&!String(ya.receta||'').includes(receta))return upd('lista',ya.id,{receta:ya.receta?ya.receta+', '+receta:receta})}
 const estadoIngRaw=i=>{const n=aBase(num(i.cant)||1,i.unidad);return estadoNecesidad(i.nombre,n.q,n.b)};
 const estadoIng=i=>{const e=estadoIngRaw(i);return esBasico(i.nombre)&&e.tipo!=='ok'&&e.tipo!=='hay'?{...e,tipo:'basico'}:e};
@@ -1592,7 +1593,7 @@ A.genLista=async()=>{const desde=S.week<hoy()?hoy():S.week,hasta=addDays(S.week,
   let add=0,ok=0,ya=0,bas=0;for(const it of items){const e=estadoNecesidad(it.nombre,it.q,it.b);
     if(e.tipo==='ok'||e.tipo==='hay'){ok++;continue}if(esBasico(it.nombre)){bas++;continue}if(e.enL){ya++;await marcarReceta(it.nombre,it.rec.join(', '));continue}
     const [c,u]=deBase(e.falta,it.b);await addLista(it.nombre,{cantidad:+c.toFixed(2),unidad:u,receta:it.rec.join(', '),sinTocar:false});add++}
-  toast(`${add} añadidos · ${ok} ya los tenéis${ya?` · ${ya} ya estaban en la lista`:''}${bas?` · ${bas} básicos (sal, aceite, especias) sin apuntar`:''}`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
+  toast(`${add} añadidos · ${ok} ya los tenéis${ya?` · ${ya} ya estaban en la lista`:''}${bas?` · ${bas} básicos (sal, aceite, vinagre, ajo, especias) sin apuntar`:''}`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
 A.planificar=()=>sheet(`<h2>Planificar semana</h2><div class="glass list-plain">
   <button class="opt" data-a="copiarSemana">${svg('cal')}<span class="grow">Copiar la semana anterior</span></button>
   <button class="opt" data-a="vaciarSemana" style="color:var(--red)">${svg('trash')}<span class="grow">Vaciar esta semana</span></button></div><button class="btn gl" data-a="close">Cancelar</button>`);
