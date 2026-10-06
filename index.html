@@ -160,6 +160,8 @@ img.zoom{cursor:zoom-in}
 .stp{display:flex;align-items:center;gap:4px;flex:none}.stp button{width:32px;height:32px;border-radius:50%;border:0;background:var(--fill);font-size:21px;font-weight:600;color:var(--accent);display:grid;place-items:center;line-height:1}.stp b{min-width:24px;text-align:center;font-size:17px}
 .stp.big button{width:52px;height:52px;font-size:28px}.stp.big input{width:96px;text-align:center;font-size:26px;font-weight:700;padding:8px}
 .qchips{display:flex;flex-wrap:wrap;gap:8px}
+.nivel{display:inline-block;width:60px;height:8px;border-radius:4px;background:var(--fill);overflow:hidden;vertical-align:middle;margin-left:6px}.nivel i{display:block;height:100%;border-radius:4px}
+.rango{width:100%;accent-color:var(--accent);height:32px}
 .chip svg,.pill svg{width:16px;height:16px;vertical-align:-3px;margin-right:2px}
 .exp-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--red-card);border:1px solid var(--glass-line);width:100%;text-align:left}
 .exp-card .nm{font-weight:600}
@@ -765,8 +767,8 @@ function vDespensa(){const q=norm(S.despQ);
     ${S.lugaresOk?`<span class="chip ${S.despLug?'on':''}"><select data-ch="despLug" aria-label="Sitio"><option value="">📍 Sitios ▾</option>${lugares().map(l=>`<option value="${esc(l.nombre)}" ${l.nombre===S.despLug?'selected':''}>${esc(l.nombre)}</option>`).join('')}<option value="—" ${S.despLug==='—'?'selected':''}>Sin sitio</option></select></span><button class="chip" data-a="lugares">Gestionar sitios</button>`:`<span class="chip" style="color:var(--orange)">📍 Sitios: falta la actualización 7 en Supabase</span>`}</div>`;
   if(!S.t.despensa.length)return {top,keep,body:chips+`<div class="glass empty"><div class="e">🥫</div><h3>Despensa vacía</h3><p>Lo que marquéis como comprado llega aquí solo. También podéis apuntar lo que ya tenéis en casa.</p><button class="btn pri" data-a="addDesp">${svg('plus')}Apuntar lo que tenemos</button></div>`};
   const fila=d=>{const f=frescura(d);const ud=esCuenta(d.unidad);const enL=S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(d.nombre));
-    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
-      <div class="row" style="gap:10px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><b>${String(+(num(d.cantidad)||1).toFixed(2)).replace('.',',')}</b><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
+    return `<div class="it" style="border-top-color:var(--sep);align-items:flex-start">${thumb(d)}<div class="grow" style="min-width:0"><button class="body" data-a="verDesp" data-id="${d.id}" style="width:100%"><div class="nm" style="${f.nivel>=3?'color:var(--red)':''}">${esc(d.nombre)}</div><div class="mt">${esc(cantTxt(d))}${barraHtml(d)}${d.lugar&&!S.despLug?' · 📍 '+esc(d.lugar):''}${f.txt?' · '+frescHtml(f):''}${d.super==='Regalo'?' · 🎁':''}</div></button>
+      <div class="row" style="gap:10px;margin-top:6px;flex-wrap:wrap">${ud?`<span class="stp"><button data-a="despMenos" data-id="${d.id}" aria-label="Uno menos de ${esc(d.nombre)}">−</button><button data-a="despQueda" data-id="${d.id}" aria-label="Cuánto queda de ${esc(d.nombre)}" style="width:auto;min-width:30px;padding:0 6px;background:none;color:var(--ink);font-size:17px">${(()=>{const {e,r}=partes(d.cantidad);const g={25:'¼',50:'½',75:'¾'}[r];return r?(g?(e||'')+g:(e?e+' + ':'')+r+'%'):e})()}</button><button data-a="despMas" data-id="${d.id}" aria-label="Uno más de ${esc(d.nombre)}">+</button></span>`:''}
       ${enL?`<span class="pill ok">${svg('check')} En la lista</span>`:`<button class="chip" data-a="despALista" data-n="${esc(d.nombre)}" style="padding:6px 12px;color:var(--accent)">${svg('cart')} A la lista</button>`}</div></div>
       <button class="dots3" data-a="editArtN" data-n="${esc(d.nombre)}" data-from="despensa" aria-label="Editar ${esc(d.nombre)}">${svg('edit')}</button></div>`};
   const row=fila;
@@ -918,12 +920,13 @@ document.addEventListener('input',e=>{const t=e.target;if(t.id==='qadd'){S.addQ=
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset.ch==='despCat'){S.despCat=t.value;paint()}if(t.dataset.ch==='despLug'){S.despLug=t.value;paint()}if(t.dataset.ch==='despOrden'){S.despOrden=t.value;lsSet('cc-desp-orden',t.value);paint()}
   if(t.classList&&t.classList.contains('lug-sel')){const c=t.dataset.c;const r=$('#lugn-'+c);if(t.value==='__nuevo'){r.style.display='flex';$('#lugi-'+c).focus()}else{r.style.display='none';if(c==='v')A.lugarDespGuardar()}}
   if(t.id==='q-reg'){const f=$('#q-precf');if(f)f.style.display=t.checked?'none':''}
-  if(t.id==='q-u'){const f=$('#q-packf');if(f){f.style.display=esCuenta(t.value)?'':'none';$('#q-packl').textContent=packLabel(t.value,t.dataset.s1||'unidad')}}
+  if(t.id==='q-u'){const fe=$('#q-empf');if(fe)fe.style.display=esCuenta(t.value)?'':'none';const f=$('#q-packf');if(f){f.style.display=esCuenta(t.value)?'':'none';$('#q-packl').textContent=packLabel(t.value,t.dataset.s1||'unidad')}}
   if(t.id==='n-reg'){['n-p','n-s'].forEach(id=>{const el=$('#'+id);if(el){el.disabled=t.checked;if(t.checked&&id==='n-p')el.value=''}})}
   if(t.classList&&t.classList.contains('ver-pass'))document.querySelectorAll('#lg-p,#lg-p2').forEach(i=>i.type=t.checked?'text':'password');
   if(t.tagName==='SELECT'&&[...t.options].some(o=>o.value==='Otro'&&!o.dataset.custom)){let w=t.parentElement.querySelector('.otro-sup');
     if(t.value==='Otro'){if(!w){t.insertAdjacentHTML('afterend','<input class="inp otro-sup" placeholder="Nombre del súper o tienda" autocomplete="off" style="margin-top:6px">');w=t.parentElement.querySelector('.otro-sup')}w.focus()}
     else if(w&&!t.selectedOptions[0]?.dataset.custom){w.remove();t.querySelectorAll('option[data-custom]').forEach(o=>o.remove())}}});
+document.addEventListener('input',e=>{const r=e.target;if(r.classList&&r.classList.contains('rango')){const l=$('#qrt-'+r.dataset.c);if(l)l.textContent=+r.value?r.value+'%':(r.dataset.c==='q'?'no':'ninguno')}});
 document.addEventListener('input',e=>{const w=e.target;if(!w.classList||!w.classList.contains('otro-sup'))return;const sel=w.parentElement.querySelector('select');if(!sel)return;
   const n=cap(w.value.trim());let o=sel.querySelector('option[data-custom]');
   if(!n){if(o)o.remove();sel.value='Otro';return}
@@ -1110,6 +1113,7 @@ A.verDesp=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;S.verDespId
   <div class="fld"><label>¿Dónde está?</label>${lugarChips(x.lugar||'','v')}</div>
   ${r.length?`<div class="small muted">Recetas que lo usan: ${r.map(y=>`<button class="link small" data-a="verReceta" data-id="${y.id}">${esc(y.nombre)}</button>`).join(', ')}</div>`:''}
   <div class="g2"><div class="fld"><label for="d-c">Cantidad</label><input class="inp" id="d-c" type="number" step="any" inputmode="decimal" value="${esc(x.cantidad)}"></div><div class="fld"><label for="d-f">Caduca</label><input class="inp" id="d-f" type="date" value="${esc(x.caduca||'')}"></div></div>
+  ${esCuenta(x.unidad)?`<button class="btn gl sm" data-a="despQueda" data-id="${x.id}">📊 ¿Cuánto queda? (paquete empezado)</button>`:''}
   <button class="btn gl sm" data-a="editArtN" data-n="${esc(x.nombre)}" data-from="despensa">${svg('edit')}Editar artículo (nombre, foto, precios…)</button>
   <div class="row"><button class="btn gl sm" data-a="addLista1" data-n="${esc(x.nombre)}">＋ A la lista</button><span class="grow"></span><button class="btn pri sm" data-a="saveDesp" data-id="${x.id}">Guardar</button></div>`)};
 A.saveDesp=async d=>{await upd('despensa',d.id,{cantidad:num($('#d-c').value)||1,caduca:$('#d-f').value||null});closeSheet()};
@@ -1147,7 +1151,11 @@ function envase(nombre,cat){const n=norm(nombre);cat=cat||infoArticulo(nombre).c
   if(cat==='Congelados')return ['bolsa','bolsas'];
   if(['Pasta, arroz y legumbres','Desayuno y dulces','Panadería','Charcutería y quesos','Bebé','Mascotas'].includes(cat))return ['paquete','paquetes'];
   return ['unidad','unidades']}
-const cantTxt=d=>{if((d.unidad||'ud')!=='ud')return fmtQty(d.cantidad,d.unidad);/* lata, bote… o kg/l */const c=num(d.cantidad)||1;const [s1,pl]=envase(d.nombre,d.categoria);return `${String(+c.toFixed(2)).replace('.',',')} ${c===1?s1:pl}`};
+const nombresEnv=d=>{const u=d.unidad||'ud';return ENV[u]?[u,ENV[u]]:envase(d.nombre,d.categoria)};
+const partes=c=>{c=Math.max(0,num(c));let e=Math.floor(c+1e-9),r=Math.round((c-e)*100);if(r>=100){e++;r=0}return {e,r}};
+const cantTxt=d=>{const u=d.unidad||'ud';if(!esCuenta(u))return fmtQty(d.cantidad,u);const c=num(d.cantidad);const [s1,pl]=nombresEnv(d);const {e,r}=partes(c);
+  if(!r)return `${e} ${e===1?s1:pl}`;return e?`${e} ${e===1?s1:pl} + 1 empezado (${r}%)`:`1 ${s1} empezado (${r}%)`};
+const barraHtml=d=>{if(!esCuenta(d.unidad))return '';const {r}=partes(d.cantidad);if(!r)return '';return `<span class="nivel" title="Empezado al ${r}%"><i style="width:${r}%;background:${r<=20?'var(--red)':r<=45?'var(--orange)':'var(--green)'}"></i></span>`};
 function despBuscarHtml(q){const k=norm(q);const bs=borradosSet();let l;
   if(!k){l=S.t.articulos.filter(a=>!borrado(a)&&num(a.veces)>0).sort((a,b)=>b.veces-a.veces).slice(0,40);
     if(l.length<20){const ya=new Set(l.map(a=>norm(a.nombre)));l=l.concat(S.catalogo.filter(c=>!ya.has(norm(c.nombre))&&!bs.has(norm(c.nombre))&&c.categoria!=='Ropa y calzado'&&c.categoria!=='Electrónica').slice(0,40-l.length))}}
@@ -1210,8 +1218,9 @@ A.despCant=d=>{const n=d.n;const info=infoArticulo(n);const ya=enCasa(n);const u
    <button class="btn gl sm" data-a="fotoArtN" data-n="${esc(n)}">${svg('camera')}${S.t.articulos.some(a=>norm(a.nombre)===norm(n)&&a.imagen)?'Cambiar la foto':'Hacer o subir foto'}</button>
    ${ep&&ep.off?`<div class="small muted">Escaneado: <b>${esc(ep.off)}</b>. ¿No es esto? <button class="link small" data-a="addDesp" data-q="${esc(ep.off)}">Elegir otro producto</button></div>`:''}
    <div class="fld"><label>${ya.length?'¿Cuánto tenéis en total?':'¿Cuánto tenéis?'}</label>
-    <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?+tot.toFixed(3):(esCuenta(u0)||u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
+    <div class="row" style="gap:10px;justify-content:center"><div class="stp big"><button data-a="qMenos" aria-label="Menos">−</button><input class="inp" id="q-c" type="number" step="any" inputmode="decimal" value="${tot?(esCuenta(u0)?partes(tot).e:+tot.toFixed(3)):(esCuenta(u0)||u0==='kg'||u0==='l'?1:500)}"><button data-a="qMas" aria-label="Más">+</button></div>
     <select class="inp" id="q-u" style="width:auto" data-s1="${esc(s1)}">${[['ud',pl],...Object.entries(ENV).filter(([k,v])=>v!==pl).map(([k,v])=>[k,v]),['kg','kg'],['g','g'],['l','litros'],['ml','ml']].map(([v,t])=>`<option value="${v}" ${v===(u0b||u0)?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+   <div class="fld" id="q-empf" style="${esCuenta(u0)?'':'display:none'}"><label for="qr-q">¿Hay uno empezado? <b id="qrt-q">${partes(tot).r&&esCuenta(u0)?partes(tot).r+'%':'no'}</b></label><input class="rango" id="qr-q" type="range" min="0" max="100" step="5" value="${esCuenta(u0)?partes(tot).r:0}" data-c="q"><div class="qchips">${[['No',0],['Casi nada',10],['¼',25],['Mitad',50],['¾',75]].map(([t,v])=>`<button class="chip" data-a="qrPon" data-c="q" data-v="${v}">${t}</button>`).join('')}</div><span class="tiny muted">Arriba pon los que están sin abrir; aquí cuánto queda del abierto.</span></div>
    <div class="fld" id="q-packf" style="${esCuenta(u0)?'':'display:none'}"><label for="q-pc" id="q-packl">${esc(packLabel(u0,s1))}</label>
     <div class="row" style="gap:8px"><input class="inp" id="q-pc" type="number" step="any" inputmode="decimal" placeholder="—" style="width:90px;text-align:center" value="${pk&&!ya.length?esc(pk.n):''}">
     <select class="inp" id="q-pu" style="width:auto">${[['lata','latas'],['ud','unidades'],['g','g'],['kg','kg'],['ml','ml'],['l','litros'],['bote','botes'],['bolsa','bolsas'],['paquete','paquetes'],['botella','botellas'],['brick','bricks'],['pieza','piezas']].map(([v,t])=>`<option value="${v}" ${pk&&!ya.length&&pk.u===v?'selected':''}>${t}</option>`).join('')}</select></div>
@@ -1232,7 +1241,7 @@ A.qCad=(d,b)=>{$('#q-f').value=addDays(hoy(),+d.d);document.querySelectorAll('[d
 function packLabel(u,s1){const e=u==='ud'?s1:u;return `¿Cuánto trae cada ${e}?`}
 A.qVolver=()=>{if(S.despFlujo)A.addDesp();else closeSheet()};
 A.qCero=async d=>{for(const x of enCasa(d.n))await rem('despensa',x.id);toast(`${d.n}: ya no queda`);A.qVolver()};
-A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const c0=num($('#q-c').value)||0,u=$('#q-u').value||'ud',cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
+A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{}).value),qs=($('#q-s')||{}).value||'',epf=S.eanPend;const lug=S.lugaresOk?lugarSel('q'):null;if(lug)await asegurarLugar(lug);if(lug){const m=lsGet('cc-lugar',{});m[norm(n)]=lug;lsSet('cc-lugar',m)}const u=$('#q-u').value||'ud',c0=(num($('#q-c').value)||0)+(esCuenta($('#q-u').value||'ud')?(num(($('#qr-q')||{}).value)||0)/100:0),cad=$('#q-f').value||null,reg=!!($('#q-reg')||{}).checked;
   const pc=esCuenta(u)?num(($('#q-pc')||{}).value):0,pu=($('#q-pu')||{}).value||'ud';let c=c0,uf=u,packTxt='';
   const packs=lsGet('cc-pack',{});if(pc>0){c=+(c0*pc).toFixed(3);uf=pu;packTxt=` (${fmtQty(c0,u==='ud'?'ud':u)} de ${fmtQty(pc,pu)})`;packs[norm(n)]={env:u,n:pc,u:pu};lsSet('cc-pack',packs)}
   const ya=enCasa(n);if(c<=0){for(const x of ya)await rem('despensa',x.id);toast(`${n}: ya no queda`);A.qVolver();return}
@@ -1248,6 +1257,18 @@ A.qGuardar=async d=>{const n=d.n,info=infoArticulo(n);const qp=num(($('#q-p')||{
     else await apuntarPrecio({nombre:art?art.nombre:cap(n),super:qs,marca:(epf&&epf.marca)||'',precio:qp,unidad:'ud',formato:(epf&&epf.cantidad)||(pc>0?`${pc} ${pu}`:'')})}
   const sinP=!ofertas(n).length;
   toast(`${reg?'🎁 ':''}${n}: ${cantTxt({nombre:n,categoria:info.categoria,cantidad:c,unidad:uf})}${packTxt}${lug?' · 📍 '+lug:''}${cad?' · caduca '+fmtFecha(cad):''}${sinP&&!reg?' · sin precio':''}`);A.qVolver()};
+function quedaHtml(c,s1,pl,ctx){const {e,r}=partes(c);return `<div class="fld"><label>Enteros (sin abrir)</label><div class="row" style="gap:10px"><div class="stp big"><button data-a="qeMenos" data-c="${ctx}" aria-label="Menos">−</button><input class="inp" id="qe-${ctx}" type="number" inputmode="numeric" min="0" step="1" value="${e}"><button data-a="qeMas" data-c="${ctx}" aria-label="Más">+</button></div><span class="small muted">${esc(pl)}</span></div></div>
+  <div class="fld"><label for="qr-${ctx}">Y uno empezado: <b id="qrt-${ctx}">${r?r+'%':'ninguno'}</b></label><input class="rango" id="qr-${ctx}" type="range" min="0" max="100" step="5" value="${r}" data-c="${ctx}">
+   <div class="qchips">${[['Ninguno',0],['Casi nada',10],['¼',25],['Mitad',50],['¾',75]].map(([t,v])=>`<button class="chip" data-a="qrPon" data-c="${ctx}" data-v="${v}">${t}</button>`).join('')}</div></div>`}
+const quedaVal=ctx=>Math.max(0,Math.floor(num(($('#qe-'+ctx)||{}).value)||0))+(num(($('#qr-'+ctx)||{}).value)||0)/100;
+A.qeMas=d=>{const i=$('#qe-'+d.c);i.value=(Math.floor(num(i.value))||0)+1};
+A.qeMenos=d=>{const i=$('#qe-'+d.c);i.value=Math.max(0,(Math.floor(num(i.value))||0)-1)};
+A.qrPon=d=>{const i=$('#qr-'+d.c);i.value=d.v;$('#qrt-'+d.c).textContent=+d.v?d.v+'%':(d.c==='q'?'no':'ninguno')};
+A.despQueda=d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const [s1,pl]=nombresEnv(x);
+  sheet(`<div class="row">${thumb(x,'lg')}<div class="grow"><h2>¿Cuánto queda?</h2><span class="small muted">${esc(x.nombre)} · ahora: ${esc(cantTxt(x))}</span></div></div>
+   ${quedaHtml(num(x.cantidad),s1,pl,'v')}
+   <div class="row"><button class="btn red sm" data-a="gastado" data-id="${x.id}">Se acabó</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="despQuedaOk" data-id="${x.id}">Guardar</button></div>`)};
+A.despQuedaOk=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=+quedaVal('v').toFixed(2);if(c<=0){await sacar(x,'consumido');return}await upd('despensa',x.id,{cantidad:c});closeSheet();toast(`${x.nombre}: ${cantTxt({...x,cantidad:c})}`)};
 A.despALista=async d=>{await addLista(d.n,{});toast(`${d.n} apuntado en la lista de la compra`,`<button class="act" data-a="tab" data-k="compra">Ver lista</button>`)};
 A.despMas=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(x)await upd('despensa',x.id,{cantidad:(num(x.cantidad)||0)+1})};
 A.despMenos=async d=>{const x=S.t.despensa.find(y=>y.id===d.id);if(!x)return;const c=(num(x.cantidad)||1)-1;if(c<=0)await sacar(x,'consumido');else await upd('despensa',x.id,{cantidad:c})};
