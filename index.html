@@ -770,7 +770,10 @@ function itemRow(i){if(S.editLista&&!i.comprado)return `<div class="it">${'<butt
   if(S.listMode==='pasillo'&&i.receta)mt.push('🍽️ '+esc(i.receta));
   return `<div class="it sw-ok ${i.comprado?'done':''}" data-id="${i.id}"><button class="radio ${i.comprado?'on':''}" data-a="check" data-id="${i.id}" aria-label="${i.comprado?'Desmarcar':'Marcar'} ${esc(i.nombre)}">${i.comprado?svg('check'):''}</button>${thumb(i)}
     <button class="body" data-a="editItem" data-id="${i.id}"><div class="nm">${esc(i.nombre)}</div><div class="mt">${mt.join(' · ')}${casa&&!i.comprado?` · <span style="color:var(--orange)">en casa: ${fmtQty(casa,enCasa(i.nombre)[0].unidad)}</span>`:''}</div></button>
-    ${v?`<span class="pr">${eur(v)}</span>`:''}${avatar(i.comprado?i.comprado_por:i.por,'')}<button class="del" data-a="quitarItem" data-id="${i.id}" tabindex="-1">Quitar</button></div>`}
+    ${i.comprado?'':`<div class="stp sm"><button data-a="listaMenos" data-id="${i.id}" aria-label="Menos ${esc(i.nombre)}" ${num(i.cantidad)-pasoDe(i.unidad)<=1e-6?'style="opacity:.35"':''}>−</button><button data-a="editItem" data-id="${i.id}" class="stp-n" aria-label="Cantidad de ${esc(i.nombre)}">${+(+num(i.cantidad)||1).toFixed(2)}</button><button data-a="listaMas" data-id="${i.id}" aria-label="Más ${esc(i.nombre)}">+</button></div>`}
+    ${v?`<span class="pr">${eur(v)}</span>`:''}${i.comprado?avatar(i.comprado_por,''):''}<button class="del" data-a="quitarItem" data-id="${i.id}" tabindex="-1">Quitar</button></div>`}
+A.listaMas=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(i)await upd('lista',i.id,{cantidad:+((num(i.cantidad)||0)+pasoDe(i.unidad)).toFixed(3)})};
+A.listaMenos=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;const c=+((num(i.cantidad)||1)-pasoDe(i.unidad)).toFixed(3);if(c<=1e-6){toast('Para quitarlo de la lista, desliza a la izquierda o usa «Editar».');return}await upd('lista',i.id,{cantidad:c})};
 
 /* ---------- DESPENSA ---------- */
 function vDespensa(){const q=norm(S.despQ);
