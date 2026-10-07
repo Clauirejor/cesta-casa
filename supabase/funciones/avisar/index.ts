@@ -15,8 +15,11 @@ const json = (o: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
-    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    // Actúa con los permisos de quien llama (vale con las claves nuevas y las antiguas de Supabase)
+    const auth = req.headers.get("Authorization") || "";
+    const apikey = req.headers.get("apikey") || Deno.env.get("SUPABASE_ANON_KEY") || "";
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, apikey, { global: { headers: { Authorization: auth } } });
+    const token = auth.replace(/^Bearer\s+/i, "");
     const { data: { user }, error } = await admin.auth.getUser(token);
     if (error || !user) return json({ error: "sin sesión" }, 401);
 

@@ -268,6 +268,10 @@ drop policy if exists "mis avisos" on public.push_subs;
 create policy "mis avisos" on public.push_subs for all to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid() and public.es_miembro(hogar_id));
+drop policy if exists "avisos de mi casa" on public.push_subs;
+create policy "avisos de mi casa" on public.push_subs for select to authenticated using (public.es_miembro(hogar_id));
+drop policy if exists "quitar avisos caducados" on public.push_subs;
+create policy "quitar avisos caducados" on public.push_subs for delete to authenticated using (public.es_miembro(hogar_id));
 
 -- ---------- Crear hogar / unirse con código ----------
 create or replace function public.crear_hogar(p_nombre text, p_mi_nombre text, p_color text default '#3478F6')
