@@ -253,6 +253,22 @@ begin
   end loop;
 end $$;
 
+-- ---------- Avisos push ----------
+create table if not exists public.push_subs (
+  id uuid primary key default gen_random_uuid(),
+  hogar_id uuid not null references public.hogares(id) on delete cascade,
+  user_id uuid not null default auth.uid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.push_subs enable row level security;
+drop policy if exists "mis avisos" on public.push_subs;
+create policy "mis avisos" on public.push_subs for all to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid() and public.es_miembro(hogar_id));
+
 -- ---------- Crear hogar / unirse con código ----------
 create or replace function public.crear_hogar(p_nombre text, p_mi_nombre text, p_color text default '#3478F6')
 returns public.hogares language plpgsql security definer set search_path = public as $$

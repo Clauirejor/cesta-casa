@@ -375,7 +375,7 @@ const logo=s=>{const e=tiendaEmoji(s);return e?`<span class="logo" style="backgr
 const S={mode:null,sb:null,user:null,hogar:null,me:null,rt:false,
   t:Object.fromEntries(TABLAS.map(t=>[t,[]])),cats:CATS.map(([nombre,emoji,color,desp],i)=>({nombre,emoji,color,va_a_despensa:desp,orden:i})),
   catalogo:CATALOGO.map(([nombre,categoria,emoji,unidad])=>({nombre,categoria,emoji,unidad})),
-  tab:lsGet('cc-tab','inicio'),sub:null,day:hoy(),week:lunes(hoy()),listMode:'pasillo',closed:{},
+  tab:location.hash==='#compra'?'compra':lsGet('cc-tab','inicio'),sub:null,day:hoy(),week:lunes(hoy()),listMode:'pasillo',closed:{},
   despF:'todos',precioVista:lsGet('cc-pvista','lista'),despCat:'',despQ:'',precioQ:'',precioDet:null,precioSeg:'precio',precioSup:'',addQ:'',ready:false};
 
 const A={};
@@ -409,7 +409,8 @@ const Supa={
     {const r=await q('tipos');S.tiposOk=!r.error;S.t.tipos=r.error?[]:r.data}
     if(!res[10].error&&res[10].data.length)S.catsBase=res[10].data;mezclarTipos();
     if(!res[11].error&&res[11].data.length)S.catalogo=res[11].data;
-    const mine=S.t.miembros.find(m=>m.user_id===S.user.id);if(mine)S.me=mine;},
+    const mine=S.t.miembros.find(m=>m.user_id===S.user.id);if(mine)S.me=mine;
+    if('Notification'in window&&Notification.permission==='granted')setTimeout(()=>suscribirPush(true),2500);},
   realtime(){if(this.ch)S.sb.removeChannel(this.ch);const h=S.hogar.id;const ch=S.sb.channel('hogar-'+h);
     for(const t of TABLAS){if((t==='lugares'&&!S.lugaresOk)||(t==='tipos'&&!S.tiposOk))continue;ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:t},p=>onRemote(t,'DELETE',null,p.old))}
@@ -589,6 +590,7 @@ async function addLista(nombre,o){o=o||{};nombre=cap(nombre);if(!nombre)return;
     if(Object.keys(p).length)await upd('lista',ya.id,p);return 'sumado'}
   await ins('lista',{nombre:info.nombre&&norm(info.nombre)===norm(nombre)?info.nombre:nombre,emoji:info.emoji||'📦',categoria:info.categoria||'Otros',cantidad:num(o.cantidad)||1,unidad:o.unidad||info.unidad||'ud',
     receta:o.receta||'',super:o.super||'',marca:o.marca||info.marca||'',precio:0,nota:o.nota||'',por:S.me.id,...cmp});
+  if(!o.comprado)avisoLista('add',info.nombre&&norm(info.nombre)===norm(nombre)?info.nombre:nombre);
   if(!o.sinTocar)tocarArticulo({...info,nombre});return 'nuevo'}
 
 /* ============ PRECIOS ============ */
@@ -916,7 +918,7 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')re
     <div class="small muted" style="margin-top:8px">Eres <b style="color:var(--ink)">${esc(S.me.nombre)}</b>. ${S.mode==='demo'?'Modo demo: los datos están solo en este dispositivo.':'Todo lo que apunta uno lo ve el otro al momento.'}</div></section>
    <div class="g3"><div class="glass stat"><span class="tiny">Gastado</span><b>${eur(gast)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">este mes</span></div><div class="glass stat"><span class="tiny">Tirado</span><b style="color:var(--red)">${eur(tirE)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">${tir.length} ${tir.length===1?'producto':'productos'}</span></div><div class="glass stat"><span class="tiny">Despensa</span><b>${S.t.despensa.length}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">productos</span></div></div>
    ${Object.keys(ps).length?`<section class="glass pad" style="display:grid;gap:10px"><b>Este mes por súper</b>${Object.entries(ps).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div><div class="row small"><span class="grow">${esc(s)}</span><span class="pr">${eur(v)}</span></div><div class="bar"><i style="width:${v/mx*100}%;background:${superColor(s)}"></i></div></div>`).join('')}</section>`:''}
-   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando la otra persona compra algo')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
+   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando alguien de casa cambia la lista, aunque la app esté cerrada')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
 function vRecetas(){const r=[...S.t.recetas].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
@@ -1030,7 +1032,7 @@ A.saveItem=async d=>{const v=id=>$('#'+id).value;const cat=catVal('e-cat');const
 A.delItem=async d=>{closeSheet();await quitarDeLista([d.id])};
 A.quitarItem=async d=>{await quitarDeLista([d.id])};
 let QUITADOS=[];
-async function quitarDeLista(ids){const rows=S.t.lista.filter(i=>ids.includes(i.id));if(!rows.length)return;QUITADOS=rows.map(r=>({...r}));await rem('lista',ids);
+async function quitarDeLista(ids){const rows=S.t.lista.filter(i=>ids.includes(i.id));if(!rows.length)return;rows.filter(r=>!r.comprado).forEach(r=>avisoLista('quit',r.nombre));QUITADOS=rows.map(r=>({...r}));await rem('lista',ids);
   toast(rows.length===1?`Quitado de la lista: ${rows[0].nombre}`:`${rows.length} productos quitados de la lista`,`<button class="act" data-a="deshacerQuitar">Deshacer</button>`)}
 A.deshacerQuitar=async()=>{const r=QUITADOS;QUITADOS=[];if(!r.length)return;await ins('lista',r.map(({id,hogar_id,...x})=>x));toast('Recuperado')};
 A.editLista=()=>{S.editLista=!S.editLista;paint()};
@@ -1146,6 +1148,7 @@ A.confirmCompra=async()=>{const h=S.t.lista.filter(i=>i.comprado);const b=$('[da
     if(ex){const p={cantidad:+((num(ex.cantidad)||0)+x.cantidad).toFixed(3),created_at:nowIso()};if(lug&&lug!==ex.lugar)p.lugar=lug;if(x.caduca)p.caduca=x.caduca;if(x.super)p.super=unirSuper(ex.super,x.super);if(x.precio)p.precio=x.precio;await upd('despensa',ex.id,p)}
     else nuevos.push(lug?{...x,lugar:lug}:x)}
   if(nuevos.length)await ins('despensa',nuevos);if(precs.length)await ins('precios',precs);await ins('eventos',evs);await rem('lista',h.map(i=>i.id));
+  avisar(`✅ ${S.me.nombre} ha hecho la compra`,evs.slice(0,6).map(e=>e.nombre).join(', ')+(evs.length>6?` y ${evs.length-6} más`:'')+(evs[0]&&evs[0].super?` · ${evs[0].super}`:''));
   closeSheet();toast(`${h.length} guardados${desp.length?` · ${desp.length} en la despensa`:''}`,`<a href="${waLink(evs)}" target="_blank" rel="noopener">WhatsApp</a>`)};
 function waLink(evs){const sup=[...new Set(evs.map(e=>e.super).filter(Boolean))].join(', ');
   return 'https://wa.me/?text='+encodeURIComponent(`🛒 ${S.me.nombre} ha comprado${sup?' en '+sup:''}:\n`+evs.map(e=>`• ${e.nombre}${e.marca?' ('+e.marca+')':''}`).join('\n'))}
@@ -1723,8 +1726,31 @@ A.cambiarNombre=()=>sheet(`<h2>Mi nombre y color</h2><div class="fld"><label for
 A.pickColor=(d,b)=>{S._color=d.c;document.querySelectorAll('[data-a=pickColor]').forEach(x=>x.style.outline='');b.style.outline='3px solid var(--ink)';b.style.outlineOffset='2px'};
 A.saveNombre=async()=>{const n=cap($('#cn-n').value)||S.me.nombre;await upd('miembros',S.me.id,{nombre:n,color:S._color||S.me.color});S.me=S.t.miembros.find(m=>m.id===S.me.id)||S.me;closeSheet()};
 A.demoSoy=d=>{lsSet('cc-demo-me',d.id);S.me=S.t.miembros.find(m=>m.id===d.id);closeSheet();paint()};
-A.notis=async()=>{if(!('Notification'in window)){toast('Este navegador no permite avisos. En iPhone, instala la app en la pantalla de inicio primero.');return}
-  const p=await Notification.requestPermission();toast(p==='granted'?'Avisos activados mientras la app esté abierta o en segundo plano':'Avisos no permitidos')};
+A.notis=async()=>{if(!('Notification'in window)||!('PushManager'in window)){toast('Este móvil no permite avisos así. En iPhone, instala primero la app en la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde ahí.');return}
+  const p=await Notification.requestPermission();if(p!=='granted'){toast('Avisos no permitidos. Puedes activarlos en Ajustes → Notificaciones → Cesta Casa.');return}
+  if(S.mode!=='supa'){toast('Avisos activados (en el modo demo solo con la app abierta).');return}
+  const ok=await suscribirPush(false);if(ok)toast('🔔 Avisos activados: te llegará un aviso cuando alguien de casa cambie la lista, aunque tengas la app cerrada.')};
+/* ---- avisos push (llegan con la app cerrada) ---- */
+const VAPID_PUB='BN8L5IyBvVX4Mi9Yg5uSrZUO-YV3H8NmB0Uljo7xpAJkuUsuDJ_yplQtXlkks5U7rCidHsoRUNu6LJD4CLprIlo';
+const b64u=x=>{const r=atob((x+'='.repeat((4-x.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+async function suscribirPush(silencioso){if(S.mode!=='supa'||!S.user||!('serviceWorker'in navigator)||!('PushManager'in window))return false;
+  try{const r=await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
+    if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});const j=sub.toJSON();
+    const {error}=await S.sb.from('push_subs').upsert({hogar_id:S.hogar.id,user_id:S.user.id,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:'endpoint'});
+    if(error)throw error;return true}
+  catch(e){if(!silencioso)toast(/push_subs/.test(e.message||'')?'Para los avisos falta un paso en Supabase (actualización 11).':'No se pudieron activar los avisos: '+(e.message||e));return false}}
+const AV={add:[],quit:[],t:null};
+function avisoLista(tipo,nombre){if(S.mode!=='supa')return;if(!AV[tipo].includes(nombre))AV[tipo].push(nombre);clearTimeout(AV.t);AV.t=setTimeout(()=>enviarAvisoLista(false),20000)}
+function enviarAvisoLista(keep){clearTimeout(AV.t);const a=AV.add.splice(0),q=AV.quit.splice(0);if(!a.length&&!q.length)return;
+  const lst=l=>l.slice(0,5).join(', ')+(l.length>5?` y ${l.length-5} más`:'');const yo=S.me&&S.me.nombre||'Alguien';
+  const titulo=a.length&&!q.length?`🛒 ${yo} ha añadido ${a.length===1?a[0]:a.length+' cosas'} a la lista`:`🛒 ${yo} ha cambiado la lista`;
+  const texto=[a.length>1||q.length?`Añadido: ${lst(a)}`:'',q.length?`Quitado: ${lst(q)}`:''].filter(x=>x&&!/: $/.test(x)).join(' · ')||'Toca para ver la lista';
+  avisar(titulo,texto,keep)}
+async function avisar(titulo,texto,keep){if(S.mode!=='supa'||!S.hogar)return;try{const {data}=await S.sb.auth.getSession();const tk=data.session&&data.session.access_token;if(!tk)return;const cfg=getConfig();
+  await fetch(cfg.url+'/functions/v1/avisar',{method:'POST',keepalive:!!keep,headers:{'Content-Type':'application/json',Authorization:'Bearer '+tk,apikey:cfg.key},body:JSON.stringify({hogar_id:S.hogar.id,titulo,texto})})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)enviarAvisoLista(true)});
+if(location.hash==='#compra')setTimeout(()=>history.replaceState(null,'',location.pathname+location.search),500);
+if('serviceWorker'in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab&&S.ready!==undefined&&A.tab)A.tab({k:e.data.tab})});
 A.instalar=()=>sheet(`<h2>Instalar en el móvil</h2><div class="small" style="display:grid;gap:10px"><div><b>iPhone (Safari):</b> botón Compartir → «Añadir a pantalla de inicio».</div><div><b>Android (Chrome):</b> menú ⋮ → «Instalar aplicación» o «Añadir a pantalla de inicio».</div><div class="muted">Se abre a pantalla completa como una app normal.</div></div><button class="btn gl" data-a="close">Entendido</button>`);
 A.logout=async()=>{closeSheet();if(S.sb)await S.sb.auth.signOut();location.reload()};
 A.irSetup=()=>{closeSheet();lsSet('cc-mode','');renderSetup()};
