@@ -25,17 +25,25 @@
   --green:#1F9D55; --green-soft:rgba(52,199,89,.16); --orange:#C26A00; --orange-soft:rgba(255,149,0,.16);
   --star:#FFB800; --shadow:0 8px 28px rgba(80,50,20,.12); --shadow-btn:0 10px 24px rgba(47,107,255,.35);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace; --velo:rgba(255,255,255,.38);
   color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root{
+@media (prefers-color-scheme:dark){:root:not([data-modo="claro"]){
   --bg:#14110E; --blob1:#5A3418; --blob2:#22361F; --blob3:#4A2E1E; --blob4:#2A2219;
   --glass:rgba(38,36,34,.62); --glass-strong:rgba(44,42,40,.92); --glass-line:rgba(255,255,255,.08);
   --ink:#F2F2F7; --ink2:#D1D1D6; --muted:#A1A1A8; --sep:rgba(255,255,255,.10); --fill:rgba(118,118,128,.24);
   --accent:#4C83FF; --accent2:#6B98FF; --accent-ink:#FFFFFF; --accent-soft:rgba(76,131,255,.20);
   --red:#FF6961; --red-soft:rgba(255,105,97,.16); --red-card:rgba(90,30,30,.55);
   --green:#4CD27E; --green-soft:rgba(76,210,126,.18); --orange:#FFB340; --orange-soft:rgba(255,179,64,.18);
-  --shadow:0 8px 28px rgba(0,0,0,.4); --shadow-btn:0 10px 24px rgba(47,107,255,.35); color-scheme:dark}}
+  --shadow:0 8px 28px rgba(0,0,0,.4); --shadow-btn:0 10px 24px rgba(47,107,255,.35); --velo:rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-modo="oscuro"]{
+  --bg:#14110E; --blob1:#5A3418; --blob2:#22361F; --blob3:#4A2E1E; --blob4:#2A2219;
+  --glass:rgba(38,36,34,.62); --glass-strong:rgba(44,42,40,.92); --glass-line:rgba(255,255,255,.08);
+  --ink:#F2F2F7; --ink2:#D1D1D6; --muted:#A1A1A8; --sep:rgba(255,255,255,.10); --fill:rgba(118,118,128,.24);
+  --accent:#4C83FF; --accent2:#6B98FF; --accent-ink:#FFFFFF; --accent-soft:rgba(76,131,255,.20);
+  --red:#FF6961; --red-soft:rgba(255,105,97,.16); --red-card:rgba(90,30,30,.55);
+  --green:#4CD27E; --green-soft:rgba(76,210,126,.18); --orange:#FFB340; --orange-soft:rgba(255,179,64,.18);
+  --shadow:0 8px 28px rgba(0,0,0,.4); --shadow-btn:0 10px 24px rgba(47,107,255,.35); --velo:rgba(0,0,0,.45); color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.35 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -45,6 +53,17 @@ button{cursor:pointer}
   background:radial-gradient(38% 32% at 12% 18%,var(--blob1),transparent 70%),radial-gradient(34% 30% at 88% 12%,var(--blob2),transparent 70%),
   radial-gradient(40% 36% at 80% 78%,var(--blob3),transparent 70%),radial-gradient(44% 40% at 20% 85%,var(--blob4),transparent 70%),var(--bg)}
 #root{position:relative;z-index:1;min-height:100%}
+.bgfx.foto{filter:none;inset:0;background-size:cover;background-position:center}
+.tabbar .tico{width:27px;height:27px;object-fit:cover;border-radius:8px;display:block}
+.tabbar .tico.e{font-size:23px;line-height:27px;text-align:center;width:27px;border-radius:0}
+.tcard{border:2px solid transparent;border-radius:18px;padding:0;overflow:hidden;background:var(--glass-strong);text-align:left;display:flex;flex-direction:column}
+.tcard.on{border-color:var(--accent)}
+.tcard .pv{height:74px;position:relative}
+.tcard .pv i{position:absolute;right:10px;bottom:10px;padding:4px 10px;border-radius:99px;color:#fff;font-style:normal;font-weight:700;font-size:13px}
+.tcard b{padding:8px 10px 2px;font-size:15px}.tcard span{padding:0 10px 9px;font-size:12px;color:var(--muted)}
+.icoup{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:6px 2px;font-size:12px;color:var(--ink2)}
+.icoup .bx{width:48px;height:48px;border-radius:14px;background:var(--fill);display:grid;place-items:center;overflow:hidden}
+.icoup .bx img{width:100%;height:100%;object-fit:cover}.icoup .bx svg{width:26px;height:26px}
 .screen{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:calc(10px + env(safe-area-inset-top,0px)) calc(160px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 .hdr{display:flex;align-items:center;gap:10px;min-height:52px}
 .hdr h1{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1}
@@ -732,7 +751,7 @@ function suggHtml(){const sug=sugerencias(parseAdd(S.addQ.trim()).nombre);const 
   return `<div class="sugg">${sug.map(s=>`<button class="opt" data-a="addSug" data-n="${esc(s.nombre)}"><span class="e">${esc(s.emoji)}</span><span class="grow">${esc(s.nombre)}<span class="tiny muted" style="display:block">${esc(s.categoria)}${s.src==='mio'?' · ya lo habéis comprado':''}</span></span>${inL(s.nombre)?'<span class="pill blue">En lista</span>':''}</button>`).join('')}${!sug.some(s=>norm(s.nombre)===norm(pn))?`<button class="opt" data-a="addSug" data-n="${esc(cap(pn))}"><span class="e">＋</span><span class="grow">Añadir «${esc(cap(pn))}»<span class="tiny muted" style="display:block">${esc(infoArticulo(pn).categoria)}</span></span></button>`:''}<button class="opt" data-a="addUnaVez" data-n="${esc(cap(pn))}"><span class="e">⏱</span><span class="grow">«${esc(cap(pn))}» solo esta vez<span class="tiny muted" style="display:block">No se guarda como artículo: al marcarlo desaparece</span></span></button></div>`}
 function tabbar(){const nP=S.t.lista.filter(i=>!i.comprado).length,nC=S.t.despensa.filter(d=>{const n=diasHasta(d.caduca);return n!=null&&n<=2}).length;
   const T=[['inicio','Inicio',0],['compra','Compra',nP],['despensa','Despensa',nC],['precios','Precios',0],['mas','Más',0]];
-  return `<nav class="tabbar"><div class="in">${T.map(([k,l,b])=>`<button data-a="tab" data-k="${k}" class="${S.tab===k?'on':''}" aria-current="${S.tab===k?'page':'false'}">${svg(k)}${l}${b?`<span class="bd">${b}</span>`:''}</button>`).join('')}</div></nav>`}
+  return `<nav class="tabbar"><div class="in">${T.map(([k,l,b])=>`<button data-a="tab" data-k="${k}" class="${S.tab===k?'on':''}" aria-current="${S.tab===k?'page':'false'}">${tabIcono(k)}${l}${b?`<span class="bd">${b}</span>`:''}</button>`).join('')}</div></nav>`}
 function fab(){if(S.tab!=='compra')return '';if(S.editLista)return `<div class="fab"><button class="btn pri" data-a="editLista">Hecho</button></div>`;const c=S.t.lista.filter(i=>i.comprado).length,p=S.t.lista.filter(i=>!i.comprado).length;
   if(c)return `<div class="fab"><button class="btn pri" data-a="guardarCompra">${svg('checks')}Guardar ${c} ${c===1?'producto':'productos'} comprados</button></div>`;
   if(p)return `<div class="fab"><button class="btn pri" data-a="marcarTodo">${svg('checks')}Marcar todo como comprado</button></div>`;return ''}
@@ -931,9 +950,60 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='vinos')return
     <div class="small muted" style="margin-top:8px">Eres <b style="color:var(--ink)">${esc(S.me.nombre)}</b>. ${S.mode==='demo'?'Modo demo: los datos están solo en este dispositivo.':'Todo lo que apunta uno lo ve el otro al momento.'}</div></section>
    <div class="g3"><div class="glass stat"><span class="tiny">Gastado</span><b>${eur(gast)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">este mes</span></div><div class="glass stat"><span class="tiny">Tirado</span><b style="color:var(--red)">${eur(tirE)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">${tir.length} ${tir.length===1?'producto':'productos'}</span></div><div class="glass stat"><span class="tiny">Despensa</span><b>${S.t.despensa.length}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">productos</span></div></div>
    ${Object.keys(ps).length?`<section class="glass pad" style="display:grid;gap:10px"><b>Este mes por súper</b>${Object.entries(ps).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div><div class="row small"><span class="grow">${esc(s)}</span><span class="pr">${eur(v)}</span></div><div class="bar"><i style="width:${v/mx*100}%;background:${superColor(s)}"></i></div></div>`).join('')}</section>`:''}
-   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}<button class="opt" data-a="subVinos"><span style="font-size:22px;width:24px;text-align:center">🍷</span><span class="grow">Bodega<span class="tiny muted" style="display:block">${(S.t.vinos||[]).length?`${(S.t.vinos||[]).length} vinos · ${(S.t.vinos||[]).reduce((a,v)=>a+num(v.botellas),0)} botellas en casa`:'Vinos, cavas, champagne y espumosos'}</span></span>${svg('chevR','chev-r')}</button>${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando alguien de casa cambia la lista, aunque la app esté cerrada')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
+   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}<button class="opt" data-a="apariencia"><span style="font-size:22px;width:24px;text-align:center">🎨</span><span class="grow">Apariencia<span class="tiny muted" style="display:block">Tema ${esc(temaActual().n)} · colores, iconos y fondo</span></span>${svg('chevR','chev-r')}</button><button class="opt" data-a="subVinos"><span style="font-size:22px;width:24px;text-align:center">🍷</span><span class="grow">Bodega<span class="tiny muted" style="display:block">${(S.t.vinos||[]).length?`${(S.t.vinos||[]).length} vinos · ${(S.t.vinos||[]).reduce((a,v)=>a+num(v.botellas),0)} botellas en casa`:'Vinos, cavas, champagne y espumosos'}</span></span>${svg('chevR','chev-r')}</button>${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando alguien de casa cambia la lista, aunque la app esté cerrada')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
+/* ---------- APARIENCIA: temas, iconos y fondo (solo en este móvil) ---------- */
+const FONT_INF='"Chalkboard SE","Comic Sans MS","Marker Felt",ui-rounded,sans-serif',FONT_RET='"Avenir Next Condensed","Futura","Trebuchet MS",sans-serif';
+const TEMAS=[
+ {k:'calido',n:'Cálido',d:'El de siempre',l:{},dk:{}},
+ {k:'neutro',n:'Neutro',d:'Grises y piedra, tranquilo',l:{bg:'#EEEDEA',blob1:'#D8D4CC',blob2:'#C9CCC8',blob3:'#DCD6CF',blob4:'#F3F1EC',accent:'#4A5560',accent2:'#5E6A76','accent-soft':'rgba(74,85,96,.12)','shadow-btn':'0 10px 24px rgba(40,50,60,.25)',shadow:'0 8px 28px rgba(0,0,0,.08)'},dk:{bg:'#121314',blob1:'#26282B',blob2:'#1E2124',blob3:'#2A2B2D',blob4:'#18191B',accent:'#9AA6B2',accent2:'#AEB8C3','accent-soft':'rgba(154,166,178,.2)','accent-ink':'#111'}},
+ {k:'vivo',n:'Vivo',d:'Colores con mucha energía',l:{bg:'#FFF1E8',blob1:'#FF6FA8',blob2:'#3FD2E0',blob3:'#FFC93C',blob4:'#9B7BFF',accent:'#E6005C',accent2:'#FF2D78','accent-soft':'rgba(230,0,92,.12)','shadow-btn':'0 10px 24px rgba(230,0,92,.35)'},dk:{bg:'#120A14',blob1:'#7A1145',blob2:'#0D5A63',blob3:'#6B4E08',blob4:'#3B2380',accent:'#FF4F93',accent2:'#FF77AB','accent-soft':'rgba(255,79,147,.22)'}},
+ {k:'pastel',n:'Pastel',d:'Suave y dulce',l:{bg:'#F8F2FA',blob1:'#FBC9D6',blob2:'#C6E8F2',blob3:'#D6F2C8',blob4:'#FFE9BA',accent:'#8A6FDF',accent2:'#A08AE8','accent-soft':'rgba(138,111,223,.14)','shadow-btn':'0 10px 24px rgba(138,111,223,.32)',ink:'#2D2A3A'},dk:{bg:'#16131C',blob1:'#4A2A38',blob2:'#1F3A44',blob3:'#2B3F25',blob4:'#43391D',accent:'#B3A1F2',accent2:'#C4B5F5','accent-soft':'rgba(179,161,242,.2)','accent-ink':'#1A1530'}},
+ {k:'mar',n:'Mediterráneo',d:'Azul mar y arena',l:{bg:'#EAF3F7',blob1:'#7EC8E3',blob2:'#F4E4C1',blob3:'#2E86AB',blob4:'#D7EEF5',accent:'#1F6FA8',accent2:'#3B8BC4','accent-soft':'rgba(31,111,168,.13)','shadow-btn':'0 10px 24px rgba(31,111,168,.33)'},dk:{bg:'#0A1419',blob1:'#123C4F',blob2:'#3A3324',blob3:'#0E3A55',blob4:'#13262E',accent:'#5BB0E6',accent2:'#7BC2EE','accent-soft':'rgba(91,176,230,.2)','accent-ink':'#04131C'}},
+ {k:'retro',n:'Retro',d:'Años 70: mostaza, teja y verde',l:{bg:'#F2E6CC',blob1:'#E3AE45',blob2:'#4F9A8E',blob3:'#C9573F',blob4:'#F6E2B3',accent:'#C2462E',accent2:'#D85C43','accent-soft':'rgba(194,70,46,.13)','shadow-btn':'0 6px 0 rgba(120,40,20,.35)',ink:'#2B1E14',ink2:'#4A3726',font:FONT_RET},dk:{bg:'#1A140D',blob1:'#5C4214',blob2:'#173A35',blob3:'#4F1F15',blob4:'#2C2213',accent:'#E8775C',accent2:'#F08E76','accent-soft':'rgba(232,119,92,.2)',font:FONT_RET}},
+ {k:'infantil',n:'Infantil',d:'Alegre, con dibujos en los botones',ico:'emoji',l:{bg:'#FFF8DD',blob1:'#FFD43B',blob2:'#4DC3FF',blob3:'#7BE07B',blob4:'#FF8FB1',accent:'#FF7A00',accent2:'#FF9A33','accent-soft':'rgba(255,122,0,.14)','shadow-btn':'0 10px 24px rgba(255,122,0,.35)',font:FONT_INF},dk:{bg:'#14110A',blob1:'#5E4A0A',blob2:'#0E4560',blob3:'#1E4A1E',blob4:'#5A2236',accent:'#FF9A33',accent2:'#FFB066','accent-soft':'rgba(255,154,51,.22)','accent-ink':'#1A1000',font:FONT_INF}},
+ {k:'minimal',n:'Minimalista',d:'Blanco, limpio, sin adornos',l:{bg:'#FAFAFA',blob1:'#FAFAFA',blob2:'#FAFAFA',blob3:'#FAFAFA',blob4:'#FAFAFA',glass:'#FFFFFF','glass-strong':'#FFFFFF','glass-line':'rgba(0,0,0,.08)',accent:'#111111',accent2:'#333333','accent-soft':'rgba(0,0,0,.07)','shadow-btn':'none',shadow:'0 1px 3px rgba(0,0,0,.07)'},dk:{bg:'#000000',blob1:'#000000',blob2:'#000000',blob3:'#000000',blob4:'#000000',glass:'#151515','glass-strong':'#1C1C1C','glass-line':'rgba(255,255,255,.08)',accent:'#FFFFFF',accent2:'#DDDDDD','accent-ink':'#000000','accent-soft':'rgba(255,255,255,.1)',shadow:'none','shadow-btn':'none'}}];
+const temaActual=()=>TEMAS.find(t=>t.k===lsGet('cc-tema','calido'))||TEMAS[0];
+const TAB_EMOJI={inicio:'🏠',compra:'🛒',despensa:'🥫',precios:'🏷️',mas:'✨'};
+function tabIcono(k){const im=lsGet('cc-ico-'+k,'');if(im)return `<img class="tico" src="${im}" alt="">`;const m=lsGet('cc-iconos','auto');
+  return (m==='emoji'||(m==='auto'&&temaActual().ico==='emoji'))?`<span class="tico e">${TAB_EMOJI[k]}</span>`:svg(k)}
+function aplicarTema(){const r=document.documentElement;const t=temaActual();r.dataset.tema=t.k;const m=lsGet('cc-modo','auto');if(m==='auto')delete r.dataset.modo;else r.dataset.modo=m;
+  let st=document.getElementById('tema-css');if(!st){st=document.createElement('style');st.id='tema-css';document.head.appendChild(st);
+    const v=o=>Object.entries(o).map(([k,x])=>`--${k}:${x}`).join(';');
+    st.textContent=TEMAS.filter(x=>Object.keys(x.l).length).map(x=>`@media (prefers-color-scheme:light){:root[data-tema="${x.k}"]:not([data-modo="oscuro"]){${v(x.l)}}}:root[data-tema="${x.k}"][data-modo="claro"]{${v(x.l)}}@media (prefers-color-scheme:dark){:root[data-tema="${x.k}"]:not([data-modo="claro"]){${v(x.dk)}}}:root[data-tema="${x.k}"][data-modo="oscuro"]{${v(x.dk)}}`).join('\n')}
+  const bg=document.querySelector('.bgfx');const f=lsGet('cc-fondo','');if(bg){bg.classList.toggle('foto',!!f);bg.style.backgroundImage=f?`linear-gradient(var(--velo),var(--velo)),url(${f})`:''}
+  const mc=document.querySelector('meta[name=theme-color]');if(mc)setTimeout(()=>{mc.content=getComputedStyle(r).getPropertyValue('--bg').trim()||'#EDE6DE'},0)}
+aplicarTema();
+function imgADataURL(file,max,cuadrada,tipo){return new Promise(ok=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight,sx=0,sy=0,sw=w,sh=h;
+  if(cuadrada){const m=Math.min(w,h);sx=(w-m)/2;sy=(h-m)/2;sw=sh=m;w=h=Math.min(max,m)}else{const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k)}
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,w,h);URL.revokeObjectURL(u);ok(c.toDataURL(tipo||'image/jpeg',.78))};img.onerror=()=>ok('');img.src=u})}
+function aparienciaHtml(){const t=temaActual(),m=lsGet('cc-modo','auto'),ic=lsGet('cc-iconos','auto'),f=lsGet('cc-fondo','');
+  const pv=x=>{const L={bg:'#EDE6DE',blob1:'#F2B27A',blob2:'#A9C49A',blob3:'#D9A47C',accent:'#2F6BFF',...x.l};return `<div class="pv" style="background:radial-gradient(60% 70% at 15% 20%,${L.blob1},transparent 70%),radial-gradient(60% 70% at 85% 25%,${L.blob2},transparent 70%),radial-gradient(60% 70% at 60% 100%,${L.blob3},transparent 70%),${L.bg}"><i style="background:${L.accent};${x.l.font?`font-family:${x.l.font.replace(/"/g,"'")}`:''}">Aa</i></div>`};
+  const tabs=[['inicio','Inicio'],['compra','Compra'],['despensa','Despensa'],['precios','Precios'],['mas','Más']];
+  return `<div class="stk"><span style="width:70px"></span><b style="text-align:center">Apariencia</b><button class="btn pri sm" data-a="close">Hecho</button></div>
+  <p class="small muted" style="margin:0">Solo cambia cómo se ve la app en este móvil. Cada persona de casa puede tener la suya.</p>
+  <div class="sec" style="margin:4px 0 0">Tema</div>
+  <div class="g2">${TEMAS.map(x=>`<button class="tcard ${x.k===t.k?'on':''}" data-a="temaSel" data-k="${x.k}">${pv(x)}<b>${x.k===t.k?'✓ ':''}${esc(x.n)}</b><span>${esc(x.d)}</span></button>`).join('')}</div>
+  <div class="sec" style="margin:4px 0 0">Claro u oscuro</div>
+  <div class="seg">${[['auto','Automático'],['claro','☀️ Claro'],['oscuro','🌙 Oscuro']].map(([k,l])=>`<button class="${m===k?'on':''}" data-a="modoSel" data-k="${k}">${l}</button>`).join('')}</div>
+  <div class="sec" style="margin:4px 0 0">Iconos de la barra de abajo</div>
+  <div class="seg">${[['auto','Según el tema'],['linea','Línea'],['emoji','Dibujos']].map(([k,l])=>`<button class="${ic===k?'on':''}" data-a="iconosSel" data-k="${k}">${l}</button>`).join('')}</div>
+  <div class="small muted">O pon <b>tus propias imágenes</b>: toca un botón y elige una foto o un dibujo de tu móvil.</div>
+  <div class="row" style="justify-content:space-between">${tabs.map(([k,l])=>{const im=lsGet('cc-ico-'+k,'');return `<button class="icoup" data-a="icoSubir" data-k="${k}"><span class="bx">${im?`<img src="${im}" alt="">`:tabIcono(k)}</span>${l}${im?'<span class="link tiny" style="color:var(--red)" data-a="icoQuitar" data-k="'+k+'">quitar</span>':''}</button>`}).join('')}</div>
+  <div class="sec" style="margin:4px 0 0">Fondo</div>
+  <div class="row">${f?`<span style="width:64px;height:64px;border-radius:14px;background:url(${f}) center/cover;flex:none"></span>`:''}<div class="grow" style="display:grid;gap:8px"><button class="btn gl sm" data-a="fondoSubir">${svg('camera')}${f?'Cambiar la foto de fondo':'Poner una foto de fondo'}</button>${f?'<button class="btn gl sm" data-a="fondoQuitar">Quitar la foto (volver a los colores del tema)</button>':''}</div></div>
+  <button class="btn gl" data-a="aparienciaReset">Volver a como estaba al principio</button>`}
+A.apariencia=()=>{const y=($('.ov .sheet')||{}).scrollTop||0;sheet(aparienciaHtml());const sh=$('.ov .sheet');if(sh&&y)sh.scrollTop=y};
+const reAp=()=>{aplicarTema();paint();A.apariencia()};
+A.temaSel=d=>{lsSet('cc-tema',d.k);reAp()};
+A.modoSel=d=>{lsSet('cc-modo',d.k);reAp()};
+A.iconosSel=d=>{lsSet('cc-iconos',d.k);reAp()};
+A.icoSubir=async(d,b,e)=>{if(e&&e.target&&e.target.dataset&&e.target.dataset.a==='icoQuitar')return;const f=await elegirFoto();if(!f)return;const u=await imgADataURL(f,128,true,'image/png');if(!u){toast('No se pudo leer la imagen.');return}lsSet('cc-ico-'+d.k,u);if(!lsGet('cc-ico-'+d.k,'')){toast('La imagen es demasiado grande para guardarla.');return}reAp();toast('Icono cambiado')};
+A.icoQuitar=d=>{try{localStorage.removeItem('cc-ico-'+d.k)}catch(e){}reAp()};
+A.fondoSubir=async()=>{const f=await elegirFoto();if(!f)return;toast('Preparando el fondo…');const u=await imgADataURL(f,1280,false);if(!u){toast('No se pudo leer la imagen.');return}lsSet('cc-fondo',u);if(!lsGet('cc-fondo','')){toast('La foto es demasiado grande para guardarla.');return}reAp();toast('Fondo puesto')};
+A.fondoQuitar=()=>{try{localStorage.removeItem('cc-fondo')}catch(e){}reAp()};
+A.aparienciaReset=()=>{['cc-tema','cc-modo','cc-iconos','cc-fondo','cc-ico-inicio','cc-ico-compra','cc-ico-despensa','cc-ico-precios','cc-ico-mas'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});reAp();toast('Apariencia original')};
 /* ---------- BODEGA ---------- */
 const TIPOS_VINO=[['Tinto','🍷','#8E1B3A'],['Blanco','🥂','#C9A227'],['Rosado','🌸','#E26D8E'],['Espumoso / Cava','🍾','#3D8C5C'],['Champagne','🍾','#B8860B'],['Dulce','🍯','#C77D2E'],['Generoso','🥃','#8B5A2B'],['Otro','🍇','#6B4C9A']];
 const tipoVino=t=>TIPOS_VINO.find(x=>x[0]===t)||TIPOS_VINO[7];
