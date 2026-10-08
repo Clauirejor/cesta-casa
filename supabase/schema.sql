@@ -246,12 +246,33 @@ create policy "leer recetas base" on public.recetas_base for select to authentic
 do $$
 declare t text;
 begin
-  foreach t in array array['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','tiendas','lugares','tipos'] loop
+  foreach t in array array['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','tiendas','lugares','tipos','vinos'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "hogar" on public.%I', t);
     execute format('create policy "hogar" on public.%I for all to authenticated using (public.es_miembro(hogar_id)) with check (public.es_miembro(hogar_id))', t);
   end loop;
 end $$;
+
+-- ---------- Bodega ----------
+create table if not exists public.vinos (
+  id uuid primary key default gen_random_uuid(),
+  hogar_id uuid not null references public.hogares(id) on delete cascade,
+  nombre text not null,
+  tipo text default 'Tinto',
+  bodega text default '',
+  region text default '',
+  uva text default '',
+  anada int,
+  precio numeric default 0,
+  super text default '',
+  valoracion int default 0,
+  notas text default '',
+  imagen text default '',
+  ean text default '',
+  botellas numeric default 0,
+  por uuid,
+  created_at timestamptz not null default now()
+);
 
 -- ---------- Avisos push ----------
 create table if not exists public.push_subs (
@@ -358,7 +379,7 @@ create policy "fotos borrar" on storage.objects for delete to authenticated
 do $$
 declare t text;
 begin
-  foreach t in array array['lista','despensa','precios','valoraciones','recetas','menu','eventos','articulos','miembros','tiendas','lugares','tipos'] loop
+  foreach t in array array['lista','despensa','precios','valoraciones','recetas','menu','eventos','articulos','miembros','tiendas','lugares','tipos','vinos'] loop
     if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
       execute format('alter publication supabase_realtime add table public.%I', t);
     end if;

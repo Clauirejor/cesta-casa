@@ -18,6 +18,7 @@ Lista de la compra compartida, despensa, plan semanal y precios para casa. Es un
 | `supabase/actualizacion-9.sql` | Solo si ya ejecutaste el schema antes: **productos por persona** (para quién es cada artículo) |
 | `supabase/actualizacion-10.sql` | Solo si ya ejecutaste el schema antes: **recordar el sitio de cada artículo** (nevera, armario…) |
 | `supabase/actualizacion-11.sql` | Solo si ya ejecutaste el schema antes: **avisos push** en el móvil |
+| `supabase/actualizacion-12.sql` | Solo si ya ejecutaste el schema antes: **bodega** (vinos, cavas, champagne) |
 | `supabase/funciones/avisar/index.ts` | Función de Supabase que manda los avisos push (se pega en Edge Functions) |
 | `supabase/actualizacion-4.sql` | Solo si ya ejecutaste el schema antes: permite añadir **súper y tiendas propias** (mercadillo, frutería…) |
 | `supabase/actualizacion-3.sql` | Solo si ya ejecutaste el schema antes: guarda el **tamaño del envase** en los precios |

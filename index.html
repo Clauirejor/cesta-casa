@@ -311,7 +311,7 @@ const SUPER_COLORS=['#1E8E3E','#0B57D0','#1A4FA3','#14407A','#E8590C','#7A9A2E',
 const MOMENTOS=[['desayuno','Desayuno'],['comida','Comida'],['cena','Cena']];
 const DSEM=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const COLORES=['#3478F6','#FF2D55','#34C759','#FF9500','#AF52DE','#00A39A'];
-const TABLAS=['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','miembros','tiendas','lugares','tipos'];
+const TABLAS=['articulos','lista','despensa','precios','valoraciones','recetas','menu','eventos','miembros','tiendas','lugares','tipos','vinos'];
 const SUPER_EMOJI={Mercadillo:'🧺'};
 const IC={
  edit:'<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-4-4L4 16z M14 6l4 4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>',
@@ -416,12 +416,13 @@ const Supa={
     res.slice(0,10).forEach((r,i)=>{if(r.error){if(names[i]==='tiendas'){S.t.tiendas=[];return}throw r.error}S.t[names[i]]=r.data});
     {const r=await q('lugares');S.lugaresOk=!r.error;S.t.lugares=r.error?[]:r.data}
     {const r=await q('tipos');S.tiposOk=!r.error;S.t.tipos=r.error?[]:r.data}
+    {const r=await q('vinos');S.vinosOk=!r.error;S.t.vinos=r.error?[]:r.data}
     if(!res[10].error&&res[10].data.length)S.catsBase=res[10].data;mezclarTipos();
     if(!res[11].error&&res[11].data.length)S.catalogo=res[11].data;
     const mine=S.t.miembros.find(m=>m.user_id===S.user.id);if(mine)S.me=mine;
     if('Notification'in window&&Notification.permission==='granted')setTimeout(()=>suscribirPush(true),2500);},
   realtime(){if(this.ch)S.sb.removeChannel(this.ch);const h=S.hogar.id;const ch=S.sb.channel('hogar-'+h);
-    for(const t of TABLAS){if((t==='lugares'&&!S.lugaresOk)||(t==='tipos'&&!S.tiposOk))continue;ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
+    for(const t of TABLAS){if((t==='lugares'&&!S.lugaresOk)||(t==='tipos'&&!S.tiposOk)||(t==='vinos'&&!S.vinosOk))continue;ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'hogar_id=eq.'+h},p=>onRemote(t,p.eventType,p.new,p.old));
       ch.on('postgres_changes',{event:'DELETE',schema:'public',table:t},p=>onRemote(t,'DELETE',null,p.old))}
     ch.subscribe(st=>{S.rt=st==='SUBSCRIBED';paint()});this.ch=ch},
   async insert(t,rows){let {error}=await S.sb.from(t).insert(rows);if(error&&t==='precios'&&/formato|hasta|antes/.test(error.message||'')){({error}=await S.sb.from(t).insert(rows.map(({formato,hasta,antes,...r})=>r)))}if(error&&t==='despensa'&&/lugar/.test(error.message||'')){({error}=await S.sb.from(t).insert(rows.map(({lugar,...r})=>r)))}if(error)throw error},
@@ -462,7 +463,7 @@ async function fallo(e,t){console.error(t,e);toast('No se pudo guardar: '+(e.mes
 /* ============ DATOS DE DEMOSTRACIÓN ============ */
 function demoSeed(){const h={id:'demo',nombre:'Casa (demo)',codigo:'DEMO42'};
   const J={id:uuid(),hogar_id:'demo',nombre:'Jorge',color:'#3478F6'},I={id:uuid(),hogar_id:'demo',nombre:'Irene',color:'#FF2D55'};
-  const t=Object.fromEntries(TABLAS.map(x=>[x,[]]));t.miembros=[J,I];S.lugaresOk=true;S.tiposOk=true;
+  const t=Object.fromEntries(TABLAS.map(x=>[x,[]]));t.miembros=[J,I];S.lugaresOk=true;S.tiposOk=true;S.vinosOk=true;
   const base=r=>({id:uuid(),hogar_id:'demo',created_at:nowIso(),...r});
   t.recetas=RECETAS_BASE.map(r=>base({...r,pasos:''}));
   const rid=n=>(t.recetas.find(r=>r.nombre===n)||{}).id;const L=lunes(hoy());
@@ -919,7 +920,7 @@ function chart(rows){const pts=rows.map(r=>({d:r.fecha,p:num(r.precio)}));if(pts
 function niceStep(r){const raw=r/4;const p=Math.pow(10,Math.floor(Math.log10(raw)));const f=raw/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p}
 
 /* ---------- MÁS ---------- */
-function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')return vActividad();
+function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='vinos')return vVinos();if(S.sub==='actividad')return vActividad();
   const mes=hoy().slice(0,7);const ev=S.t.eventos.filter(e=>ds(e.created_at).slice(0,7)===mes);
   const gast=ev.filter(e=>e.tipo==='comprado').reduce((a,e)=>a+num(e.precio),0),tir=ev.filter(e=>e.tipo==='tirado');const tirE=tir.reduce((a,e)=>a+num(e.precio),0);
   const ps={};ev.filter(e=>e.tipo==='comprado'&&e.super).forEach(e=>ps[e.super]=(ps[e.super]||0)+num(e.precio));const mx=Math.max(1,...Object.values(ps));
@@ -930,9 +931,72 @@ function vMas(){if(S.sub==='recetas')return vRecetas();if(S.sub==='actividad')re
     <div class="small muted" style="margin-top:8px">Eres <b style="color:var(--ink)">${esc(S.me.nombre)}</b>. ${S.mode==='demo'?'Modo demo: los datos están solo en este dispositivo.':'Todo lo que apunta uno lo ve el otro al momento.'}</div></section>
    <div class="g3"><div class="glass stat"><span class="tiny">Gastado</span><b>${eur(gast)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">este mes</span></div><div class="glass stat"><span class="tiny">Tirado</span><b style="color:var(--red)">${eur(tirE)}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">${tir.length} ${tir.length===1?'producto':'productos'}</span></div><div class="glass stat"><span class="tiny">Despensa</span><b>${S.t.despensa.length}</b><span class="tiny muted" style="text-transform:none;letter-spacing:0">productos</span></div></div>
    ${Object.keys(ps).length?`<section class="glass pad" style="display:grid;gap:10px"><b>Este mes por súper</b>${Object.entries(ps).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div><div class="row small"><span class="grow">${esc(s)}</span><span class="pr">${eur(v)}</span></div><div class="bar"><i style="width:${v/mx*100}%;background:${superColor(s)}"></i></div></div>`).join('')}</section>`:''}
-   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando alguien de casa cambia la lista, aunque la app esté cerrada')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
+   <div class="glass list-plain">${opt('subActividad','clock','Actividad','Quién ha comprado, gastado o tirado qué')}${opt('subRecetas','book','Recetas',S.t.recetas.length+' recetas')}<button class="opt" data-a="subVinos"><span style="font-size:22px;width:24px;text-align:center">🍷</span><span class="grow">Bodega<span class="tiny muted" style="display:block">${(S.t.vinos||[]).length?`${(S.t.vinos||[]).length} vinos · ${(S.t.vinos||[]).reduce((a,v)=>a+num(v.botellas),0)} botellas en casa`:'Vinos, cavas, champagne y espumosos'}</span></span>${svg('chevR','chev-r')}</button>${opt('habituales','basket','Mis artículos','Todo lo que habéis comprado alguna vez')}${opt('tipos','tag','Tipos de producto','Crear tipos propios y cambiar los que hay')}${opt('whatsHoy','whats','Enviar la compra de hoy por WhatsApp')}${opt('tiendas','tag','Súper y tiendas','Añadir mercadillo, frutería u otros')}${opt('notis','bell','Avisos en este móvil','Cuando alguien de casa cambia la lista, aunque la app esté cerrada')}${opt('instalar','phone','Instalar en el móvil')}${opt('invitar','whats','Invitar a alguien de casa','Envía el enlace y el código por WhatsApp')}${opt('casas','users','Mis casas',(S.casas||[S.hogar]).length+' · cambiar, unirme a otra o crear una nueva')}${opt('cambiarNombre','users','Mi nombre y color')}</div>
    <div class="glass list-plain">${S.mode==='demo'?opt('irSetup','logout','Conectar con Supabase','Salir del modo demo'):opt('logout','logout','Cerrar sesión')}</div>
    <p class="tiny muted" style="text-align:center">Cesta Casa · ${S.mode==='demo'?'demo local':'Supabase'}</p>`}
+/* ---------- BODEGA ---------- */
+const TIPOS_VINO=[['Tinto','🍷','#8E1B3A'],['Blanco','🥂','#C9A227'],['Rosado','🌸','#E26D8E'],['Espumoso / Cava','🍾','#3D8C5C'],['Champagne','🍾','#B8860B'],['Dulce','🍯','#C77D2E'],['Generoso','🥃','#8B5A2B'],['Otro','🍇','#6B4C9A']];
+const tipoVino=t=>TIPOS_VINO.find(x=>x[0]===t)||TIPOS_VINO[7];
+const vinoDe=n=>(S.t.vinos||[]).find(v=>norm(v.nombre)===norm(n));
+const estrellas=(n,sz)=>n?`<span style="color:#F5A623;font-size:${sz||13}px;letter-spacing:1px">${'★'.repeat(n)}<span style="color:var(--sep)">${'★'.repeat(5-n)}</span></span>`:'';
+function tipoDeTexto(t){const k=norm(t);if(/champagne|champan/.test(k))return 'Champagne';if(/cava|espumos|brut|prosecco|lambrusco|frizzante/.test(k))return 'Espumoso / Cava';if(/rosado|rose\b/.test(k))return 'Rosado';
+  if(/blanco|verdejo|albarino|godello|chardonnay|sauvignon|moscatel seco/.test(k))return 'Blanco';if(/pedro ximenez|moscatel|dulce/.test(k))return 'Dulce';if(/fino|manzanilla|oloroso|amontillado|jerez/.test(k))return 'Generoso';if(/tinto|crianza|reserva|rioja|ribera|tempranillo|garnacha|monastrell/.test(k))return 'Tinto';return ''}
+function vinoThumb(v,big){const t=tipoVino(v.tipo);const u=imgUrl(v.imagen);const sz=big?'th lg':'th';return u?`<span class="${sz}"><img src="${esc(u)}" alt="" style="object-fit:contain;background:#fff"></span>`:`<span class="${sz}" style="background:${t[2]}22;display:grid;place-items:center;font-size:${big?30:22}px">${t[1]}</span>`}
+function vVinos(){const all=(S.t.vinos||[]);const q=norm(S.vinoQ||'');const f=S.vinoTipo||'';const ord=S.vinoOrden||'nota';
+  let l=all.filter(v=>(!f||v.tipo===f)&&(!q||norm([v.nombre,v.bodega,v.region,v.uva,v.tipo,v.notas].join(' ')).includes(q)));
+  l.sort(ord==='az'?(a,b)=>a.nombre.localeCompare(b.nombre,'es'):ord==='precio'?(a,b)=>num(a.precio)-num(b.precio):ord==='casa'?(a,b)=>num(b.botellas)-num(a.botellas)||a.nombre.localeCompare(b.nombre,'es'):(a,b)=>num(b.valoracion)-num(a.valoracion)||a.nombre.localeCompare(b.nombre,'es'));
+  const bot=all.reduce((a,v)=>a+num(v.botellas),0);const tipos=TIPOS_VINO.filter(t=>all.some(v=>v.tipo===t[0]));
+  const top=`<header class="hdr"><button class="back" data-a="subBack" aria-label="Volver">${svg('back')}</button><div class="grow"><h1>Bodega</h1><div class="sub">${all.length} ${all.length===1?'vino':'vinos'} · ${bot} ${bot===1?'botella':'botellas'} en casa</div></div><button class="round" data-a="scan" data-p="vino" aria-label="Escanear la botella">${svg('barcode')}</button><button class="round blue" data-a="vinoForm" aria-label="Añadir vino">${svg('plus')}</button></header>`;
+  const keep=all.length?`<label class="glass search">${svg('search')}<input type="search" data-in="vinoQ" placeholder="Buscar vino, bodega, uva, D.O.…" value="${esc(S.vinoQ||'')}"></label>`:'';
+  if(!S.vinosOk)return {top,keep:'',body:`<div class="glass pad small" style="color:var(--orange)">Para usar la bodega falta un paso en Supabase (actualización 12).</div>`};
+  if(!all.length)return {top,keep,body:`<div class="glass empty"><div class="e">🍷</div><h3>Vuestra bodega está vacía</h3><p>Apunta cada vino, cava o champagne que compréis: de qué tipo es, la bodega, la añada, cuánto costó, dónde y qué os pareció. Así sabréis cuál repetir.</p><button class="btn pri" data-a="vinoForm">${svg('plus')}Añadir el primero</button><button class="btn gl" data-a="scan" data-p="vino">${svg('barcode')}Escanear una botella</button></div>`};
+  const chips=`<div class="chips"><button class="chip ${f?'':'on'}" data-a="vinoTipo" data-k="">Todos</button>${tipos.map(t=>`<button class="chip ${f===t[0]?'on':''}" data-a="vinoTipo" data-k="${esc(t[0])}">${t[1]} ${esc(t[0])}</button>`).join('')}</div>
+   <div class="chips small" style="align-items:center"><span class="muted" style="flex:none">Orden:</span>${[['nota','★ Mejores'],['az','A–Z'],['precio','Precio'],['casa','En casa']].map(([k,t])=>`<button class="chip ${ord===k?'on':''}" data-a="vinoOrden" data-k="${k}">${t}</button>`).join('')}</div>`;
+  const rows=l.map((v,i)=>{const t=tipoVino(v.tipo);return `<div class="it" style="${i?'':'border-top:0'}">${vinoThumb(v)}<button class="body" data-a="vinoForm" data-id="${v.id}"><div class="nm">${esc(v.nombre)}${v.anada?` <span class="muted" style="font-weight:500">${esc(v.anada)}</span>`:''}</div>
+    <div class="mt"><span style="color:${t[2]};font-weight:600">${esc(v.tipo||'Vino')}</span>${[v.bodega,v.region].filter(Boolean).length?' · '+esc([v.bodega,v.region].filter(Boolean).join(' · ')):''}</div><div class="mt">${estrellas(num(v.valoracion))}${num(v.precio)?` ${eur(v.precio)}`:''}${v.super?' · '+esc(v.super):''}</div></button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:none"><div class="stp sm"><button data-a="vinoMenos" data-id="${v.id}" aria-label="Una botella menos" ${num(v.botellas)>0?'':'style="opacity:.35"'}>−</button><span class="stp-n" style="display:grid;place-items:center">${num(v.botellas)}</span><button data-a="vinoMas" data-id="${v.id}" aria-label="Una botella más">+</button></div><span class="tiny muted">${num(v.botellas)===1?'botella':'botellas'}</span></div></div>`}).join('');
+  return {top,keep,body:chips+(l.length?`<div class="glass grp"><div class="rows">${rows}</div></div>`:'<div class="glass pad small muted">No hay vinos con ese filtro.</div>')}}
+A.vinoTipo=d=>{S.vinoTipo=d.k;paint()};
+A.vinoOrden=d=>{S.vinoOrden=d.k;paint()};
+A.vinoMas=async d=>{const v=(S.t.vinos||[]).find(x=>x.id===d.id);if(v)await upd('vinos',v.id,{botellas:num(v.botellas)+1})};
+A.vinoMenos=async d=>{const v=(S.t.vinos||[]).find(x=>x.id===d.id);if(!v||num(v.botellas)<=0)return;await upd('vinos',v.id,{botellas:num(v.botellas)-1});
+  await ins('eventos',{tipo:'consumido',nombre:v.nombre,emoji:tipoVino(v.tipo)[1],super:v.super||'',marca:v.bodega||'',precio:num(v.precio),cantidad:1,unidad:'ud',por:S.me.id});
+  toast(`🍷 ${v.nombre}: quedan ${num(v.botellas)}`,num(v.valoracion)?'':`<button class="act" data-a="vinoForm" data-id="${v.id}">Valorar</button>`)};
+const VINO_CAMPOS=['vn-n','vn-t','vn-b','vn-r','vn-u','vn-a','vn-p','vn-s','vn-v','vn-c','vn-o','vn-ean','vn-img'];
+function vinoForm(v){v=v||{};const tv=v.tipo||'Tinto';const fotoU=imgUrl(v.imagen)||v.imagen||'';
+  return `<div class="stk"><button class="btn gl sm" data-a="close">Cancelar</button><b style="text-align:center">${v.id?'Editar vino':'Nuevo vino'}</b><button class="btn pri sm" data-a="vinoGuardar" data-id="${v.id||''}">Guardar</button></div>
+  <div class="row"><span id="vn-fp">${fotoU?`<img src="${esc(fotoU)}" alt="" style="width:72px;height:72px;border-radius:14px;object-fit:contain;background:#fff">`:`<span style="width:72px;height:72px;border-radius:14px;background:${tipoVino(tv)[2]}22;display:grid;place-items:center;font-size:32px">${tipoVino(tv)[1]}</span>`}</span>
+   <div class="grow" style="display:grid;gap:8px"><button class="btn gl sm" data-a="vinoFoto" data-id="${v.id||''}">${svg('camera')}Foto de la etiqueta</button><button class="btn gl sm" data-a="vinoScanForm">${svg('barcode')}Escanear código</button></div></div>
+  <div class="fld"><label for="vn-n">Nombre</label><input class="inp" id="vn-n" value="${esc(v.nombre||'')}" placeholder="Ej. Ramón Bilbao Crianza" ${v.id||v.nombre?'':'autofocus'}></div>
+  <div class="fld"><label>Tipo</label><div class="chips" style="margin:0;flex-wrap:wrap">${TIPOS_VINO.map(t=>`<button class="chip ${t[0]===tv?'on':''}" data-a="vinoTipoSel" data-k="${esc(t[0])}">${t[1]} ${esc(t[0])}</button>`).join('')}</div><input type="hidden" id="vn-t" value="${esc(tv)}"></div>
+  <div class="g2"><div class="fld"><label for="vn-b">Bodega</label><input class="inp" id="vn-b" value="${esc(v.bodega||'')}" placeholder="Ej. Ramón Bilbao"></div><div class="fld"><label for="vn-r">D.O. / región</label><input class="inp" id="vn-r" value="${esc(v.region||'')}" placeholder="Rioja, Ribera, Cava…" list="dl-do"><datalist id="dl-do">${['Rioja','Ribera del Duero','Rueda','Rías Baixas','Priorat','Toro','Jumilla','Alicante','Valencia','Utiel-Requena','La Mancha','Valdepeñas','Penedès','Cava','Jerez','Navarra','Somontano','Bierzo','Champagne','Burdeos','Borgoña','Prosecco'].map(x=>`<option value="${x}">`).join('')}</datalist></div></div>
+  <div class="g2"><div class="fld"><label for="vn-u">Uva</label><input class="inp" id="vn-u" value="${esc(v.uva||'')}" placeholder="Tempranillo, Verdejo…"></div><div class="fld"><label for="vn-a">Añada</label><input class="inp" id="vn-a" type="number" inputmode="numeric" value="${esc(v.anada||'')}" placeholder="2021"></div></div>
+  <div class="g2"><div class="fld"><label for="vn-p">Precio (€)</label><input class="inp" id="vn-p" type="number" step="0.01" inputmode="decimal" value="${num(v.precio)||''}"></div><div class="fld"><label for="vn-s">Dónde</label><select class="inp" id="vn-s">${selOpts(SUP(),v.super||'','—')}</select></div></div>
+  <div class="fld"><label>Valoración</label><div class="row" style="gap:4px" id="vn-stars">${[1,2,3,4,5].map(n=>`<button class="link" data-a="vinoStar" data-v="${n}" style="font-size:30px;line-height:1;color:${n<=num(v.valoracion)?'#F5A623':'var(--sep)'}" aria-label="${n} estrellas">★</button>`).join('')}<span class="grow"></span><button class="link small" data-a="vinoStar" data-v="0">Quitar</button></div><input type="hidden" id="vn-v" value="${num(v.valoracion)}"></div>
+  <div class="fld"><label for="vn-o">Notas de cata / con qué lo tomamos</label><textarea class="inp" id="vn-o" rows="3" placeholder="Ej. Muy afrutado, perfecto con carne a la brasa. Le encantó a Irene.">${esc(v.notas||'')}</textarea></div>
+  <div class="fld"><label>Botellas en casa</label><div class="stp big" style="justify-content:flex-start"><button data-a="vinoCant" data-v="-1" aria-label="Una menos">−</button><input class="inp" id="vn-c" type="number" inputmode="numeric" value="${v.id||v.botellas!=null?num(v.botellas):1}"><button data-a="vinoCant" data-v="1" aria-label="Una más">+</button></div></div>
+  <input type="hidden" id="vn-ean" value="${esc(v.ean||'')}"><input type="hidden" id="vn-img" value="${esc(v.imagen||'')}">
+  ${v.id?`<div class="g2"><button class="btn gl" data-a="vinoALista" data-id="${v.id}">${svg('cart')}A la lista</button><button class="btn red" data-a="vinoBorrar" data-id="${v.id}">Borrar</button></div>`:''}`}
+A.vinoForm=d=>{const v=d&&d.id?(S.t.vinos||[]).find(x=>x.id===d.id):(d&&d.pre)||null;S.vinoId=v&&v.id||null;sheet(vinoForm(v))};
+A.vinoTipoSel=(d,b)=>{document.querySelectorAll('[data-a=vinoTipoSel]').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#vn-t').value=d.k;
+  if(!$('#vn-img').value){const t=tipoVino(d.k);$('#vn-fp').innerHTML=`<span style="width:72px;height:72px;border-radius:14px;background:${t[2]}22;display:grid;place-items:center;font-size:32px">${t[1]}</span>`}};
+A.vinoStar=d=>{const n=+d.v;$('#vn-v').value=n;document.querySelectorAll('#vn-stars [data-a=vinoStar]').forEach(b=>{if(+b.dataset.v>0)b.style.color=+b.dataset.v<=n?'#F5A623':'var(--sep)'})};
+A.vinoCant=d=>{const i=$('#vn-c');i.value=Math.max(0,(num(i.value)||0)+(+d.v))};
+const vinoDatos=()=>{const v=id=>($('#'+id)||{}).value?.trim()||'';return {nombre:cap(v('vn-n')),tipo:v('vn-t')||'Tinto',bodega:v('vn-b'),region:v('vn-r'),uva:v('vn-u'),anada:parseInt(v('vn-a'))||null,precio:num(v('vn-p'))||0,super:v('vn-s'),valoracion:+v('vn-v')||0,notas:v('vn-o'),botellas:Math.max(0,num(v('vn-c'))||0),ean:v('vn-ean'),imagen:v('vn-img')}};
+A.vinoGuardar=async d=>{if(!S.vinosOk){toast('Para usar la bodega falta un paso en Supabase (actualización 12).');return}const x=vinoDatos();if(!x.nombre){toast('Escribe el nombre del vino.');return}
+  const otro=(S.t.vinos||[]).find(v=>v.id!==d.id&&norm(v.nombre)===norm(x.nombre)&&(v.anada||null)===x.anada);
+  if(d.id){const v=(S.t.vinos||[]).find(y=>y.id===d.id);if(v&&v.imagen&&v.imagen!==x.imagen)borrarFoto(v.imagen);await upd('vinos',d.id,x)}
+  else if(otro){await upd('vinos',otro.id,{...x,botellas:num(otro.botellas)+x.botellas,imagen:x.imagen||otro.imagen});toast(`Ya lo teníais: sumadas ${x.botellas} botellas`)}
+  else await ins('vinos',{...x,por:S.me.id});
+  if(x.precio&&x.super)await apuntarPrecio({nombre:x.nombre,super:x.super,marca:x.bodega,precio:x.precio,unidad:'ud',formato:'75 cl'});
+  closeSheet();if(S.tab!=='mas'||S.sub!=='vinos'){S.tab='mas';S.sub='vinos';lsSet('cc-tab','mas');render()}if(!otro)toast(`🍷 ${x.nombre} guardado en la bodega`)};
+A.vinoFoto=async d=>{const f=await elegirFoto();if(!f)return;toast('Subiendo foto…');try{const p=await subirFoto(f);$('#vn-img').value=p;$('#vn-fp').innerHTML=`<img src="${esc(URL.createObjectURL(f))}" alt="" style="width:72px;height:72px;border-radius:14px;object-fit:contain;background:#fff">`;toast('Foto lista. Pulsa Guardar.')}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
+A.vinoScanForm=()=>{S.vinoDraft={id:S.vinoId,x:vinoDatos()};A.scan({p:'vino'})};
+A.vinoVolver=()=>{stopScan();const dr=S.vinoDraft;S.vinoDraft=null;if(dr){const base=dr.id?(S.t.vinos||[]).find(v=>v.id===dr.id):{};S.vinoId=dr.id;sheet(vinoForm({...base,...dr.x,id:dr.id}))}else closeSheet()};
+A.vinoALista=async d=>{const v=(S.t.vinos||[]).find(x=>x.id===d.id);if(!v)return;const ya=S.t.lista.find(i=>!i.comprado&&norm(i.nombre)===norm(v.nombre));
+  if(ya){toast(`${v.nombre} ya está en la lista`);return}const [i]=await ins('lista',{nombre:v.nombre,emoji:tipoVino(v.tipo)[1],categoria:'Bebidas',cantidad:1,unidad:'ud',receta:'',super:v.super||'',marca:v.bodega||'',precio:num(v.precio),nota:'',por:S.me.id,comprado:enSuper(),...(enSuper()?{comprado_por:S.me.id,comprado_at:nowIso()}:{})});
+  avisoLista('add',v.nombre);closeSheet();toast(`${v.nombre} añadido a la lista. Al guardar la compra, las botellas se suman a la bodega.`)};
+A.vinoBorrar=async(d,b)=>{if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? Toca otra vez';return}const v=(S.t.vinos||[]).find(x=>x.id===d.id);if(!v)return;await rem('vinos',v.id);borrarFoto(v.imagen);closeSheet();toast(`Borrado: ${v.nombre}`)};
 function vRecetas(){const r=[...S.t.recetas].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
   return `<header class="hdr"><button class="back" data-a="subBack" aria-label="Volver">${svg('back')}</button><h1 class="grow">Recetas</h1><button class="round blue" data-a="editReceta" aria-label="Nueva receta">${svg('plus')}</button></header>`+recetasNuevasCard()+
    (r.length?`<div class="glass grp"><div class="rows">${r.map((x,i)=>`<div class="it" style="${i?'':'border-top:0'}">${recVis(x,'th lg')}<button class="body" data-a="verReceta" data-id="${x.id}"><div class="nm">${esc(x.nombre)}</div><div class="mt">${x.minutos?x.minutos+' min · ':''}${(x.ingredientes||[]).length} ingredientes${faltanTxt(x)}</div></button>${svg('chevR','chev-r')}</div>`).join('')}</div></div>`:`<div class="glass empty"><div class="e">📖</div><h3>Sin recetas</h3><p>Crea las que hacéis en casa. El plan semanal las usa para hacer la lista.</p></div>`)}
@@ -995,6 +1059,7 @@ A.sinPrecio=d=>{S.precioSinP=d.k==='1';S.precioVista='lista';S.precioQ='';paint(
 A.precioVista=d=>{S.precioVista=d.k;lsSet('cc-pvista',d.k);paint()};
 A.tablaSup=d=>{const c=planCfg();const sups=c.sups.includes(d.s)?c.sups.filter(x=>x!==d.s):[...c.sups,d.s];lsSet('cc-plan',{...c,sups});paint()};
 A.precioSup=d=>{S.precioSup=d.k;paint()};
+A.subVinos=()=>{S.sub='vinos';render();window.scrollTo(0,0)};
 A.subRecetas=()=>{S.sub='recetas';render();window.scrollTo(0,0)};
 A.subActividad=()=>{S.sub='actividad';render();window.scrollTo(0,0)};
 A.subBack=()=>{S.sub=null;render()};
@@ -1245,19 +1310,20 @@ A.guardarCompra=()=>{const h=S.t.lista.filter(i=>i.comprado);
   <div class="g2"><div class="fld"><label for="gc-s">Súper</label><select class="inp" id="gc-s">${selOpts(SUP(),h.find(i=>i.super)?.super||'','Varios')}</select></div><div class="fld"><label>&nbsp;</label><span class="small muted" style="padding-top:12px">${h.length} productos</span></div></div>
   <div class="row small" style="gap:12px"><button class="link small" data-a="gcTodos" data-v="1">Marcar todo</button><button class="link small" data-a="gcTodos" data-v="0">Desmarcar todo</button></div>
   <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:flex-start"><input type="checkbox" class="gc-chk" data-id="${i.id}" ${esUna(i)?'':'checked'} style="width:24px;height:24px;flex:none;margin-top:2px" aria-label="${esc(i.nombre)} a la despensa">
-    <div class="grow" style="min-width:0"><span>${esc(i.emoji)} ${esc(i.nombre)}</span><span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${esUna(i)?' · ⏱ solo esta vez':enCasa(i.nombre).length?' · se suma a lo que hay':''}</span>${sitio(i)}</div></div>`).join('')}</div>
+    <div class="grow" style="min-width:0"><span>${esc(i.emoji)} ${esc(i.nombre)}</span><span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${vinoDe(i.nombre)?' · 🍷 se suma a la bodega':esUna(i)?' · ⏱ solo esta vez':enCasa(i.nombre).length?' · se suma a lo que hay':''}</span>${sitio(i)}</div></div>`).join('')}</div>
   <button class="btn pri" data-a="confirmCompra">Guardar</button><button class="btn gl" data-a="close">Cancelar</button>`)};
 A.gcTodos=d=>{document.querySelectorAll('.gc-chk').forEach(c=>c.checked=d.v==='1')};
 A.confirmCompra=async()=>{const h=S.t.lista.filter(i=>i.comprado);const b=$('[data-a=confirmCompra]');b.disabled=true;b.innerHTML='<span class="spin"></span> Guardando';
-  const supG=$('#gc-s').value;const desp=[],precs=[],evs=[];
+  const supG=$('#gc-s').value;const desp=[],precs=[],evs=[],vinosC=[];
   for(const i of h){const sup=i.super||supG||'';const valor=+importe(i).toFixed(2);const lgi=S.lugaresOk?lugarSel('g'+i.id):'';
-    const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id,_lug:lgi});
+    const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);const vn=vinoDe(i.nombre);if(vn&&(chk?chk.checked:true)){vinosC.push([vn,num(i.cantidad)||1])}else if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id,_lug:lgi});
     if(num(i.precio)>0&&sup&&!esUna(i))precs.push({nombre:i.nombre,super:sup,marca:i.marca||'',precio:num(i.precio),unidad:i.unidad==='kg'||i.unidad==='l'?i.unidad:'ud',fecha:hoy(),por:S.me.id});
     evs.push({tipo:'comprado',nombre:i.nombre,emoji:i.emoji,super:sup,marca:i.marca||'',precio:valor,cantidad:num(i.cantidad)||1,unidad:i.unidad,por:i.comprado_por||S.me.id})}
   const nuevos=[];for(const x0 of desp){const {_lug:lug,...x}=x0;const u=x.unidad||'ud';const ex=enCasa(x.nombre).find(y=>(y.unidad||'ud')===u||(esCuenta(y.unidad)&&esCuenta(u)));
     if(lug){await asegurarLugar(lug);await recordarLugar(x.nombre,lug)}
     if(ex){const p={cantidad:+((num(ex.cantidad)||0)+x.cantidad).toFixed(3),created_at:nowIso()};if(lug&&lug!==ex.lugar)p.lugar=lug;if(x.caduca)p.caduca=x.caduca;if(x.super)p.super=unirSuper(ex.super,x.super);if(x.precio)p.precio=x.precio;await upd('despensa',ex.id,p)}
     else nuevos.push(lug?{...x,lugar:lug}:x)}
+  for(const [vn,c] of vinosC)await upd('vinos',vn.id,{botellas:num(vn.botellas)+c});
   if(nuevos.length)await ins('despensa',nuevos);if(precs.length)await ins('precios',precs);await ins('eventos',evs);await rem('lista',h.map(i=>i.id));
   avisar(`✅ ${S.me.nombre} ha hecho la compra`,evs.slice(0,6).map(e=>e.nombre).join(', ')+(evs.length>6?` y ${evs.length-6} más`:'')+(evs[0]&&evs[0].super?` · ${evs[0].super}`:''));
   closeSheet();toast(`${h.length} guardados${desp.length?` · ${desp.length} en la despensa`:''}`,`<a href="${waLink(evs)}" target="_blank" rel="noopener">WhatsApp</a>`)};
@@ -1565,7 +1631,7 @@ A.scan=async d=>{const destino=d.p||'despensa';
   sheet(`<h2>Escanear código de barras</h2><video class="scan" id="scanv" playsinline muted></video><p class="small muted" id="scanmsg" style="margin:0">Apunta al código de barras del producto.</p>
    <button class="btn gl sm" data-a="scanFoto">📷 Hacer una foto al código (sin permiso de cámara)</button>
    <form class="row" data-f="eanManual"><input class="inp" id="eanin" inputmode="numeric" placeholder="O escribe el número"><button class="btn gl sm" type="submit">Buscar</button></form>
-   <button class="btn gl" data-a="${destino==='art'?'artVolver':destino==='nuevo'?'naVolver':'close'}">Cancelar</button>`);
+   <button class="btn gl" data-a="${destino==='art'?'artVolver':destino==='nuevo'?'naVolver':destino==='vino'?'vinoVolver':'close'}">Cancelar</button>`);
   S.scanDest=destino;const v=$('#scanv');clearTimeout(scanApagar);
   try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('sin cámara');
     const st=await camara();if(!$('#scanv'))return;v.srcObject=st;await v.play();scanActivo=true;
@@ -1585,6 +1651,12 @@ async function precioWeb(code){try{const r=await fetch(`https://prices.openfoodf
   return {precio:+num(x.price).toFixed(2),tienda:nom,cadena:cad,ciudad:loc(x).osm_address_city||'',pais:loc(x).osm_address_country_code||'',fecha:x.date||''}}catch(e){return null}}
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
   const a=artPorCodigo(code);
+  if(S.scanDest==='vino'){const dr=S.vinoDraft;S.vinoDraft=null;const ya=(S.t.vinos||[]).find(v=>String(v.ean||'')===code);
+    if(ya&&(!dr||!dr.id||dr.id===ya.id)){toast(`Es ${ya.nombre}`);A.vinoForm({id:ya.id});return}
+    let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_es,brands,image_front_url,image_front_small_url,quantity,categories_tags`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
+    const nom=p?cap(p.product_name_es||p.product_name||''):'';const tipo=tipoDeTexto(nom+' '+(p&&(p.categories_tags||[]).join(' ')||''));
+    const pre={...(dr?dr.x:{}),ean:code};if(nom&&!pre.nombre)pre.nombre=nom;if(p&&p.brands&&!pre.bodega)pre.bodega=String(p.brands).split(',')[0].trim();if(p&&!pre.imagen&&(p.image_front_url||p.image_front_small_url))pre.imagen=p.image_front_url||p.image_front_small_url;if(tipo&&(!dr||!dr.x.tipo||dr.x.tipo==='Tinto'))pre.tipo=tipo;
+    const base=dr&&dr.id?(S.t.vinos||[]).find(v=>v.id===dr.id):{};S.vinoId=dr&&dr.id||null;sheet(vinoForm({...base,...pre,id:dr&&dr.id}));toast(nom?`Encontrado: ${nom}. Revisa los datos y guarda.`:'No conozco este código: escribe el nombre y quedará guardado con él.');return}
   if(S.scanDest==='nuevo'){if(a){sheet(`<h2>Ya lo tenéis</h2><div class="row">${thumb(a,'lg')}<div class="grow"><b>${esc(a.nombre)}</b><span class="small muted" style="display:block">Este código ya está guardado en este artículo.</span></div></div>
       <button class="btn pri" data-a="naYaLista" data-n="${esc(a.nombre)}">${svg('cart')}Añadirlo a la lista</button><button class="btn gl" data-a="editArtN" data-n="${esc(a.nombre)}">Ver o editar el artículo</button><button class="btn gl" data-a="naVolver">Volver</button>`);return}
     let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=code,product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
