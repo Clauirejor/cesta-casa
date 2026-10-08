@@ -1157,43 +1157,62 @@ A.webAplicar=async()=>{const a=artActual(),x=S.webSel;if(!a||!x)return;const on=
   if(Object.keys(p).length)await upd('articulos',a.id,p);
   if(on('w-code')&&x.code)await asociarCodigo(artActual(),x.code,x.marca,'');
   S.artDraft=dr;A.editArt({id:a.id});toast(on('w-nom')?'Datos puestos. Pulsa «Guardar» para cambiar también el nombre.':'Datos añadidos al artículo')};
-A.artBuscarWeb=()=>{const dr=guardarBorradorArt();const q=dr.v['a-n']||'';
+A.artBuscarWeb=d=>{let q;if(d&&d.q!=null)q=d.q;else{S.webTarget='art';q=guardarBorradorArt().v['a-n']||''}const volver=S.webTarget==='nuevo'?'naVolver':'artVolver';
   sheet(`<h2>Buscar en internet</h2><p class="small muted" style="margin:0">Busca el producto en Open Food Facts para coger su foto, marca y código de barras.</p>
    <form class="row" data-f="webBuscar" style="gap:8px"><input class="inp grow" id="bw-q" value="${esc(q)}" placeholder="Ej. tomate frito Hacendado" autocomplete="off" enterkeyhint="search"><button class="btn pri sm" type="submit">Buscar</button></form>
-   <div id="bw-r"></div><button class="btn gl" data-a="artVolver">Volver</button>`);if(q)A.webBuscar()};
+   <div id="bw-r"></div><button class="btn gl" data-a="${volver}">Volver</button>`);if(q)A.webBuscar()};
 A.webBuscar=async()=>{const q=($('#bw-q')||{}).value?.trim();const r=$('#bw-r');if(!q||!r)return;r.innerHTML='<div class="row small muted"><span class="spin"></span> Buscando…</div>';
   const l=await offBuscar(q);if(!$('#bw-r'))return;S.webRes=l||[];
   r.innerHTML=l===null?'<div class="small" style="color:var(--orange)">No se ha podido conectar con Open Food Facts. Prueba en un rato o escanea el código.</div>'
    :!l.length?'<div class="small muted">No sale nada. Prueba con menos palabras o con la marca (ej. «atún Calvo»).</div>'
    :`<div class="glass list-plain">${l.map((x,i)=>`<button class="opt" data-a="webPick" data-i="${i}" style="padding:8px 12px;gap:10px">${x.imagen?`<img src="${esc(x.imagen)}" alt="" loading="lazy" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;flex:none">`:'<span class="th">📦</span>'}<span class="grow" style="text-align:left">${esc(x.nombre)}<span class="tiny muted" style="display:block">${esc([x.marca,x.cantidad].filter(Boolean).join(' · '))}</span></span></button>`).join('')}</div>`};
-A.webPick=d=>{const x=(S.webRes||[])[+d.i];if(x)aplicarWebSheet(x)};
+A.webPick=d=>{const x=(S.webRes||[])[+d.i];if(!x)return;if(S.webTarget==='nuevo')rellenarNA(x);else aplicarWebSheet(x)};
 /* precios de referencia de los súper */
-A.artBuscarSuper=()=>{const dr=guardarBorradorArt();const q=dr.v['a-n']||'';
+A.artBuscarSuper=d=>{let q;if(d&&d.q!=null)q=d.q;else{S.webTarget='art';q=guardarBorradorArt().v['a-n']||''}const volver=S.webTarget==='nuevo'?'naVolver':'artVolver';
   sheet(`<h2>Buscar en el súper</h2><p class="small muted" style="margin:0">Productos de Mercadona, Aldi, Family Cash y otros con su precio. Al elegir uno, su precio se apunta en este artículo.</p>
-   <div class="row" style="gap:8px"><input class="inp grow" id="bs-q" value="${esc(q)}" placeholder="Ej. tomate frito" autocomplete="off"></div><div id="bs-r"></div><button class="btn gl" data-a="artVolver">Volver</button>`);
+   <div class="row" style="gap:8px"><input class="inp grow" id="bs-q" value="${esc(q)}" placeholder="Ej. tomate frito" autocomplete="off"></div><div id="bs-r"></div><button class="btn gl" data-a="${volver}">Volver</button>`);
   const i=$('#bs-q');const run=()=>{const r=$('#bs-r');if(!r)return;const w=norm(i.value).split(' ').filter(x=>x.length>1);
     const all=[...REF.values()].flat();const l=w.length?all.filter(x=>{const t=norm((x.producto||'')+' '+x.nombre);return w.every(k=>t.includes(k))}).sort((a,b)=>a.super.localeCompare(b.super)||num(a.precio)-num(b.precio)).slice(0,40):[];
     S.supRes=l;r.innerHTML=!REF.size?'<div class="small muted">Los precios de los súper todavía se están cargando.</div>':!l.length?'<div class="small muted">No sale nada con esas palabras. Prueba con una sola (ej. «tomate»).</div>'
      :`<div class="glass list-plain">${l.map((x,k)=>`<button class="opt" data-a="supPick" data-i="${k}" style="padding:8px 12px;gap:10px">${logo(x.super)}<span class="grow" style="text-align:left">${esc(x.producto||x.nombre)}<span class="tiny muted" style="display:block">${esc(x.super)}${x.formato?' · '+esc(x.formato):''}</span></span><b>${eur(x.precio)}</b></button>`).join('')}</div>`};
   i.addEventListener('input',run);run()};
-A.supPick=async d=>{const x=(S.supRes||[])[+d.i];const a=artActual();if(!x||!a)return;
+A.supPick=async d=>{const x=(S.supRes||[])[+d.i];if(!x)return;
+  if(S.webTarget==='nuevo'){rellenarNA({nombre:x.nombre,precio:{super:x.super,precio:x.precio,unidad:x.unidad||'ud',formato:x.formato||'',marca:''}});return}const a=artActual();if(!a)return;
   await apuntarPrecio({nombre:a.nombre,super:x.super,marca:'',precio:x.precio,unidad:x.unidad||'ud',formato:x.formato||''});A.editArt({id:a.id});toast(`Precio apuntado: ${eur(x.precio)} en ${x.super}`)};
 A.borrarArt=async(d,b)=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='¿Seguro? Toca otra vez';return}
   await borrarNombre(a.nombre);toast(`Borrado: ${a.nombre}. Ya no saldrá en sugerencias, habituales ni precios.`,`<button class="act" data-a="recArt" data-n="${esc(a.nombre)}">Deshacer</button>`);habSheet('')};
 let NA_FOTO='';
 function fotoPrev(v){return v?`<img src="${esc(v)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:'<span style="width:64px;height:64px;border-radius:14px;background:var(--fill);display:grid;place-items:center;font-size:26px">📷</span>'}
-A.nuevoArt=()=>{NA_FOTO='';sheet(`<div class="stk"><button class="btn gl sm" data-a="habituales">Cancelar</button><b style="text-align:center">Nuevo artículo</b><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>
+A.nuevoArt=()=>{if(!S.naDraft)S.naExtra={};NA_FOTO='';sheet(`<div class="stk"><button class="btn gl sm" data-a="habituales">Cancelar</button><b style="text-align:center">Nuevo artículo</b><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>
+  <div class="g3"><button class="btn gl sm" style="width:100%" data-a="naScan">${svg('barcode')}Código</button><button class="btn gl sm" style="width:100%" data-a="naBuscarWeb">🔎 Internet</button><button class="btn gl sm" style="width:100%" data-a="naBuscarSuper">🏪 Súper</button></div>
+  <div id="na-info"></div>
   <div class="row"><span id="na-fp">${fotoPrev('')}</span><button class="btn gl sm grow" data-a="naFoto">${svg('camera')}Hacer o subir foto</button></div><div class="g2"><div class="fld"><label for="na-n">Nombre</label><input class="inp" id="na-n" autofocus placeholder="Ej. Cápsulas de lavadora"></div><div class="fld"><label for="na-e">Emoji</label><input class="inp" id="na-e" value="📦" maxlength="4"></div></div>
   <div class="fld"><label for="na-c">Pasillo o tipo</label>${catSel('na-c','Otros')}</div>
   <div class="g2"><div class="fld"><label for="na-m">Marca preferida</label><input class="inp" id="na-m"></div><div class="fld"><label for="na-u">Unidad</label><select class="inp" id="na-u">${selOpts(UNIDADES,'ud')}</select></div></div>
   <div class="fld"><label for="na-d">Descripción</label><textarea class="inp" id="na-d" rows="3" placeholder="Ej. El de tapón azul, sin lactosa, talla 42, el que le gusta a Irene…"></textarea></div>
   <label class="row small"><input type="checkbox" id="na-l" checked> Añadirlo también a la lista</label>
-  <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="habituales">Cancelar</button><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>`)};
+  <div class="row"><span class="grow"></span><button class="btn gl sm" data-a="habituales">Cancelar</button><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>`);
+  const dr=S.naDraft;S.naDraft=null;if(dr){for(const [k,v] of Object.entries(dr.v)){const el=$('#'+k);if(!el)continue;if(el.type==='checkbox')el.checked=v;else if(el.tagName==='SELECT'){if([...el.options].some(o=>o.value===v))el.value=v}else el.value=v}
+    NA_FOTO=dr.foto||'';if(NA_FOTO){const e=$('#na-fp');if(e)e.innerHTML=fotoPrev(imgUrl(NA_FOTO)||NA_FOTO)}S.naExtra=dr.extra||{};const x=S.naExtra;const inf=[x.ean?`🔢 Código ${esc(x.ean)}`:'',x.precio?`🏷️ ${eur(x.precio.precio)} en ${esc(x.precio.super)}`:''].filter(Boolean);
+    const ni=$('#na-info');if(ni&&inf.length)ni.innerHTML=`<div class="small muted">Al guardar se apunta: ${inf.join(' · ')}</div>`}else S.naExtra={}};
+const NA_CAMPOS=['na-n','na-e','na-c','na-m','na-u','na-d','na-l'];
+function guardarBorradorNA(){const v={};NA_CAMPOS.forEach(k=>{const el=$('#'+k);if(el)v[k]=el.type==='checkbox'?el.checked:el.value});S.naDraft={v,foto:NA_FOTO,extra:{...(S.naExtra||{})}};return S.naDraft}
+function rellenarNA(x){const dr=S.naDraft||guardarBorradorNA();const v=dr.v;
+  if(x.nombre){v['na-n']=x.nombre;const i=infoArticulo(x.nombre);if(!v['na-c']||v['na-c']==='Otros')v['na-c']=i.categoria||v['na-c'];if(!v['na-e']||v['na-e']==='📦')v['na-e']=i.emoji||v['na-e'];if(i.unidad&&v['na-u']==='ud'&&!x.precio)v['na-u']=i.unidad}
+  if(x.marca&&!v['na-m'])v['na-m']=x.marca;const d=[x.generico,x.cantidad].filter(Boolean).join(' · ');if(d&&!v['na-d'])v['na-d']=d;
+  if(x.imagen&&!dr.foto)dr.foto=x.imagen;if(x.code)dr.extra.ean=x.code;if(x.precio)dr.extra.precio=x.precio;S.naDraft=dr;A.nuevoArt()}
+A.naVolver=()=>{stopScan();if(!S.naDraft)guardarBorradorNA();A.nuevoArt()};
+A.naScan=()=>{guardarBorradorNA();A.scan({p:'nuevo'})};
+A.naBuscarWeb=()=>{const dr=guardarBorradorNA();S.webTarget='nuevo';A.artBuscarWeb({q:dr.v['na-n']||''})};
+A.naBuscarSuper=()=>{const dr=guardarBorradorNA();S.webTarget='nuevo';A.artBuscarSuper({q:dr.v['na-n']||''})};
+A.naYaLista=async d=>{await addLista(d.n,{cantidad:1});closeSheet();S.naDraft=null;toast(`${d.n} añadido a la lista`)};
 A.naFoto=async()=>{const f=await elegirFoto();if(!f)return;toast('Subiendo foto…');try{const e=$('#na-fp');if(e)e.innerHTML=fotoPrev(URL.createObjectURL(f));NA_FOTO=await subirFoto(f);toast('Foto lista')}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
 A.saveNuevoArt=async()=>{const v=id=>$('#'+id).value.trim();const n=cap(v('na-n'));if(!n){toast('Escribe el nombre.');return}
   const ex=S.t.articulos.find(a=>norm(a.nombre)===norm(n));const data={nombre:n,emoji:v('na-e')||'📦',categoria:catVal('na-c'),marca:v('na-m'),unidad:v('na-u'),oculto:false};
   const desc=v('na-d');if(desc)data.descripcion=desc;if(NA_FOTO){data.imagen=NA_FOTO;if(ex&&ex.imagen)borrarFoto(ex.imagen)}
   if(ex)await upd('articulos',ex.id,{...data,veces:Math.max(0,num(ex.veces))});else await ins('articulos',{ean:'',imagen:'',...data,veces:0,ultima:nowIso(),favorito:false});NA_FOTO='';
+  const xx=S.naExtra||{};S.naExtra={};const art=S.t.articulos.find(a=>norm(a.nombre)===norm(n));
+  if(xx.ean&&art)await asociarCodigo(art,xx.ean,data.marca,'');if(xx.precio)await apuntarPrecio({nombre:n,...xx.precio});
   if($('#na-l').checked)await addLista(n,{cantidad:1,unidad:data.unidad,marca:data.marca});toast(`«${n}» guardado${$('#na-l').checked?' y añadido a la lista':''}`);habSheet('')};
 A.quitarEan=async d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;await upd('articulos',a.id,{ean:codigosTxt(codigos(a).filter(x=>x.c!==d.c))});toast('Código quitado');A.editArt({id:a.id})};
 A.fotoArt=async d=>{if(await cambiarFoto('articulos',d.id,'imagen'))A.editArt(d)};
@@ -1539,7 +1558,7 @@ A.scan=async d=>{const destino=d.p||'despensa';
   sheet(`<h2>Escanear código de barras</h2><video class="scan" id="scanv" playsinline muted></video><p class="small muted" id="scanmsg" style="margin:0">Apunta al código de barras del producto.</p>
    <button class="btn gl sm" data-a="scanFoto">📷 Hacer una foto al código (sin permiso de cámara)</button>
    <form class="row" data-f="eanManual"><input class="inp" id="eanin" inputmode="numeric" placeholder="O escribe el número"><button class="btn gl sm" type="submit">Buscar</button></form>
-   <button class="btn gl" data-a="${destino==='art'?'artVolver':'close'}">Cancelar</button>`);
+   <button class="btn gl" data-a="${destino==='art'?'artVolver':destino==='nuevo'?'naVolver':'close'}">Cancelar</button>`);
   S.scanDest=destino;const v=$('#scanv');clearTimeout(scanApagar);
   try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('sin cámara');
     const st=await camara();if(!$('#scanv'))return;v.srcObject=st;await v.play();scanActivo=true;
@@ -1559,6 +1578,11 @@ async function precioWeb(code){try{const r=await fetch(`https://prices.openfoodf
   return {precio:+num(x.price).toFixed(2),tienda:nom,cadena:cad,ciudad:loc(x).osm_address_city||'',pais:loc(x).osm_address_country_code||'',fecha:x.date||''}}catch(e){return null}}
 async function onEAN(code){stopScan();if(navigator.vibrate)navigator.vibrate(60);busy('Buscando el producto…');
   const a=artPorCodigo(code);
+  if(S.scanDest==='nuevo'){if(a){sheet(`<h2>Ya lo tenéis</h2><div class="row">${thumb(a,'lg')}<div class="grow"><b>${esc(a.nombre)}</b><span class="small muted" style="display:block">Este código ya está guardado en este artículo.</span></div></div>
+      <button class="btn pri" data-a="naYaLista" data-n="${esc(a.nombre)}">${svg('cart')}Añadirlo a la lista</button><button class="btn gl" data-a="editArtN" data-n="${esc(a.nombre)}">Ver o editar el artículo</button><button class="btn gl" data-a="naVolver">Volver</button>`);return}
+    let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=code,product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
+    const x=offDato(p)||{nombre:'',marca:'',imagen:'',cantidad:'',generico:''};x.code=code;if(x.nombre){const g=adivinarArticulo(x.nombre);if(g&&!S.t.articulos.some(z=>norm(z.nombre)===norm(g)))x.nombre=g}
+    rellenarNA(x);toast(p?`Encontrado: ${p.product_name_es||p.product_name||code}. Revisa el nombre y guarda.`:'No conozco este código: escribe el nombre y se guardará con él.');return}
   if(S.scanDest==='art'){const art=artActual();if(!art){closeSheet();return}
     let p=null;try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=code,product_name,product_name_es,generic_name_es,brands,image_front_small_url,image_front_url,quantity`);const j=await r.json();if(j.status===1)p=j.product}catch(e){}
     const x=offDato(p)||{code,nombre:'',marca:'',imagen:'',cantidad:'',generico:''};x.code=code;
