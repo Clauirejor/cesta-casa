@@ -1125,6 +1125,27 @@ A.okVaciarLista=async()=>{closeSheet();S.editLista=false;await quitarDeLista(S.t
 /* deslizar a la izquierda para quitar */
 let swX=null,swY=null,swEl=null;
 document.addEventListener('touchstart',e=>{const it=e.target.closest('.it.sw-ok');document.querySelectorAll('.it.sw').forEach(x=>{if(x!==it)x.classList.remove('sw')});if(!it){swEl=null;return}swEl=it;swX=e.touches[0].clientX;swY=e.touches[0].clientY},{passive:true});
+/* deslizar de izquierda a derecha = volver atrás (como en el iPhone) */
+const VOLVER_A=['artVolver','naVolver','vinoVolver','editArtCancel','subBack','precioBack','close'];
+let bk=null;
+function destinoAtras(){const lb=document.querySelector('.lightbox');if(lb)return {el:lb,go:()=>lb.remove()};
+  const ovs=document.querySelectorAll('.ov');const ov=ovs[ovs.length-1];
+  if(ov){const sh=ov.querySelector('.sheet');const btns=[...ov.querySelectorAll('button')];
+    const b=btns.find(x=>VOLVER_A.includes(x.dataset.a)&&x.dataset.a!=='close')||btns.find(x=>/^(volver|cancelar|cerrar)/i.test(x.textContent.trim())&&x.dataset.a)||null;
+    return {el:sh||ov,go:()=>{if(b)b.click();else closeSheet()}}}
+  const hb=document.querySelector('.hdr .back[data-a]');if(hb)return {el:document.querySelector('.screen'),go:()=>hb.click()};return null}
+document.addEventListener('touchstart',e=>{bk=null;if(e.touches.length!==1)return;const t=e.touches[0],tg=e.target;
+  if(tg.closest('.chips,.days,.azidx,.ptab,.seg,input[type=range],textarea,.it.sw,.stp,.lightbox img')&&t.clientX>32)return;
+  const d=destinoAtras();if(!d)return;bk={x:t.clientX,y:t.clientY,t:Date.now(),d,mov:false}},{passive:true});
+document.addEventListener('touchmove',e=>{if(!bk)return;const t=e.touches[0];const dx=t.clientX-bk.x,dy=t.clientY-bk.y;
+  if(!bk.mov){if(Math.abs(dy)>14&&Math.abs(dy)>Math.abs(dx)){bk=null;return}if(dx>14&&dx>Math.abs(dy)*1.6){bk.mov=true;bk.d.el.style.transition='none'}else return}
+  if(dx>0)bk.d.el.style.transform=`translateX(${Math.round(dx*.85)}px)`},{passive:true});
+document.addEventListener('touchend',e=>{if(!bk)return;const b=bk;bk=null;if(!b.mov)return;const t=e.changedTouches[0];const dx=t.clientX-b.x,dy=t.clientY-b.y;const el=b.d.el;
+  const ok=dx>Math.min(110,innerWidth*.28)||(dx>50&&Date.now()-b.t<260&&Math.abs(dy)<60);
+  el.style.transition='transform .18s ease';
+  if(ok){el.style.transform=`translateX(${innerWidth}px)`;if(swEl){swEl=null}setTimeout(()=>{el.style.transform='';el.style.transition='';b.d.go()},160)}
+  else{el.style.transform='';setTimeout(()=>{el.style.transition=''},200)}},{passive:true});
+document.addEventListener('touchcancel',()=>{if(bk&&bk.mov){bk.d.el.style.transform='';bk.d.el.style.transition=''}bk=null},{passive:true});
 document.addEventListener('touchend',e=>{if(!swEl)return;const t=e.changedTouches[0];const dx=t.clientX-swX,dy=t.clientY-swY;if(Math.abs(dy)<35){if(dx<-45)swEl.classList.add('sw');else if(dx>35)swEl.classList.remove('sw')}swEl=null},{passive:true});
 A.compraMenu=()=>sheet(`<h2>Lista de la compra</h2><div class="glass list-plain">
   <button class="opt" data-a="ticket">${svg('camera')}<span class="grow">Importar ticket</span></button>
