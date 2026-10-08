@@ -232,6 +232,8 @@ img.zoom{cursor:zoom-in}
 .azidx span.off{color:var(--muted);opacity:.35}
 .azh{scroll-margin-top:8px;margin:12px 2px 4px;font-weight:700;font-size:15px;color:var(--ink2)}
 .sheet.conidx{padding-right:30px}
+.stk{position:sticky;top:-8px;z-index:4;margin:-8px -16px 0;padding:10px 16px;display:flex;align-items:center;gap:8px;background:linear-gradient(var(--glass-strong),var(--glass-strong)),var(--bg);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-bottom:1px solid var(--sep)}
+.stk b{flex:1;font-size:17px}
 .azidx.pg{position:fixed;top:calc(env(safe-area-inset-top,0px) + 170px);bottom:calc(env(safe-area-inset-bottom,0px) + 96px);right:1px;z-index:30}
 .screen.conidx{padding-right:28px}
 .supbar{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:8px 12px;border-radius:12px;border:1px dashed var(--glass-line);background:none;color:var(--ink2);font-size:14px;text-align:left}
@@ -1116,7 +1118,7 @@ A.editArtN=async d=>{S.editDesde=d.from||null;if(!d.from&&$('#habl')){const sh=$
 function preciosArtHtml(n){const o=ofertas(n);return `<div class="fld"><label>Precios</label><div class="glass list-plain">${o.length?[...o].sort((x,y)=>x.precio-y.precio).map(x=>`<button class="opt" data-a="celda" data-n="${esc(n)}" data-s="${esc(x.super)}" data-back="art" style="padding:8px 12px;width:100%;text-align:left">${logo(x.super)}<span class="grow"><b style="font-weight:550">${esc(x.super)}</b>${x.oferta?' <span class="pill bad">🏷️ Oferta</span>':''}<span class="tiny muted" style="display:block">${esc([x.marca,x.formato,x.fecha?fmtFecha(x.fecha):''].filter(Boolean).join(' · '))}</span></span><span class="pr">${eur(x.precio)}</span><span class="small" style="color:var(--accent);margin-left:8px">Cambiar</span></button>`).join(''):'<div class="small muted" style="padding:10px 12px">Sin precios todavía.</div>'}</div>
   <button class="btn gl sm" data-a="celdaNueva" data-n="${esc(n)}" data-back="art" style="margin-top:8px">${svg('plus')}Precio en otro súper o tienda</button></div>`}
 A.editArt=d=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return;S.editArtId=a.id;
-  sheet(`${heroFoto(a)}<div class="row">${thumbSiNo(a,'lg')}<h2 class="grow">Editar artículo</h2><button class="btn gl sm" data-a="fotoArt" data-id="${a.id}">${svg('camera')}Foto</button></div>
+  sheet(`<div class="stk"><button class="btn gl sm" data-a="editArtCancel">Cancelar</button><b style="text-align:center">${esc(a.nombre)}</b><button class="btn pri sm" data-a="saveArt" data-id="${a.id}">Guardar</button></div>${heroFoto(a)}<div class="row">${thumbSiNo(a,'lg')}<h2 class="grow">Editar artículo</h2><button class="btn gl sm" data-a="fotoArt" data-id="${a.id}">${svg('camera')}Foto</button></div>
   <div class="g3"><button class="btn gl sm" style="width:100%" data-a="artScan">${svg('barcode')}Código</button><button class="btn gl sm" style="width:100%" data-a="artBuscarWeb">🔎 Internet</button><button class="btn gl sm" style="width:100%" data-a="artBuscarSuper">🏪 Súper</button></div><div class="g2"><div class="fld"><label for="a-n">Nombre</label><input class="inp" id="a-n" value="${esc(a.nombre)}"></div><div class="fld"><label for="a-e">Emoji</label><input class="inp" id="a-e" value="${esc(a.emoji)}" maxlength="4"></div></div>
   <div class="fld"><label for="a-c">Pasillo o tipo</label>${catSel('a-c',a.categoria)}</div>
   <div class="g2"><div class="fld"><label for="a-m">Marca preferida</label><input class="inp" id="a-m" value="${esc(a.marca)}"></div><div class="fld"><label for="a-u">Unidad</label><select class="inp" id="a-u">${selOpts(UNIDADES,a.unidad)}</select></div></div>
@@ -1180,7 +1182,7 @@ A.borrarArt=async(d,b)=>{const a=S.t.articulos.find(x=>x.id===d.id);if(!a)return
   await borrarNombre(a.nombre);toast(`Borrado: ${a.nombre}. Ya no saldrá en sugerencias, habituales ni precios.`,`<button class="act" data-a="recArt" data-n="${esc(a.nombre)}">Deshacer</button>`);habSheet('')};
 let NA_FOTO='';
 function fotoPrev(v){return v?`<img src="${esc(v)}" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">`:'<span style="width:64px;height:64px;border-radius:14px;background:var(--fill);display:grid;place-items:center;font-size:26px">📷</span>'}
-A.nuevoArt=()=>{NA_FOTO='';sheet(`<h2>Nuevo artículo</h2>
+A.nuevoArt=()=>{NA_FOTO='';sheet(`<div class="stk"><button class="btn gl sm" data-a="habituales">Cancelar</button><b style="text-align:center">Nuevo artículo</b><button class="btn pri sm" data-a="saveNuevoArt">Guardar</button></div>
   <div class="row"><span id="na-fp">${fotoPrev('')}</span><button class="btn gl sm grow" data-a="naFoto">${svg('camera')}Hacer o subir foto</button></div><div class="g2"><div class="fld"><label for="na-n">Nombre</label><input class="inp" id="na-n" autofocus placeholder="Ej. Cápsulas de lavadora"></div><div class="fld"><label for="na-e">Emoji</label><input class="inp" id="na-e" value="📦" maxlength="4"></div></div>
   <div class="fld"><label for="na-c">Pasillo o tipo</label>${catSel('na-c','Otros')}</div>
   <div class="g2"><div class="fld"><label for="na-m">Marca preferida</label><input class="inp" id="na-m"></div><div class="fld"><label for="na-u">Unidad</label><select class="inp" id="na-u">${selOpts(UNIDADES,'ud')}</select></div></div>
