@@ -116,7 +116,7 @@ img.zoom{cursor:zoom-in}
 .lb-x{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:20px}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .it .body{flex:1;min-width:0;background:none;border:0;padding:0;text-align:left}
-.it .nm{font-weight:550;font-size:16px;overflow-wrap:anywhere}
+.it .nm{font-weight:550;font-size:16px;overflow-wrap:break-word;word-break:normal}
 .it.done .nm{color:var(--muted);text-decoration:line-through}
 .it .mt{font-size:13px;color:var(--muted);margin-top:1px;overflow-wrap:anywhere}
 .it .mt.red{color:var(--red)}
@@ -728,7 +728,7 @@ function bindKeep(){const sb=$('#suggbox');if(sb)sb.addEventListener('pointerdow
   const q=$('#qadd');if(q){q.addEventListener('focus',()=>{S.addFocus=true;updSugg()});q.addEventListener('blur',()=>{S.addFocus=false;setTimeout(updSugg,120)})}}
 function updSugg(){const b=$('#suggbox');if(!b)return;b.innerHTML=S.addFocus||S.addQ.trim()&&document.activeElement&&document.activeElement.id==='qadd'?suggHtml():''}
 function suggHtml(){const sug=sugerencias(parseAdd(S.addQ.trim()).nombre);const q=S.addQ.trim();if(!q)return '';const inL=n=>S.t.lista.some(i=>!i.comprado&&norm(i.nombre)===norm(n));const pn=parseAdd(q).nombre;
-  return `<div class="sugg">${sug.map(s=>`<button class="opt" data-a="addSug" data-n="${esc(s.nombre)}"><span class="e">${esc(s.emoji)}</span><span class="grow">${esc(s.nombre)}<span class="tiny muted" style="display:block">${esc(s.categoria)}${s.src==='mio'?' · ya lo habéis comprado':''}</span></span>${inL(s.nombre)?'<span class="pill blue">En lista</span>':''}</button>`).join('')}${!sug.some(s=>norm(s.nombre)===norm(pn))?`<button class="opt" data-a="addSug" data-n="${esc(cap(pn))}"><span class="e">＋</span><span class="grow">Añadir «${esc(cap(pn))}»<span class="tiny muted" style="display:block">${esc(infoArticulo(pn).categoria)}</span></span></button>`:''}</div>`}
+  return `<div class="sugg">${sug.map(s=>`<button class="opt" data-a="addSug" data-n="${esc(s.nombre)}"><span class="e">${esc(s.emoji)}</span><span class="grow">${esc(s.nombre)}<span class="tiny muted" style="display:block">${esc(s.categoria)}${s.src==='mio'?' · ya lo habéis comprado':''}</span></span>${inL(s.nombre)?'<span class="pill blue">En lista</span>':''}</button>`).join('')}${!sug.some(s=>norm(s.nombre)===norm(pn))?`<button class="opt" data-a="addSug" data-n="${esc(cap(pn))}"><span class="e">＋</span><span class="grow">Añadir «${esc(cap(pn))}»<span class="tiny muted" style="display:block">${esc(infoArticulo(pn).categoria)}</span></span></button>`:''}<button class="opt" data-a="addUnaVez" data-n="${esc(cap(pn))}"><span class="e">⏱</span><span class="grow">«${esc(cap(pn))}» solo esta vez<span class="tiny muted" style="display:block">No se guarda como artículo: al marcarlo desaparece</span></span></button></div>`}
 function tabbar(){const nP=S.t.lista.filter(i=>!i.comprado).length,nC=S.t.despensa.filter(d=>{const n=diasHasta(d.caduca);return n!=null&&n<=2}).length;
   const T=[['inicio','Inicio',0],['compra','Compra',nP],['despensa','Despensa',nC],['precios','Precios',0],['mas','Más',0]];
   return `<nav class="tabbar"><div class="in">${T.map(([k,l,b])=>`<button data-a="tab" data-k="${k}" class="${S.tab===k?'on':''}" aria-current="${S.tab===k?'page':'false'}">${svg(k)}${l}${b?`<span class="bd">${b}</span>`:''}</button>`).join('')}</div></nav>`}
@@ -775,12 +775,12 @@ function vCompra(){const pend=S.t.lista.filter(i=>!i.comprado),hechos=S.t.lista.
   return {top,keep,body:habs+dondeCard()+seg+keys.map(k=>card(k,groups[k])).join('')+(pend.length?`<div class="total"><span>Estimado${sin?` · ${sin} sin precio`:''}</span><b>${eur(total)}</b></div>`:'')+(hechos.length?card('carro',hechos,true):'')}}
 function itemRow(i){if(S.editLista&&!i.comprado)return `<div class="it">${'<button class="radio" data-a="quitarItem" data-id="'+i.id+'" aria-label="Quitar '+esc(i.nombre)+'" style="background:var(--red);border-color:var(--red);color:#fff;font-weight:800">−</button>'}${thumb(i)}<button class="body" data-a="editItem" data-id="${i.id}"><div class="nm">${esc(i.nombre)}</div><div class="mt">${fmtQty(i.cantidad,i.unidad)}</div></button><button class="btn red sm" data-a="quitarItem" data-id="${i.id}">Quitar</button></div>`;
   const casa=enCasa(i.nombre).reduce((a,d)=>a+num(d.cantidad),0);const v=importe(i);
-  const mt=[fmtQty(i.cantidad,i.unidad)];if(i.marca||i.super)mt.push(esc([i.marca,i.super].filter(Boolean).join(' · ')));if(i.nota)mt.push(esc(i.nota));
+  const mt=[fmtQty(i.cantidad,i.unidad)];if(i.marca||i.super)mt.push(esc([i.marca,i.super].filter(Boolean).join(' · ')));if(esUna(i))mt.push('<span style="color:var(--accent);font-weight:600">⏱ Solo esta vez</span>');if(notaSin(i))mt.push(esc(notaSin(i)));
   if(S.listMode==='pasillo'&&i.receta)mt.push('🍽️ '+esc(i.receta));
   return `<div class="it sw-ok ${i.comprado?'done':''}" data-id="${i.id}"><button class="radio ${i.comprado?'on':''}" data-a="check" data-id="${i.id}" aria-label="${i.comprado?'Desmarcar':'Marcar'} ${esc(i.nombre)}">${i.comprado?svg('check'):''}</button>${thumb(i)}
     <button class="body" data-a="editItem" data-id="${i.id}"><div class="nm">${esc(i.nombre)}</div><div class="mt">${mt.join(' · ')}${casa&&!i.comprado?` · <span style="color:var(--orange)">en casa: ${fmtQty(casa,enCasa(i.nombre)[0].unidad)}</span>`:''}</div></button>
-    ${i.comprado?'':`<div class="stp sm"><button data-a="listaMenos" data-id="${i.id}" aria-label="Menos ${esc(i.nombre)}" ${num(i.cantidad)-pasoDe(i.unidad)<=1e-6?'style="opacity:.35"':''}>−</button><button data-a="editItem" data-id="${i.id}" class="stp-n" aria-label="Cantidad de ${esc(i.nombre)}">${+(+num(i.cantidad)||1).toFixed(2)}</button><button data-a="listaMas" data-id="${i.id}" aria-label="Más ${esc(i.nombre)}">+</button></div>`}
-    ${v?`<span class="pr">${eur(v)}</span>`:''}${i.comprado?avatar(i.comprado_por,''):''}<button class="del" data-a="quitarItem" data-id="${i.id}" tabindex="-1">Quitar</button></div>`}
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">${i.comprado?'':`<div class="stp sm"><button data-a="listaMenos" data-id="${i.id}" aria-label="Menos ${esc(i.nombre)}" ${num(i.cantidad)-pasoDe(i.unidad)<=1e-6?'style="opacity:.35"':''}>−</button><button data-a="editItem" data-id="${i.id}" class="stp-n" aria-label="Cantidad de ${esc(i.nombre)}">${+(+num(i.cantidad)||1).toFixed(2)}</button><button data-a="listaMas" data-id="${i.id}" aria-label="Más ${esc(i.nombre)}">+</button></div>`}
+    ${v?`<span class="pr" style="${i.comprado?'':'font-size:14px'}">${eur(v)}</span>`:''}</div>${i.comprado?avatar(i.comprado_por,''):''}<button class="del" data-a="quitarItem" data-id="${i.id}" tabindex="-1">Quitar</button></div>`}
 A.listaMas=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(i)await upd('lista',i.id,{cantidad:+((num(i.cantidad)||0)+pasoDe(i.unidad)).toFixed(3)})};
 A.listaMenos=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;const c=+((num(i.cantidad)||1)-pasoDe(i.unidad)).toFixed(3);if(c<=1e-6){toast('Para quitarlo de la lista, desliza a la izquierda o usa «Editar».');return}await upd('lista',i.id,{cantidad:c})};
 
@@ -975,6 +975,9 @@ document.addEventListener('input',e=>{const w=e.target;if(!w.classList||!w.class
   if(!n){if(o)o.remove();sel.value='Otro';return}
   if(!o){o=document.createElement('option');o.dataset.custom='1';sel.appendChild(o)}o.value=n;o.textContent=n;sel.value=n});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.querySelector('.ov'))closeSheet();else if(S.addQ){limpiarAdd()}}});
+const UNA='[una vez]';const esUna=i=>String(i&&i.nota||'').includes(UNA);const notaSin=i=>String(i&&i.nota||'').replace(UNA,'').trim();
+A.addUnaVez=async d=>{const p=parseAdd(S.addQ.trim());const n=cap(d.n||p.nombre);limpiarAdd();if(!n)return;
+  await addLista(n,{cantidad:p.cantidad,unidad:p.unidad,nota:UNA,sinTocar:true,comprado:enSuper()});toast(`⏱ ${n}: solo esta vez. Al marcarlo desaparece.`)};
 function limpiarAdd(){S.addQ='';const q=$('#qadd');if(q)q.value='';updSugg()}
 
 A.tab=d=>{S.tab=d.k;S.sub=null;S.precioDet=null;S.addQ='';S.addFocus=false;lsSet('cc-tab',d.k);closeSheet();render();window.scrollTo(0,0)};
@@ -1026,7 +1029,9 @@ A.fotoArtN=async d=>{const f=await elegirFoto();if(!f)return;
   if(!a){const i=infoArticulo(d.n);[a]=await ins('articulos',{nombre:cap(d.n),categoria:i.categoria||'Otros',emoji:i.emoji||'📦',unidad:i.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}
   toast('Subiendo foto…');try{const v=await subirFoto(f);const viejo=a.imagen;await upd('articulos',a.id,{imagen:v});borrarFoto(viejo);toast(`Foto guardada: ${a.nombre}`);
     if(document.querySelector('[data-a=qGuardar]'))A.despCant({n:a.nombre})}catch(e){toast('No se pudo subir la foto: '+(e.message||e))}};
-A.check=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;await upd('lista',i.id,i.comprado?{comprado:false,comprado_por:null,comprado_at:null}:{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()})};
+A.check=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;
+  if(esUna(i)&&!i.comprado){S.unaUndo={...i};await rem('lista',i.id);await ins('eventos',{tipo:'comprado',nombre:i.nombre,emoji:i.emoji,super:i.super||'',marca:i.marca||'',precio:+importe(i).toFixed(2),cantidad:num(i.cantidad)||1,unidad:i.unidad,por:S.me.id});
+    toast(`✅ ${i.nombre}: hecho`,`<button class="act" data-a="deshacerUna">Deshacer</button>`);return}await upd('lista',i.id,i.comprado?{comprado:false,comprado_por:null,comprado_at:null}:{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()})};
 A.marcarTodo=async()=>{const p=S.t.lista.filter(i=>!i.comprado);for(const i of p)upd('lista',i.id,{comprado:true,comprado_por:S.me.id,comprado_at:nowIso()})};
 A.fotoItem=async d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;let a=S.t.articulos.find(x=>norm(x.nombre)===norm(i.nombre));if(!a){const inf=infoArticulo(i.nombre);[a]=await ins('articulos',{nombre:cap(i.nombre),categoria:inf.categoria,emoji:inf.emoji,unidad:inf.unidad||'ud',marca:'',ean:'',imagen:'',veces:0,ultima:nowIso(),oculto:false,favorito:false})}if(await cambiarFoto('articulos',a.id,'imagen'))A.editItem(d)};
 A.editItem=d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;const o=ofertas(i.nombre);
@@ -1035,17 +1040,19 @@ A.editItem=d=>{const i=S.t.lista.find(x=>x.id===d.id);if(!i)return;const o=ofert
   <div class="g2"><div class="fld"><label for="e-c">Cantidad</label><input class="inp" id="e-c" type="number" inputmode="decimal" step="any" value="${esc(i.cantidad)}"></div><div class="fld"><label for="e-u">Unidad</label><select class="inp" id="e-u">${selOpts(UNIDADES,i.unidad)}</select></div></div>
   <div class="g2"><div class="fld"><label for="e-s">Súper</label><select class="inp" id="e-s">${selOpts(SUP(),i.super,'Cualquiera')}</select></div><div class="fld"><label for="e-m">Marca</label><input class="inp" id="e-m" value="${esc(i.marca)}" placeholder="Hacendado…"></div></div>
   <div class="g2"><div class="fld"><label for="e-p">Precio (€)</label><input class="inp" id="e-p" type="number" inputmode="decimal" step="0.01" value="${num(i.precio)||''}" placeholder="${precioDe(i)?String(precioDe(i)).replace('.',','):'0,00'}"></div><div class="fld"><label for="e-cat">Pasillo</label>${catSel('e-cat',i.categoria)}</div></div>
-  <div class="fld"><label for="e-n">Nota</label><input class="inp" id="e-n" value="${esc(i.nota)}" placeholder="Talla, tamaño, para quién…"></div>
+  <div class="fld"><label for="e-n">Nota</label><input class="inp" id="e-n" value="${esc(notaSin(i))}" placeholder="Talla, tamaño, para quién…"></div>
+  <label class="glass pad row small" style="gap:10px;cursor:pointer"><input type="checkbox" id="e-una" ${esUna(i)?'checked':''} style="width:22px;height:22px"><span class="grow"><b>⏱ Solo esta vez</b><span class="tiny muted" style="display:block">Como una tarea: al marcarlo desaparece de la lista y no va a la despensa.</span></span></label>
   <div class="row"><button class="btn red sm" data-a="delItem" data-id="${i.id}">Quitar</button><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn pri sm" data-a="saveItem" data-id="${i.id}">Guardar</button></div>`)};
 A.pickOffer=d=>{$('#e-s').value=d.s;$('#e-m').value=d.m;$('#e-p').value=d.p};
 A.saveItem=async d=>{const v=id=>$('#'+id).value;const cat=catVal('e-cat');const i=S.t.lista.find(x=>x.id===d.id);
-  await upd('lista',d.id,{cantidad:num(v('e-c'))||1,unidad:v('e-u'),super:v('e-s'),marca:v('e-m').trim(),precio:num(v('e-p')),categoria:cat,nota:v('e-n').trim()});
+  await upd('lista',d.id,{cantidad:num(v('e-c'))||1,unidad:v('e-u'),super:v('e-s'),marca:v('e-m').trim(),precio:num(v('e-p')),categoria:cat,nota:(($('#e-una')||{}).checked?UNA+' ':'')+v('e-n').trim()});
   const a=i&&S.t.articulos.find(x=>norm(x.nombre)===norm(i.nombre));if(a&&a.categoria!==cat)upd('articulos',a.id,{categoria:cat});closeSheet()};
 A.delItem=async d=>{closeSheet();await quitarDeLista([d.id])};
 A.quitarItem=async d=>{await quitarDeLista([d.id])};
 let QUITADOS=[];
 async function quitarDeLista(ids){const rows=S.t.lista.filter(i=>ids.includes(i.id));if(!rows.length)return;rows.filter(r=>!r.comprado).forEach(r=>avisoLista('quit',r.nombre));QUITADOS=rows.map(r=>({...r}));await rem('lista',ids);
   toast(rows.length===1?`Quitado de la lista: ${rows[0].nombre}`:`${rows.length} productos quitados de la lista`,`<button class="act" data-a="deshacerQuitar">Deshacer</button>`)}
+A.deshacerUna=async()=>{const r=S.unaUndo;S.unaUndo=null;if(!r)return;const {id,hogar_id,...x}=r;await ins('lista',x);const ev=S.t.eventos.filter(e=>e.tipo==='comprado'&&e.nombre===r.nombre).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)))[0];if(ev)await rem('eventos',ev.id);toast('Vuelve a estar en la lista')};
 A.deshacerQuitar=async()=>{const r=QUITADOS;QUITADOS=[];if(!r.length)return;await ins('lista',r.map(({id,hogar_id,...x})=>x));toast('Recuperado')};
 A.editLista=()=>{S.editLista=!S.editLista;paint()};
 A.vaciarLista=()=>sheet(`<h2>¿Vaciar la lista?</h2><p class="small muted" style="margin:0">Se quitan todos los productos pendientes. Podrás deshacerlo justo después.</p><div class="row"><span class="grow"></span><button class="btn gl sm" data-a="close">Cancelar</button><button class="btn red sm" data-a="okVaciarLista">Vaciar</button></div>`);
@@ -1237,15 +1244,15 @@ A.guardarCompra=()=>{const h=S.t.lista.filter(i=>i.comprado);
   sheet(`<h2>Guardar compra</h2><p class="small muted" style="margin:0">Todo lo marcado va a la despensa. Elige <b>dónde va</b> cada cosa (se recuerda para la próxima vez) y, si quieres, la caducidad. <b>Desmarca</b> lo que no vaya a guardarse en casa.</p>${S.lugaresOk?'':'<span class="tiny" style="color:var(--orange)">Para elegir el sitio de cada cosa falta un paso en Supabase (actualización 7).</span>'}
   <div class="g2"><div class="fld"><label for="gc-s">Súper</label><select class="inp" id="gc-s">${selOpts(SUP(),h.find(i=>i.super)?.super||'','Varios')}</select></div><div class="fld"><label>&nbsp;</label><span class="small muted" style="padding-top:12px">${h.length} productos</span></div></div>
   <div class="row small" style="gap:12px"><button class="link small" data-a="gcTodos" data-v="1">Marcar todo</button><button class="link small" data-a="gcTodos" data-v="0">Desmarcar todo</button></div>
-  <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:flex-start"><input type="checkbox" class="gc-chk" data-id="${i.id}" checked style="width:24px;height:24px;flex:none;margin-top:2px" aria-label="${esc(i.nombre)} a la despensa">
-    <div class="grow" style="min-width:0"><span>${esc(i.emoji)} ${esc(i.nombre)}</span><span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${enCasa(i.nombre).length?' · se suma a lo que hay':''}</span>${sitio(i)}</div></div>`).join('')}</div>
+  <div class="glass list-plain">${h.map(i=>`<div class="opt" style="padding:8px 12px;gap:10px;align-items:flex-start"><input type="checkbox" class="gc-chk" data-id="${i.id}" ${esUna(i)?'':'checked'} style="width:24px;height:24px;flex:none;margin-top:2px" aria-label="${esc(i.nombre)} a la despensa">
+    <div class="grow" style="min-width:0"><span>${esc(i.emoji)} ${esc(i.nombre)}</span><span class="tiny muted" style="display:block">${fmtQty(i.cantidad,i.unidad)}${esUna(i)?' · ⏱ solo esta vez':enCasa(i.nombre).length?' · se suma a lo que hay':''}</span>${sitio(i)}</div></div>`).join('')}</div>
   <button class="btn pri" data-a="confirmCompra">Guardar</button><button class="btn gl" data-a="close">Cancelar</button>`)};
 A.gcTodos=d=>{document.querySelectorAll('.gc-chk').forEach(c=>c.checked=d.v==='1')};
 A.confirmCompra=async()=>{const h=S.t.lista.filter(i=>i.comprado);const b=$('[data-a=confirmCompra]');b.disabled=true;b.innerHTML='<span class="spin"></span> Guardando';
   const supG=$('#gc-s').value;const desp=[],precs=[],evs=[];
   for(const i of h){const sup=i.super||supG||'';const valor=+importe(i).toFixed(2);const lgi=S.lugaresOk?lugarSel('g'+i.id):'';
     const chk=document.querySelector(`.gc-chk[data-id="${i.id}"]`);if(chk?chk.checked:true)desp.push({nombre:i.nombre,emoji:i.emoji,categoria:i.categoria,cantidad:num(i.cantidad)||1,unidad:i.unidad,caduca:($('#cd-'+i.id)||{}).value||null,super:sup,marca:i.marca||'',precio:valor,por:i.comprado_por||S.me.id,_lug:lgi});
-    if(num(i.precio)>0&&sup)precs.push({nombre:i.nombre,super:sup,marca:i.marca||'',precio:num(i.precio),unidad:i.unidad==='kg'||i.unidad==='l'?i.unidad:'ud',fecha:hoy(),por:S.me.id});
+    if(num(i.precio)>0&&sup&&!esUna(i))precs.push({nombre:i.nombre,super:sup,marca:i.marca||'',precio:num(i.precio),unidad:i.unidad==='kg'||i.unidad==='l'?i.unidad:'ud',fecha:hoy(),por:S.me.id});
     evs.push({tipo:'comprado',nombre:i.nombre,emoji:i.emoji,super:sup,marca:i.marca||'',precio:valor,cantidad:num(i.cantidad)||1,unidad:i.unidad,por:i.comprado_por||S.me.id})}
   const nuevos=[];for(const x0 of desp){const {_lug:lug,...x}=x0;const u=x.unidad||'ud';const ex=enCasa(x.nombre).find(y=>(y.unidad||'ud')===u||(esCuenta(y.unidad)&&esCuenta(u)));
     if(lug){await asegurarLugar(lug);await recordarLugar(x.nombre,lug)}
